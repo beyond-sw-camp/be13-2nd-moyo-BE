@@ -14,17 +14,13 @@ import lombok.NoArgsConstructor;
                 @UniqueConstraint(name = "unique_retrospective",
                                   columnNames = {"user_no", "project_no", "feedbackType"})
         })
-public class FeedBack {
+public class FeedBack extends BaseEntity{
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long no;
 
     @Column(nullable = false)
     private String content;
-
-    @Embedded
-    private TimePeriod timePeriod;
 
     //팀원이 썼는지는 서비스 로직에서 체크
     @ManyToOne(fetch = FetchType.LAZY)

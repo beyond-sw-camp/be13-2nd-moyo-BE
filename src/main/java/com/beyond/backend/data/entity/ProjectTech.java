@@ -1,7 +1,5 @@
 package com.beyond.backend.data.entity;
 
-import com.beyond.backend.data.entity.Project;
-import com.beyond.backend.data.entity.Tech;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -29,10 +27,10 @@ public class ProjectTech {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_no", referencedColumnName = "no", nullable = false)
+    @JoinColumn(name = "project_no", nullable = false)
     private Project project;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tech_no", referencedColumnName = "no", nullable = false)
+    @JoinColumn(name = "tech_no", nullable = false)
     private Tech tech;
 }

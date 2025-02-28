@@ -1,5 +1,12 @@
 package com.beyond.backend.data.dto;
 
+import java.util.List;
+
+import com.beyond.backend.data.entity.ProjectStatus;
+import com.beyond.backend.data.entity.ProjectTech;
+import com.beyond.backend.data.entity.ProjectType;
+import com.beyond.backend.data.entity.Team;
+
 import lombok.*;
 
 /**
@@ -32,5 +39,14 @@ public class ProjectDto {
 
     private String content;
 
-    private int userCount;
+    private Team team;
+
+    private String projectPurpose;
+
+    private String projectSubject;
+
+    private ProjectStatus projectStatus;
+
+    // tech 수정 안돼!!!!!!!!!!!!!!!!!!!!!!!!! 왜냐면 담당자가 없어용 ~~
+    // private List<ProjectTech> projectTeches;
 }

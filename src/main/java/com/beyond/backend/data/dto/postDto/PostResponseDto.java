@@ -2,6 +2,7 @@ package com.beyond.backend.data.dto.postDto;
 
 import com.beyond.backend.data.entity.Post;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,7 +32,7 @@ import lombok.ToString;
 @AllArgsConstructor
 public class PostResponseDto {
 
-    private Long id;
+    private Long postNo;
     private String title;
     private String content;
     private String userName;
@@ -39,15 +40,13 @@ public class PostResponseDto {
     private String updatedAt;
 
 
+    @Builder
     public PostResponseDto(Post post) {
-        this.id = post.getNo();
+        this.postNo = post.getNo();
         this.title = post.getPostTitle();
         this.content = post.getPostContent();
         this.userName = post.getUser().getUsername();
-        this.createdAt = post.getTimePeriod().getCreatedAt().toString();
-        this.updatedAt = post.getTimePeriod().getUpdatedAt() != null
-                ? post.getTimePeriod().getUpdatedAt().toString()
-                : null;
     }
+
 
 }

@@ -15,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "teams")
-public class Team {
+public class Team extends BaseEntity{
 
     @Id
     @GeneratedValue
@@ -30,20 +30,19 @@ public class Team {
     @Enumerated(EnumType.STRING)
     private ProjectStatus projectStatus;
 
-    @Enumerated(EnumType.STRING)
-    private TimePeriod timePeriod;
     
     // [홍재민] 25-02-20 팀-유저 중간테이블 cascade 설정
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TeamUser> teamUsers = new ArrayList<>();
 
-    // @OneToOne(mappedBy = "team")
-    // private Project project;
+    // [홍도현] 25-02-26 팀-프로젝트 관계 수정
+    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Project> projects = new ArrayList<>();
 
-    public void updateTeamDetails(String teamName, String teamIntroduce, ProjectStatus projectStatus, TimePeriod timePeriod) {
+    public void updateTeamDetails(String teamName, String teamIntroduce, ProjectStatus projectStatus) {
         this.teamName = teamName;
         this.teamIntroduce = teamIntroduce;
         this.projectStatus = projectStatus;
-        this.timePeriod = timePeriod;
+
     }
 }
