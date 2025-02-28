@@ -34,4 +34,6 @@ public class PostDto {
 
     @NotNull(message = "게시판 타입을 지정해야 합니다.")
     private BoardType boardType;
+
+    private Long userNo;
 }

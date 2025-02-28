@@ -2,9 +2,12 @@ package com.beyond.backend.controller;
 
 import com.beyond.backend.data.dto.postDto.PostResponseDto;
 import com.beyond.backend.data.entity.BoardType;
+import com.beyond.backend.data.entity.SearchOption;
 import com.beyond.backend.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.web.PageableDefault;
@@ -44,8 +47,8 @@ public class PostController {
     @GetMapping
     public ResponseEntity<?> getPosts(
             @RequestParam BoardType boardType,
-            @PageableDefault(size = 10)Pageable pageable) {
-        Slice<PostResponseDto> result = postService.getPosts(boardType, pageable);
+            @PageableDefault(size = 10, page= 0)Pageable pageable) {
+        Page<PostResponseDto> result = postService.getPosts(boardType, pageable);
         if (result.isEmpty()) {
             return ResponseEntity.ok("게시글이 존재하지 않습니다.");
         }
@@ -56,9 +59,10 @@ public class PostController {
     @GetMapping("/search")
     public ResponseEntity<?> searchPosts(
             @RequestParam BoardType boardType,
-            @RequestParam(required = false) String keyword,
-            @PageableDefault(size = 10)Pageable pageable) {
-        Slice<PostResponseDto> result = postService.searchPosts(boardType, keyword, pageable);
+            @RequestParam(required = false) SearchOption option,
+            @RequestParam String keyword,
+            @PageableDefault(size = 10, page= 0)Pageable pageable) {
+        Page<PostResponseDto> result = postService.searchPosts(boardType, option, keyword, pageable);
         if (result.isEmpty()) {
             return ResponseEntity.ok("게시글이 존재하지 않습니다.");
         }
@@ -74,4 +78,7 @@ public class PostController {
         }
         return ResponseEntity.ok(post);
     }
+
+
+
 }

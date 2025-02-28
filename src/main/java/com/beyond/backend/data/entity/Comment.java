@@ -7,11 +7,10 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Entity
-@NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @ToString
-public class Comment {
+public class Comment extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,8 +19,6 @@ public class Comment {
     @Column(nullable = false)
     private String content;
 
-    @Embedded
-    private TimePeriod period;
 
     @Enumerated(EnumType.STRING)
     private Status status;
@@ -33,4 +30,8 @@ public class Comment {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_no", nullable = false)
     private Post post;
+
+    protected Comment(){
+
+    }
 }

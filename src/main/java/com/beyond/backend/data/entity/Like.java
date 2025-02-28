@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "likes", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"post_no", "user_no"})
@@ -27,4 +26,8 @@ public class Like {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_no", nullable = false)
     private User user;
+
+    protected Like(){
+
+    }
 }

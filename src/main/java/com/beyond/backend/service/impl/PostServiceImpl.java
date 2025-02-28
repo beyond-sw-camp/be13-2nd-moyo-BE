@@ -3,10 +3,13 @@ package com.beyond.backend.service.impl;
 import com.beyond.backend.data.dto.postDto.PostResponseDto;
 import com.beyond.backend.data.entity.BoardType;
 import com.beyond.backend.data.entity.Post;
+import com.beyond.backend.data.entity.SearchOption;
 import com.beyond.backend.data.repository.PostRepository;
 import com.beyond.backend.data.repository.PostRepositoryCustom;
 import com.beyond.backend.service.PostService;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -39,13 +42,13 @@ public class PostServiceImpl implements PostService {
     private final PostRepositoryCustom postRepositoryCustom;
 
     @Override
-    public Slice<PostResponseDto> getPosts(BoardType boardType, Pageable pageable) {
+    public Page<PostResponseDto> getPosts(BoardType boardType, Pageable pageable) {
         return postRepositoryCustom.getPostsByBoardType(boardType, pageable);
     }
 
     @Override
-    public Slice<PostResponseDto> searchPosts(BoardType boardType, String keyword, Pageable pageable) {
-        return postRepositoryCustom.searchPosts(boardType, keyword, pageable);
+    public Page<PostResponseDto> searchPosts(BoardType boardType, SearchOption option, String keyword, Pageable pageable) {
+        return postRepositoryCustom.searchPosts(boardType, option, keyword, pageable);
     }
 
     @Override

@@ -1,22 +1,20 @@
 package com.beyond.backend.data.dto;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.beyond.backend.data.entity.FeedBack;
+import com.beyond.backend.data.entity.Project;
 import com.beyond.backend.data.entity.ProjectStatus;
 import com.beyond.backend.data.entity.ProjectTech;
 import com.beyond.backend.data.entity.ProjectType;
-import com.beyond.backend.data.entity.Team;
-import com.beyond.backend.data.entity.TimePeriod;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * <p>
@@ -43,10 +41,9 @@ import java.util.List;
 @ToString
 @EqualsAndHashCode
 @NoArgsConstructor
-@AllArgsConstructor
 public class ProjectResponseDto {
 
-    private Long id;
+    private Long no;
 
     private String name;
 
@@ -56,13 +53,15 @@ public class ProjectResponseDto {
 
     private ProjectStatus projectStatus;
 
-    private ProjectType projectType;
-
-    private List<FeedBack> feedBacks = new ArrayList<>();
-
-    private List<ProjectTech> projectTeches;
-
     private Long teamNo;
 
-    private TimePeriod timePeriod;
+
+    public ProjectResponseDto(Project project) {
+        this.no = project.getNo();
+        this.name = project.getName();
+        this.projectPurpose = project.getProjectPurpose();
+        this.projectSubject = project.getProjectSubject();
+        this.projectStatus = project.getProjectStatus();
+        this.teamNo = project.getTeam().getNo();
+    }
 }

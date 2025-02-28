@@ -31,11 +31,22 @@ import java.util.List;
 
 public interface ProjectService {
 
+    // 프로젝트 생성
     ProjectResponseDto createProject(ProjectDto projectDto);
 
-    ProjectResponseDto updateProject(Long id, String name, String content, int userCount) throws Exception;
+    // 프로젝트 수정
+    ProjectResponseDto updateProject(Long projectNo, Long teamNo, ProjectDto projectDto);
 
-    void deleteProject(Long id) throws Exception;
+    // 프로젝트 id로 단건 조회
+    ProjectResponseDto getProject(Long projectNo);
 
+    // 프로젝트 삭제
+    void deleteProject(Long id);
+
+    // 팀 별 프로젝트 조회 !
     Page<ProjectResponseDto> getProjectsByTeamNo(Long teamNo, Pageable pageable);
+
+    // 유저가 참여한 모든 프로젝트 조회
+    // List<ProjectResponseDto> getProjectsByUserNo(Long userNo);
+
 }

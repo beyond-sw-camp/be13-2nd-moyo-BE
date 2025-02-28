@@ -6,9 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
+@AllArgsConstructor
 public class BookMark {
 
     @EmbeddedId
@@ -21,4 +20,10 @@ public class BookMark {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_no", insertable = false, updatable = false)
     private User user;
+
+    protected BookMark(){
+
+    }
+
+
 }
