@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/message")
 @RequiredArgsConstructor
 public class MessageController {
     private final MessageService messageService;
@@ -28,14 +27,15 @@ public class MessageController {
 //        return ResponseEntity.status(HttpStatus.OK).body(messageResponseDto);
 //    }
     @Operation(summary = "쪽지 단일 조회", description = "쪽지를 조회합니다.")
-    @GetMapping("/read")
+    @GetMapping("/messages")
     public ResponseEntity<MessageResponseDto> getMessage(@RequestParam Long userNo, @RequestParam Long messageNo) {
         MessageResponseDto messageResponseDto = messageService.getMessage(userNo, messageNo);
 
         return ResponseEntity.status(HttpStatus.OK).body(messageResponseDto);
     }
 
-    @PostMapping("/write")
+    @Operation(summary = "쪽지 전송", description = "쪽지를 전송(저장)합니다")
+    @PostMapping("/messages")
     public ResponseEntity<MessageResponseDto> sendMessage(@RequestBody MessageDto messageDto) {
         MessageResponseDto messageResponseDto = messageService.messageWrite(messageDto);
 
@@ -43,7 +43,7 @@ public class MessageController {
     }
 
     @Operation(summary = "보낸 쪽지 등록순", description = "보낸 쪽지를 등록순으로 조회합니다")
-    @GetMapping("/sent/{userNo}/order")
+    @GetMapping("/messages/sent/{userNo}/order") // ?sort=order
     public ResponseEntity<List<MessageResponseDto>> getSentMessageByOrder(@PathVariable Long userNo) { // User 객체로 바꾸기
         User user = getUserByNo(userNo);
         List<MessageResponseDto> messageResponseDto = messageService.getSentMessagesByOrder(user.getNo());
@@ -52,7 +52,7 @@ public class MessageController {
     }
 
     @Operation(summary = "받은 쪽지 등록순", description = "받은 쪽지를 등록순으로 조회합니다.")
-    @GetMapping("/received/{userNo}/order")
+    @GetMapping("/messages/received/{userNo}/order")
     public ResponseEntity<List<MessageResponseDto>> getReceivedMessageByOrder(@PathVariable Long userNo) {
         User user = getUserByNo(userNo);
         List<MessageResponseDto> messageResponseDto = messageService.getReceivedMessagesByOrder(user.getNo());
@@ -61,7 +61,7 @@ public class MessageController {
     } // try catch 로..?
 
     @Operation(summary = "보낸 쪽지 최신순", description = "보낸 쪽지를 최신순으로 조회합니다.")
-    @GetMapping("/sent/{userNo}/latest")
+    @GetMapping("/messages/sent/{userNo}/latest")
     public ResponseEntity<List<MessageResponseDto>> getSentMessageByLatest(@PathVariable Long userNo) { // User 객체로 바꾸기
         User user = getUserByNo(userNo);
         List<MessageResponseDto> messageResponseDto = messageService.getSentMessagesByLatest(user.getNo());
@@ -70,7 +70,7 @@ public class MessageController {
     }
 
     @Operation(summary = "받은 쪽지 최신순", description = "받은 쪽지를 최신순으로 조회합니다.")
-    @GetMapping("/received/{userNo}/latest")
+    @GetMapping("/messages/received/{userNo}/latest")
     public ResponseEntity<List<MessageResponseDto>> getReceivedMessageByLatest(@PathVariable Long userNo) {
         User user = getUserByNo(userNo);
         List<MessageResponseDto> messageResponseDto = messageService.getReceivedMessagesByLatest(user.getNo());
@@ -111,7 +111,7 @@ public class MessageController {
     */
 
     @Operation(summary = "쪽지 삭제", description = "쪽지를 삭제합니다.")
-    @DeleteMapping("/delete")
+    @DeleteMapping("/messages")
     public ResponseEntity<MessageResponseDto> deleteMessage
             (@RequestParam Long userNo, @RequestParam Long messageNo) {
         getUserByNo(userNo);
@@ -124,6 +124,15 @@ public class MessageController {
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 
+    @Operation(summary = "안 읽은 쪽지 개수", description = "안 읽은 쪽지 개수를 확인합니다")
+    @GetMapping("/messages-unread")
+    public ResponseEntity<Long> getUnreadMessage(@RequestParam Long userNo) {
+        if (getUserByNo(userNo) == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        long unreadCount = messageService.getUnreadMessageCount(userNo);
+        return ResponseEntity.ok(unreadCount);
+    }
 
 //    @DeleteMapping("/delete")
 //    public ResponseEntity<String> deleteMessage(Long id) throws Exception {

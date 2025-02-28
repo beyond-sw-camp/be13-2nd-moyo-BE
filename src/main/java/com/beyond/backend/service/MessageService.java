@@ -40,5 +40,7 @@ public interface MessageService {
 
     Object deleteMessage(Long userNo, Long messageNo);
 
+    long getUnreadMessageCount(Long userNo);
+
     // 3,4,5,6 얘네 나중에 시큐리티? 되면 User 객체로..
 }

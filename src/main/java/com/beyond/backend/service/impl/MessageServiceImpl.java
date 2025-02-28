@@ -201,4 +201,8 @@ public class MessageServiceImpl implements MessageService {
         }
 
     }
+
+    public long getUnreadMessageCount(Long userNo) {
+        return messageRepository.countByReceiverNoAndIsReadFalse(userNo);
+    }
 }

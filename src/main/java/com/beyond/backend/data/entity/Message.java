@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 @Table(name = "messages")
-public class Message extends BaseEntity{
+public class Message extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,7 +46,7 @@ public class Message extends BaseEntity{
     @Column(nullable = false)
     private boolean deletedByReceiver;
 
-    @Column(nullable = false)
+    @Column(name = "is_read", nullable = false)
     private boolean isRead = false;
 
     public void deleteBySender() {
@@ -64,4 +64,6 @@ public class Message extends BaseEntity{
     public void markAsRead() {
         this.isRead = true;
     } // 읽음 안읽음
+
+
 }
