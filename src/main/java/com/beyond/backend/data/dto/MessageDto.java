@@ -25,9 +25,8 @@ DATE              AUTHOR             NOTE
 @NoArgsConstructor
 @AllArgsConstructor
 public class MessageDto {
-
-    private String sender;
-    private String receiver;
+    private Long senderNo;
+    private Long receiverNo;
 
     private String content;
     private LocalDateTime sendAt;

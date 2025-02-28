@@ -22,7 +22,7 @@ public class Message {
 
     @Column(nullable = false)
     private LocalDateTime sentAt = LocalDateTime.now();
-  
+
     @PrePersist
     protected void onCreate() {
         this.sentAt = (this.sentAt == null) ? LocalDateTime.now() : this.sentAt;
