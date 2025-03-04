@@ -15,7 +15,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "users", uniqueConstraints = {@UniqueConstraint(columnNames = "username")})
-public class User extends BaseEntity{
+public class User extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,7 +36,7 @@ public class User extends BaseEntity{
     private String phoneNum;
 
     @Builder
-    public User(String username, String name, String password, String phoneNum, String address, String email, Status status ) {
+    public User(String username, String name, String password, String phoneNum, String address, String email, Status status) {
         this.username = username;
         this.name = name;
         this.password = password;
@@ -85,6 +85,12 @@ public class User extends BaseEntity{
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BookMark> bookmarks;
 
+    // 신고
+    @OneToMany(mappedBy = "reporter", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ReportUser> reportsMade = new HashSet<>();
+
+    @OneToMany(mappedBy = "reported", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ReportUser> reportsReceived = new HashSet<>();
 
     // @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     // private Set<Post> posts = new HashSet<>();

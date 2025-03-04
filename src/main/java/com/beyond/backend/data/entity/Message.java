@@ -6,8 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,14 +17,6 @@ public class Message extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long no;
-
-    @Column(nullable = false)
-    private LocalDateTime sentAt = LocalDateTime.now();
-
-    @PrePersist
-    protected void onCreate() {
-        this.sentAt = (this.sentAt == null) ? LocalDateTime.now() : this.sentAt;
-    }
 
     @Lob
     @Column(nullable = false)

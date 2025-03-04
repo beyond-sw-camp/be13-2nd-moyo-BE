@@ -6,12 +6,14 @@ import com.beyond.backend.data.entity.User;
 import com.beyond.backend.data.repository.UserRepository;
 import com.beyond.backend.service.MessageService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,6 +28,10 @@ public class MessageController {
 //
 //        return ResponseEntity.status(HttpStatus.OK).body(messageResponseDto);
 //    }
+
+    /**
+     * 쪽지 단일 조회
+     */
     @Operation(summary = "쪽지 단일 조회", description = "쪽지를 조회합니다.")
     @GetMapping("/messages")
     public ResponseEntity<MessageResponseDto> getMessage(@RequestParam Long userNo, @RequestParam Long messageNo) {
@@ -34,6 +40,9 @@ public class MessageController {
         return ResponseEntity.status(HttpStatus.OK).body(messageResponseDto);
     }
 
+    /**
+     * 쪽지 전송
+     */
     @Operation(summary = "쪽지 전송", description = "쪽지를 전송(저장)합니다")
     @PostMapping("/messages")
     public ResponseEntity<MessageResponseDto> sendMessage(@RequestBody MessageDto messageDto) {
@@ -42,42 +51,95 @@ public class MessageController {
         return ResponseEntity.status(HttpStatus.OK).body(messageResponseDto);
     }
 
-    @Operation(summary = "보낸 쪽지 등록순", description = "보낸 쪽지를 등록순으로 조회합니다")
-    @GetMapping("/messages/sent/{userNo}/order") // ?sort=order
-    public ResponseEntity<List<MessageResponseDto>> getSentMessageByOrder(@PathVariable Long userNo) { // User 객체로 바꾸기
+    //
+
+
+    /**
+     * 쪽지 조회 리스트
+     */
+    @Operation(summary = "쪽지리스트")
+    @GetMapping("/messages/{type}/{userNo}")
+    public ResponseEntity<Page<MessageResponseDto>> getMessages(
+            @PathVariable Long userNo,
+            @Parameter(name = "type", description = "보낸/받은 쪽지리스트 (sent/received)", example = "sent") @PathVariable String type,
+            @PageableDefault(size = 10, page = 0, sort = "no") Pageable pageable) {
+
         User user = getUserByNo(userNo);
-        List<MessageResponseDto> messageResponseDto = messageService.getSentMessagesByOrder(user.getNo());
+        Page<MessageResponseDto> messageResponseDto;
+
+        if ("sent".equalsIgnoreCase(type)) {
+            messageResponseDto = messageService.getSentMessageList(user.getNo(), pageable);
+        } else {
+            messageResponseDto = messageService.getReceivedMessageList(user.getNo(), pageable);
+        }
 
         return ResponseEntity.ok(messageResponseDto);
     }
 
-    @Operation(summary = "받은 쪽지 등록순", description = "받은 쪽지를 등록순으로 조회합니다.")
-    @GetMapping("/messages/received/{userNo}/order")
-    public ResponseEntity<List<MessageResponseDto>> getReceivedMessageByOrder(@PathVariable Long userNo) {
-        User user = getUserByNo(userNo);
-        List<MessageResponseDto> messageResponseDto = messageService.getReceivedMessagesByOrder(user.getNo());
+    /**
+     * 쪽지 삭제
+     */
+    @Operation(summary = "쪽지 삭제", description = "쪽지를 삭제합니다.")
+    @DeleteMapping("/messages")
+    public ResponseEntity<MessageResponseDto> deleteMessage
+    (@RequestParam Long userNo, @RequestParam Long messageNo) {
+        getUserByNo(userNo);
 
-        return ResponseEntity.ok(messageResponseDto);
-    } // try catch 로..?
+        messageService.deleteMessage(userNo, messageNo);
 
-    @Operation(summary = "보낸 쪽지 최신순", description = "보낸 쪽지를 최신순으로 조회합니다.")
-    @GetMapping("/messages/sent/{userNo}/latest")
-    public ResponseEntity<List<MessageResponseDto>> getSentMessageByLatest(@PathVariable Long userNo) { // User 객체로 바꾸기
-        User user = getUserByNo(userNo);
-        List<MessageResponseDto> messageResponseDto = messageService.getSentMessagesByLatest(user.getNo());
+        MessageResponseDto responseDto = new MessageResponseDto();
+        responseDto.setContent("삭제되었습니다.");
 
-        return ResponseEntity.ok(messageResponseDto);
+        return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 
-    @Operation(summary = "받은 쪽지 최신순", description = "받은 쪽지를 최신순으로 조회합니다.")
-    @GetMapping("/messages/received/{userNo}/latest")
-    public ResponseEntity<List<MessageResponseDto>> getReceivedMessageByLatest(@PathVariable Long userNo) {
-        User user = getUserByNo(userNo);
-        List<MessageResponseDto> messageResponseDto = messageService.getReceivedMessagesByLatest(user.getNo());
-
-        return ResponseEntity.ok(messageResponseDto);
+    /**
+     * 안읽음 카운트
+     */
+    @Operation(summary = "안 읽은 쪽지 개수", description = "안 읽은 쪽지 개수를 확인합니다")
+    @GetMapping("/messages-unread")
+    public ResponseEntity<Long> getUnreadMessage(@RequestParam Long userNo) {
+        if (getUserByNo(userNo) == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        long unreadCount = messageService.getUnreadMessageCount(userNo);
+        return ResponseEntity.ok(unreadCount);
     }
 
+//    @Operation(summary = "보낸쪽지리스트")
+//    @GetMapping("/messages/sent/{userNo}")
+//    public ResponseEntity<Page<MessageResponseDto>> getSentMessages(
+//            @PathVariable Long userNo,
+//            @Parameter(name = "page", description = "페이지 번호", example = "0") @RequestParam(defaultValue = "0") int page,
+//            @Parameter(name = "size", description = "페이지 크기", example = "10") @RequestParam(defaultValue = "10") int size,
+//            @Parameter(name = "sort", description = "정렬 필드", example = "no") @RequestParam(defaultValue = "no") String sort) { // User 객체로 바꾸기
+//        Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
+//        User user = getUserByNo(userNo);
+//        Page<MessageResponseDto> messageResponseDto = messageService.getSentMessageList(user.getNo(), pageable);
+//
+//        return ResponseEntity.ok(messageResponseDto);
+//    }
+//
+//    @Operation(summary = "받은쪽지리스트")
+//    @GetMapping("/messages/received/{userNo}")
+//    public ResponseEntity<Page<MessageResponseDto>> getReceivedMessages(
+//            @PathVariable Long userNo,
+//            @Parameter(name = "page", description = "페이지 번호", example = "0") @RequestParam(defaultValue = "0") int page,
+//            @Parameter(name = "size", description = "페이지 크기", example = "10") @RequestParam(defaultValue = "10") int size,
+//            @Parameter(name = "sort", description = "정렬 필드", example = "no") @RequestParam(defaultValue = "no") String sort
+//    ) { // User 객체로 바꾸기
+//        Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
+//        User user = getUserByNo(userNo);
+//        Page<MessageResponseDto> messageResponseDto = messageService.getReceivedMessageList(user.getNo(), pageable);
+//
+//        return ResponseEntity.ok(messageResponseDto);
+//    }
+
+    //
+
+    /**
+     * 유저 있는지 메서드
+     */
     private User getUserByNo(Long userNo) {
         return userRepository.findByNo(userNo)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
@@ -110,29 +172,6 @@ public class MessageController {
     }
     */
 
-    @Operation(summary = "쪽지 삭제", description = "쪽지를 삭제합니다.")
-    @DeleteMapping("/messages")
-    public ResponseEntity<MessageResponseDto> deleteMessage
-            (@RequestParam Long userNo, @RequestParam Long messageNo) {
-        getUserByNo(userNo);
-
-        messageService.deleteMessage(userNo, messageNo);
-
-        MessageResponseDto responseDto = new MessageResponseDto();
-        responseDto.setContent("삭제되었습니다.");
-
-        return ResponseEntity.status(HttpStatus.OK).body(responseDto);
-    }
-
-    @Operation(summary = "안 읽은 쪽지 개수", description = "안 읽은 쪽지 개수를 확인합니다")
-    @GetMapping("/messages-unread")
-    public ResponseEntity<Long> getUnreadMessage(@RequestParam Long userNo) {
-        if (getUserByNo(userNo) == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-        long unreadCount = messageService.getUnreadMessageCount(userNo);
-        return ResponseEntity.ok(unreadCount);
-    }
 
 //    @DeleteMapping("/delete")
 //    public ResponseEntity<String> deleteMessage(Long id) throws Exception {

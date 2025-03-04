@@ -27,31 +27,34 @@ DATE              AUTHOR             NOTE
 @AllArgsConstructor
 public class MessageResponseDto {
 
-    private Long messageNo;
     private String content;
 
     private String senderName;
-    private Long senderNo;
     private String senderId;
     private String receiverName;
-    private Long receiverNo;
     private String receiverId;
+
+    private boolean deletedBySender;
+    private boolean deletedByReceiver;
+    private boolean isRead;
 
     private LocalDateTime sendAt;
 
     public static MessageResponseDto returnMessageDto(Message message) {
 
         return new MessageResponseDto(
-                message.getNo(),
                 message.getContent(),
                 message.getSender().getName(),
-                message.getSender().getNo(),
                 message.getSender().getUsername(),
                 message.getReceiver().getName(),
-                message.getReceiver().getNo(),
                 message.getReceiver().getUsername(),
-                message.getSentAt());
+                message.isDeletedBySender(),
+                message.isDeletedByReceiver(),
+                message.isRead(),
+                message.getCreatedAt()
+        );
     }
+
 }
 
 
