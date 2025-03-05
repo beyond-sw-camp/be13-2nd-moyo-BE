@@ -94,4 +94,7 @@ public class User extends BaseEntity {
 
     // @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     // private Set<Post> posts = new HashSet<>();
+
+    // 연관 관계 편의 메서드
+
 }

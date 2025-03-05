@@ -19,8 +19,8 @@ import java.io.Serializable;
 public class BookMarkNo implements Serializable {
 
     @Column(name = "post_no")
-    private Long postId;
+    private Long postNo;
 
     @Column(name = "user_no")
-    private Long username;
+    private Long userNo;
 }

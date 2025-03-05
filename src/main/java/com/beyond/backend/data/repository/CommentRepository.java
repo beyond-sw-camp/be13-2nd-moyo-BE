@@ -1,25 +1,21 @@
 package com.beyond.backend.data.repository;
 
-import com.beyond.backend.data.entity.Post;
+import com.beyond.backend.data.entity.Comment;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 
 /**
  * <p>
  *
  * <p>packageName    : com.beyond.backend.data.repository
- * <p>fileName       : PostRepository
+ * <p>fileName       : CommentRepository
  * <p>author         : hyunjo
- * <p>date           : 25. 2. 2.
+ * <p>date           : 25. 3. 4.
  * <p>description    :
  */
 /*
  * ===========================================================
  * DATE              AUTHOR             NOTE
  * -----------------------------------------------------------
- * 25. 2. 2.        hyunjo             최초 생성
- */
-
-public interface PostRepository extends JpaRepository<Post, Long> , PostRepositoryCustom {
-
+ * 25. 3. 4.        hyunjo             최초 생성
+ */public interface CommentRepository extends JpaRepository<Comment, Long>, CommentRepositoryCustom {
 }
