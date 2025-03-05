@@ -1,17 +1,18 @@
 package com.beyond.backend.data.entity;
 
+import io.swagger.v3.oas.annotations.info.Info;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
-import org.hibernate.annotations.ColumnDefault;
 
+import java.awt.print.Book;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter
+@Builder
 @AllArgsConstructor
 public class Post extends BaseEntity{
 
@@ -27,14 +28,14 @@ public class Post extends BaseEntity{
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Status status;
+    private PostStatus postStatus;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private BoardType boardType;
 
     @Enumerated(EnumType.STRING)
-    private SearchOption searchOption;
+    private PostSearchOption searchOption;
 
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -50,6 +51,7 @@ public class Post extends BaseEntity{
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Like> likes = new ArrayList<>();
 
+
     //좋아요 연관관계 로직
     public int getLikeCount() {
         return likes.size();
@@ -61,5 +63,30 @@ public class Post extends BaseEntity{
 
     protected Post() {
     }
+
+  /*  // ✅ 댓글 추가 연관관계 편의 메서드
+    public void addComment(Comment comment) {
+        this.comments.add(comment);
+        comment.setPost(this);
+    }
+
+    // ✅ 댓글 삭제 연관관계 편의 메서드
+    public void removeComment(Comment comment) {
+        this.comments.remove(comment);
+        comment.setPost(null);
+    }
+
+*/
+
+
+
+    //게시글 수정 용 메서드
+    public void update(String postTitle, String postContent, PostStatus postStatus){
+        this.postTitle = postTitle;
+        this.postContent = postContent;
+        this.postStatus = postStatus;
+
+    }
+
 
 }

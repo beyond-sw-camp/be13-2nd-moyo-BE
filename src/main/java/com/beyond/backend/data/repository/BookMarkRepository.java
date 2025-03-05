@@ -1,25 +1,24 @@
 package com.beyond.backend.data.repository;
 
-import com.beyond.backend.data.entity.Post;
+import com.beyond.backend.data.entity.BookMark;
+import com.beyond.backend.data.entity.BookMarkNo;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 
 /**
  * <p>
  *
  * <p>packageName    : com.beyond.backend.data.repository
- * <p>fileName       : PostRepository
+ * <p>fileName       : BookMarkRepository
  * <p>author         : hyunjo
- * <p>date           : 25. 2. 2.
+ * <p>date           : 25. 3. 1.
  * <p>description    :
  */
 /*
  * ===========================================================
  * DATE              AUTHOR             NOTE
  * -----------------------------------------------------------
- * 25. 2. 2.        hyunjo             최초 생성
+ * 25. 3. 1.        hyunjo             최초 생성
  */
-
-public interface PostRepository extends JpaRepository<Post, Long> , PostRepositoryCustom {
+public interface BookMarkRepository extends JpaRepository<BookMark, BookMarkNo>, BookMarkRepositoryCustom {
 
 }
