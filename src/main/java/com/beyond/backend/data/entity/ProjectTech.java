@@ -1,5 +1,6 @@
 package com.beyond.backend.data.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -26,11 +27,26 @@ public class ProjectTech {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_no", nullable = false)
-    private Project project;
+    @Column(name = "project_no", nullable = false)
+    private Long projectId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tech_no", nullable = false)
     private Tech tech;
+
+
+    //== 연관관계 편의 메서드 ==//
+    // public void setProject(Project project){
+    //     this.project = project;
+    //     project.getProjectTeches().add(this);
+    // }
+    public ProjectTech(Tech tech, Long projectId){
+        this.tech = tech;
+        this.projectId = projectId;
+    }
+
 }
+
+
+// tech = 모든 기술들
+// project tech = 이 프로젝트에서 사용하는 기술들

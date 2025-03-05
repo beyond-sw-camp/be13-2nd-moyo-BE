@@ -39,5 +39,4 @@ public class TeamUser {
 
     @Column
     private String role;
-
 }

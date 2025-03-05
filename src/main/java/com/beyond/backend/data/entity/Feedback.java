@@ -2,6 +2,7 @@ package com.beyond.backend.data.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -9,12 +10,13 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Table(name = "feedbacks",
         uniqueConstraints = {
                 @UniqueConstraint(name = "unique_retrospective",
                                   columnNames = {"user_no", "project_no", "feedbackType"})
         })
-public class FeedBack extends BaseEntity{
+public class Feedback extends BaseEntity{
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long no;
@@ -34,4 +36,17 @@ public class FeedBack extends BaseEntity{
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private FeedbackType feedbackType;
+
+    //== 연관관계 메서드 ==//
+    public void setProject(Project project){
+        this.project = project;
+        if (!project.getFeedbacks().contains(this)){
+            project.getFeedbacks().add(this);
+        }
+    }
+
+    public void updateFeedback(String content) {
+        this.content = content;
+    }
+
 }

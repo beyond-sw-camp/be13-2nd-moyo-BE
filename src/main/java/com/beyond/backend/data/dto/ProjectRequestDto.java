@@ -1,11 +1,6 @@
 package com.beyond.backend.data.dto;
 
-import java.util.List;
-
 import com.beyond.backend.data.entity.ProjectStatus;
-import com.beyond.backend.data.entity.ProjectTech;
-import com.beyond.backend.data.entity.ProjectType;
-import com.beyond.backend.data.entity.Team;
 
 import lombok.*;
 
@@ -33,20 +28,16 @@ import lombok.*;
 @ToString
 @EqualsAndHashCode
 @AllArgsConstructor
-public class ProjectDto {
+public class ProjectRequestDto {
 
     private String name;
 
     private String content;
 
-    private Team team;
-
-    private String projectPurpose;
-
-    private String projectSubject;
+    private Long teamNo;
 
     private ProjectStatus projectStatus;
 
-    // tech 수정 안돼!!!!!!!!!!!!!!!!!!!!!!!!! 왜냐면 담당자가 없어용 ~~
+    // tech 는 프론트에서 checkbox 이용해서 프론트에서 넘겨줘야 함. -> 이것도 그냥 내가 리스트로 받아야 하나 ???
     // private List<ProjectTech> projectTeches;
 }
