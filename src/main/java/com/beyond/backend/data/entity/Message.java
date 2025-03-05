@@ -6,27 +6,17 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Builder
 @Table(name = "messages")
-public class Message extends BaseEntity{
+public class Message extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long no;
-
-    @Column(nullable = false)
-    private LocalDateTime sentAt = LocalDateTime.now();
-
-    @PrePersist
-    protected void onCreate() {
-        this.sentAt = (this.sentAt == null) ? LocalDateTime.now() : this.sentAt;
-    }
 
     @Lob
     @Column(nullable = false)
@@ -46,7 +36,7 @@ public class Message extends BaseEntity{
     @Column(nullable = false)
     private boolean deletedByReceiver;
 
-    @Column(nullable = false)
+    @Column(name = "is_read", nullable = false)
     private boolean isRead = false;
 
     public void deleteBySender() {
@@ -64,4 +54,6 @@ public class Message extends BaseEntity{
     public void markAsRead() {
         this.isRead = true;
     } // 읽음 안읽음
+
+
 }

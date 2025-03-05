@@ -1,6 +1,6 @@
 package com.beyond.backend.data.repository;
 
-import com.beyond.backend.data.entity.Message;
+import com.beyond.backend.data.entity.ReportUser;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -8,22 +8,19 @@ import org.springframework.data.jpa.repository.JpaRepository;
 /**
  * <p>
  * <p>packageName    : com.beyond.backend.data.repository
- * <p>fileName       : MessageRepository
+ * <p>fileName       : UserReposrtRepository
  * <p>author         : mlnstone
- * <p>date           : 2025. 2. 16.
+ * <p>date           : 2025. 3. 3.
  * <p>description    :
  */
 /*
 ===========================================================
 DATE              AUTHOR             NOTE
 -----------------------------------------------------------
-2025. 2. 16.        mlnstone             최초 생성
+2025. 3. 3.        mlnstone             최초 생성
 */
 
-public interface MessageRepository extends JpaRepository<Message, Long> {
-    Page<Message> findAllBySender_No(Long userNo, Pageable pageable);
+public interface ReportUserRepository extends JpaRepository<ReportUser, Long> {
 
-    Page<Message> findAllByReceiver_No(Long userNo, Pageable pageable);
-
-    long countByReceiverNoAndIsReadFalse(Long userNo);
+    Page<ReportUser> findAllByReported_No(Long userNo, Pageable pageable);
 }
