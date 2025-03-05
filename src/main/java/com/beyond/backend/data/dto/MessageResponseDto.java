@@ -27,24 +27,37 @@ DATE              AUTHOR             NOTE
 @AllArgsConstructor
 public class MessageResponseDto {
 
-    private Long messageId;
     private String content;
-    private String sender;
-    private String receiver;
+
+    private String senderName;
+    private String senderId;
+    private String receiverName;
+    private String receiverId;
+
+    private boolean deletedBySender;
+    private boolean deletedByReceiver;
+    private boolean isRead;
+
     private LocalDateTime sendAt;
 
-    // 생성자 대신 메서드는??
     public static MessageResponseDto returnMessageDto(Message message) {
-        return new MessageResponseDto(message.getNo(), message.getContent(),
-                message.getSender().getName(), message.getReceiver().getName(), message.getSentAt());
-    }
-    // 하다가 깨달음
 
-    public static MessageResponseDto fromContent(String content) {
-        MessageResponseDto dto = new MessageResponseDto();
-        dto.content = content;
-        return dto;
+        return new MessageResponseDto(
+                message.getContent(),
+                message.getSender().getName(),
+                message.getSender().getUsername(),
+                message.getReceiver().getName(),
+                message.getReceiver().getUsername(),
+                message.isDeletedBySender(),
+                message.isDeletedByReceiver(),
+                message.isRead(),
+                message.getCreatedAt()
+        );
     }
-    //
 
 }
+
+
+
+
+

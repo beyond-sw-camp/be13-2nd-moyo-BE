@@ -1,4 +1,4 @@
-package com.beyond.backend.data.dto;
+package com.beyond.backend.data.dto.teamDto;
 
 import com.beyond.backend.data.entity.ProjectStatus;
 import lombok.AllArgsConstructor;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 /**
  * <p>
  *
- * <p>packageName    : com.beyond.backend.data.dto
+ * <p>packageName    : com.beyond.backend.data.dto.teamDto
  * <p>fileName       : TeamResponseDto
  * <p>author         : hongjm
  * <p>date           : 2025-02-03
@@ -21,6 +21,7 @@ import lombok.NoArgsConstructor;
  * -----------------------------------------------------------
  * 2025-02-03        hongjm           최초 생성
  * 2025-02-16        hongjm           Entity에 맞춰 수정
+ * 2025-02-23        hongjm           no 항목 추가
  */
 @Data
 @Builder
@@ -28,7 +29,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class TeamResponseDto {
 
-    private long id;
+    private long no;
 
     private String teamName;
 

@@ -2,8 +2,8 @@ package com.beyond.backend.service;
 
 import com.beyond.backend.data.dto.MessageDto;
 import com.beyond.backend.data.dto.MessageResponseDto;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 /**
  * <p>
@@ -22,16 +22,17 @@ DATE              AUTHOR             NOTE
 
 public interface MessageService {
 
-    MessageResponseDto getMessage(Long id, String username); // 단일 조회
+    MessageResponseDto getMessage(Long userNo, Long messageNo); // 단일 조회
 
     MessageResponseDto messageWrite(MessageDto messageDto);
 
-    Object deleteMessageBySender(Long id, String username);
+    Page<MessageResponseDto> getReceivedMessageList(Long userNo, Pageable pageable);
 
-    Object deleteMessageByReceiver(Long id, String username);
+    Page<MessageResponseDto> getSentMessageList(Long userNo, Pageable pageable);
 
-    List<MessageResponseDto> sentMessages(String username);
+    Object deleteMessage(Long userNo, Long messageNo);
 
-    List<MessageResponseDto> receivedMessages(String username);
+    long getUnreadMessageCount(Long userNo);
+
     // 3,4,5,6 얘네 나중에 시큐리티? 되면 User 객체로..
 }

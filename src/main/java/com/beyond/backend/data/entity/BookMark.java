@@ -10,11 +10,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class BookMark {
 
+
     @EmbeddedId
     private BookMarkNo no;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_no",  insertable = false, updatable = false)
+    @JoinColumn(name = "post_no", insertable = false, updatable = false)
     private Post post;
 
     @ManyToOne(fetch = FetchType.LAZY)

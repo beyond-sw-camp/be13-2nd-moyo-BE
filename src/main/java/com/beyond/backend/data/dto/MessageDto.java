@@ -4,8 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 /**
  * <p>
  * <p>packageName    : com.beyond.backend.data.dto
@@ -25,11 +23,9 @@ DATE              AUTHOR             NOTE
 @NoArgsConstructor
 @AllArgsConstructor
 public class MessageDto {
-
-    private String sender;
-    private String receiver;
+    private Long senderNo;
+    private Long receiverNo;
 
     private String content;
-    private LocalDateTime sendAt;
     // sendAt, sender 아이디 필요한지?
 }

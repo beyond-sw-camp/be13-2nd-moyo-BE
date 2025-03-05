@@ -1,7 +1,6 @@
-package com.beyond.backend.data.dto;
+package com.beyond.backend.data.dto.teamDto;
 
 import com.beyond.backend.data.entity.ProjectStatus;
-import com.beyond.backend.data.entity.Team;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,7 +8,7 @@ import lombok.Data;
 /**
  * <p>
  *
- * <p>packageName    : com.beyond.backend.data.dto
+ * <p>packageName    : com.beyond.backend.data.dto.teamDto
  * <p>fileName       : TeamDto
  * <p>author         : hongjm
  * <p>date           : 2025-02-03
@@ -27,7 +26,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class TeamDto {
 
-    private long id;
+    private long no;
 
     private String teamName;
 
