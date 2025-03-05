@@ -35,6 +35,8 @@ public class TeamUser {
     private Team team;
 
     @Column
+    private String role;
+
     private TeamJoinStatus status; // 승인여부
 
     @Column(nullable = false)

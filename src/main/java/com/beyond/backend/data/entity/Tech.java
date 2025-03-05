@@ -21,4 +21,8 @@ public class Tech {
     private Long no;
 
     private String techName;
+
+    public Tech(String techName) {
+        this.techName = techName;
+    }
 }

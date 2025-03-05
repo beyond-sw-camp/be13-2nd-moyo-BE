@@ -39,6 +39,12 @@ public class Team extends BaseEntity{
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Project> projects = new ArrayList<>();
 
+    // [홍도현] 25-03-02 연관관계 편의 메서드
+    public void addProject(Project project){
+        this.projects.add(project);
+        project.setTeam(this);
+    }
+
     public void updateTeamDetails(String teamName, String teamIntroduce, ProjectStatus projectStatus) {
         this.teamName = teamName;
         this.teamIntroduce = teamIntroduce;

@@ -75,7 +75,6 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user")
     private List<Post> posts = new ArrayList<>();
 
-    // [홍재민] 팀 구성과 연결
     @OneToMany(mappedBy = "user")
     private List<TeamUser> teamUsers = new ArrayList<>();
 
