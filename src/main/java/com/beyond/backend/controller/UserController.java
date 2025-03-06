@@ -1,41 +1,32 @@
 package com.beyond.backend.controller;
 
-import com.beyond.backend.data.dto.userDto.LoginDto;
-import com.beyond.backend.data.dto.userDto.UserSignUpDto;
-import com.beyond.backend.service.UserService;
+import com.beyond.backend.domain.user.dto.PasswordUpdateRequestDto;
+import com.beyond.backend.domain.user.dto.PasswordUpdateResponseDto;
+import com.beyond.backend.domain.user.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/user")
 public class UserController {
 
     private final UserService userService;
 
+    @PostMapping("/updatePassword")
+    public ResponseEntity<PasswordUpdateResponseDto> updatePassword(
+            @Valid @RequestBody PasswordUpdateRequestDto dto) {
 
-    @PostMapping("/signup")
-    public ResponseEntity<String> signup(@RequestBody UserSignUpDto request) {
-        userService.join(request);
-        return ResponseEntity.ok("회원가입");
+        PasswordUpdateResponseDto response = userService.updatePassword(dto);
+        return ResponseEntity.ok(response);
     }
 
-/*    @PostMapping("/login")
-    public ResponseEntity<LoginDto> login(@RequestBody LoginDto request) {
-        //LoginDto response = userService.login(request);
-        return ResponseEntity.ok(response);
-    }*/
-
-
-    //필요할까?
-/*    @GetMapping("/signup-url")
-    public ResponseEntity<String> getSignupUrl() {
-        return ResponseEntity.ok("/signup");
-    }*/
-
-
+    @PostMapping("/delete")
+    public ResponseEntity<Void> delete(String username) {
+        userService.deleteUser(username);
+        return ResponseEntity.ok().build();
+    }
 }

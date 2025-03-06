@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.beyond.backend.data.dto.FeedbackRequestDto;
-import com.beyond.backend.data.dto.FeedbackResponseDto;
-import com.beyond.backend.data.dto.FeedbackUpdateRequestDto;
-import com.beyond.backend.service.FeedbackService;
+import com.beyond.backend.domain.feedback.dto.FeedbackRequestDto;
+import com.beyond.backend.domain.feedback.dto.FeedbackResponseDto;
+import com.beyond.backend.domain.feedback.dto.FeedbackUpdateRequestDto;
+import com.beyond.backend.domain.feedback.service.FeedbackService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
