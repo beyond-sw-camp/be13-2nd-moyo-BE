@@ -107,4 +107,11 @@ public class AuthController {
         log.info("{}을 banned = {} 로 바꿈", dto.getUsername(), dto.getBan());
         return ResponseEntity.ok(banResponseDto);
     }
+
+    @PostMapping("/unlock")
+    public ResponseEntity<UnlockResponseDto> unlock(@Valid @RequestBody UnlockRequestDto dto) {
+        UnlockResponseDto unlockResponseDto = authService.unlockUser(dto);
+        log.info("{}을 unlock!", dto.getUsername());
+        return ResponseEntity.ok(unlockResponseDto);
+    }
 }

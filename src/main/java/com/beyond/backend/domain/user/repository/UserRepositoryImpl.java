@@ -28,9 +28,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom{
                 .select(Projections.constructor(UserGetResponseDto.class,
                         user.username,
                         user.password,
-                        user.role,
-                        user
-
+                        user.role
                 ))
                 .from(user)
                 .offset(pageable.getOffset())
@@ -43,8 +41,4 @@ public class UserRepositoryImpl implements UserRepositoryCustom{
 
         return PageableExecutionUtils.getPage(users, pageable, totalCount::fetchOne);
     }
-
-/*    private BooleanExpression searchOption(String username, UserSearchOption searchOption) {
-
-    }*/
 }

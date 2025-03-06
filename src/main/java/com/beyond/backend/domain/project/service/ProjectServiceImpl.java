@@ -1,9 +1,11 @@
 package com.beyond.backend.domain.project.service;
 
+import com.beyond.backend.domain.project.entity.ProjectTech;
 import com.beyond.backend.domain.user.entity.User;
 import com.beyond.backend.domain.user.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +19,9 @@ import com.beyond.backend.domain.team.repository.TeamRepository;
 import com.beyond.backend.domain.teamUser.repository.TeamUserRepository;
 
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -47,8 +52,24 @@ public class ProjectServiceImpl implements ProjectService {
 		// 2. repository 에 entity 저장
 		projectRepository.save(project);
 
+		addProjectTechs(project, projectRequestDto.getProjectTeches());
+
 		// 3. entity -> responseDto 로 변환 후 반환
 		return new ProjectResponseDto(project);
+	}
+
+	private void addProjectTechs(Project project, List<String> techNames){
+		if (techNames == null || techNames.isEmpty())
+			return;
+
+	/*	// 프론트에서 string으로 받은 projectTech 로 변환
+		List<ProjectTech> teches = techNames.stream()
+				.map(tech -> new ProjectTech(tech, project.getNo()))
+				.collect(Collectors.toList());
+
+
+*/
+
 	}
 
 	@Override
@@ -91,6 +112,7 @@ public class ProjectServiceImpl implements ProjectService {
 
 	// 프로젝트 단건 조회
 	@Override
+	@Transactional
 	public ProjectResponseDto getProjectByProjectNo(Long projectNo) {
 
 		// 1. 프로젝트가 존재하는지 조회
@@ -98,15 +120,10 @@ public class ProjectServiceImpl implements ProjectService {
 			() -> new IllegalArgumentException("해당 프로젝트가 존재하지 않습니다.")
 		);
 
+		// 조회수 증가
+		project.increaseViewCnt();
+
 		return new ProjectResponseDto(project);
-	}
-
-
-	@Override
-	@Transactional
-	public void deleteProject(Long projectId) {
-		//// 프로젝트 방장 인지 검증 로직 추가 <- 방장만 프로젝트 삭제 가능
-		projectRepository.deleteById(projectId);
 	}
 
 
@@ -124,13 +141,49 @@ public class ProjectServiceImpl implements ProjectService {
 		return projectList;
 	}
 
+
 	// 검색 결과 페이징 조회
 	@Override
 	public Page<ProjectResponseDto> searchProject(String keyword, ProjectSearchOption searchOption, Pageable pageable) {
 
 		// 검증할 게 없음. 바로 검색결과 리턴해주기
 		Page<ProjectResponseDto> projectSearchList = projectRepository.searchProject(keyword, searchOption, pageable);
-		System.out.println(projectSearchList+" is search list ");
+
 		return projectSearchList;
+	}
+
+	@Override
+	@Transactional
+	public void deleteProject(Long userNo, Long projectNo) {
+
+		// 1. user 검증
+		User user = userRepository.findById(userNo).orElseThrow(
+				()-> new IllegalArgumentException("해당하는 유저가 없습니다.")
+		);
+
+
+		// 2. project 검증
+		Project project = projectRepository.findById(projectNo).orElseThrow(
+				() -> new IllegalArgumentException("해당 프로젝트가 존재하지 않습니다.")
+		);
+
+		Team team = project.getTeam();
+
+		// 3. user 가 team 에 속하는가
+		boolean existsByUserNoAndTeamNo = teamUserRepository.existsByUserNoAndTeamNo(user.getNo(), project.getTeam().getNo());
+
+		if (!existsByUserNoAndTeamNo) {
+			throw new IllegalArgumentException("사용자는 해당 프로젝트를 수정할 권한이 없습니다.");
+		}
+
+		//  4. 리더가 아니면 예외
+		//// 프로젝트 방장 인지 검증 로직 추가 <- 방장만 프로젝트 삭제 가능
+		if( !teamUserRepository.isLeader(team.getNo(), userNo) ){
+			throw new IllegalArgumentException("사용자는 해당 프로젝트를 수정할 권한이 없습니다.");
+		}
+
+
+		// 5. 프로젝트 삭제
+		projectRepository.deleteById(projectNo);
 	}
 }

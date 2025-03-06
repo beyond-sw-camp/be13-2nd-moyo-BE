@@ -2,10 +2,14 @@ package com.beyond.backend.domain.project.service;
 
 import com.beyond.backend.domain.project.dto.ProjectRequestDto;
 import com.beyond.backend.domain.project.dto.ProjectResponseDto;
+import com.beyond.backend.domain.project.entity.Project;
 import com.beyond.backend.domain.project.entity.ProjectSearchOption;
 
+import com.beyond.backend.domain.team.entity.Team;
+import com.beyond.backend.domain.user.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * <p>

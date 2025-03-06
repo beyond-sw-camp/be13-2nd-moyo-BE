@@ -57,15 +57,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 .map(authentication -> (CustomUserDetails) authentication.getPrincipal())
                 .orElse(null);
 
-        // 5. 만약 인증된 사용자가 존재한다면 추가 로직(예: 차단 여부 확인)을 수행합니다.
+        // 5. 만약 인증된 사용자가 존재한다면 추가 로직(예: 차단 여부 확인)을 수
         if (auth != null) {
             System.out.println("auth = " + auth);
 
             // isEnabled()는 CustomUserDetails에서 구현된 메서드로,
-            // 사용자의 차단 여부에 따라 false를 반환합니다.
+            // 사용자의 차단 여부에 따라 false를 반환
             if (!auth.isEnabled()) {
                 log.info("밴 당한 사용자 입니다");
-                // 여기서 추가 처리가 가능: 예를 들어, 응답에 403 Forbidden을 반환하거나 추가 로깅 수행
+
+                optionalToken.ifPresent(token -> {
+                    jwtTokenProvider.addBlacklist(token);
+                    log.info("액세스 토큰 블랙리스트 추가 완료");
+                    jwtTokenProvider.deleteRefreshToken(token);
+                    log.info("리프레시 토큰 삭제 완료");
+                });
+
+            }
+
+            if (!auth.isAccountNonLocked()) {
+                log.info("임시 정지 조치된 사용자 입니다.");
             }
         }
 
