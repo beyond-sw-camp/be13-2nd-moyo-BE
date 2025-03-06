@@ -24,16 +24,6 @@ import org.springframework.web.bind.annotation.*;
  * <p>date           : 2025. 2. 2.
  * <p>description    : 프로젝트 API
  */
-/*
- * ===========================================================
- * DATE              AUTHOR             NOTE
- * -----------------------------------------------------------
- * 2025. 2. 2.        jaewoo             최초 생성
- * 2025. 2. 3.        jaewoo             함수명 수정
- * 2025. 2. 4.        jaewoo             함수명 수정
- * 2025. 2. 17.       jaewoo             프로젝트 조회 로직 수정
- * 2025. 2. 18.       jaewoo             프로젝트 조회 페이징 처리
- */
 
 @Tag(name = "프로젝트 API", description = "프로젝트 API")
 @RestController
@@ -71,9 +61,9 @@ public class ProjectController {
 
     @Operation(summary = "프로젝트 삭제 메서드", description = "프로젝트 삭제 메서드 입니다.")
     @DeleteMapping("/{projectNo}")
-    public ResponseEntity<Void> deleteProject( @PathVariable("projectNo") Long projectNo ) throws Exception {
+    public ResponseEntity<Void> deleteProject( @PathVariable("userNo") Long userNo, @PathVariable("projectNo") Long projectNo ) throws Exception {
 
-        projectService.deleteProject(projectNo);
+        projectService.deleteProject(userNo, projectNo);
 
         return ResponseEntity.noContent().build();
     }

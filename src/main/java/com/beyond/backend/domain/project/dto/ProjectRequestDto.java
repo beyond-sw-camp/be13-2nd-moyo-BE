@@ -4,6 +4,8 @@ import com.beyond.backend.domain.project.entity.ProjectStatus;
 
 import lombok.*;
 
+import java.util.List;
+
 /**
  * <p>
  *
@@ -39,5 +41,6 @@ public class ProjectRequestDto {
     private ProjectStatus projectStatus;
 
     // tech 는 프론트에서 checkbox 이용해서 프론트에서 넘겨줘야 함. -> 이것도 그냥 내가 리스트로 받아야 하나 ???
-    // private List<ProjectTech> projectTeches;
+
+    private List<String> projectTeches;
 }

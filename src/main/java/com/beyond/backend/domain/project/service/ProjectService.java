@@ -30,7 +30,7 @@ public interface ProjectService {
     ProjectResponseDto updateProject(Long projectNo, Long userNo, ProjectRequestDto projectRequestDto);
 
     // 프로젝트 삭제
-    void deleteProject(Long id);
+    void deleteProject(Long userNo, Long projectNo);
 
 
     // 프로젝트 전체 보기
