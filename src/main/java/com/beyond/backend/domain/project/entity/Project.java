@@ -100,11 +100,13 @@ public class Project extends BaseEntity {
     }
 
     // project Tech 연관관계 메서드 지정
-/*    public void addTech(Tech tech){
-        ProjectTech projectTech = new ProjectTech(tech, this.no);
-        projectTeches.add(projectTech);
-    }*/
-
+    public void addProjectTech(List<ProjectTech> list){
+        if (this.projectTeches == null) {
+            this.projectTeches = new ArrayList<>();
+        }
+        this.projectTeches.clear(); // 기존 리스트 초기화
+        this.projectTeches.addAll(projectTeches); // 새로운 리스트 추가
+    }
 
     // 프로젝트 제목, 내용, 상태만 변경
     public void update(ProjectRequestDto projectRequestDto){

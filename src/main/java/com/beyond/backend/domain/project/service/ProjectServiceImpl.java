@@ -1,6 +1,8 @@
 package com.beyond.backend.domain.project.service;
 
 import com.beyond.backend.domain.project.entity.ProjectTech;
+import com.beyond.backend.domain.tech.entity.Tech;
+import com.beyond.backend.domain.tech.repository.TechRepository;
 import com.beyond.backend.domain.user.entity.User;
 import com.beyond.backend.domain.user.repository.UserRepository;
 import org.springframework.data.domain.Page;
@@ -32,6 +34,7 @@ public class ProjectServiceImpl implements ProjectService {
 	private final TeamRepository teamRepository;
 	private final ProjectRepository projectRepository;
 	private final TeamUserRepository teamUserRepository;
+	private final TechRepository techRepository;
 
 	@Override
 	@Transactional
@@ -49,10 +52,14 @@ public class ProjectServiceImpl implements ProjectService {
 			.team(team) // 여기에 검증된 팀 넣기
 			.build();
 
+
+		addProjectTechs(project, projectRequestDto.getProjectTeches());
+
+
+
 		// 2. repository 에 entity 저장
 		projectRepository.save(project);
 
-		addProjectTechs(project, projectRequestDto.getProjectTeches());
 
 		// 3. entity -> responseDto 로 변환 후 반환
 		return new ProjectResponseDto(project);
@@ -62,14 +69,14 @@ public class ProjectServiceImpl implements ProjectService {
 		if (techNames == null || techNames.isEmpty())
 			return;
 
-	/*	// 프론트에서 string으로 받은 projectTech 로 변환
-		List<ProjectTech> teches = techNames.stream()
+		List<Tech> techList = techRepository.findByTechNameIn(techNames);
+
+		/*// 프론트에서 string으로 받은 projectTech 로 변환
+		List<ProjectTech>q teches = techList.stream()
 				.map(tech -> new ProjectTech(tech, project.getNo()))
 				.collect(Collectors.toList());
 
-
-*/
-
+		project.addProjectTech(teches);*/
 	}
 
 	@Override
@@ -98,6 +105,12 @@ public class ProjectServiceImpl implements ProjectService {
 
 		// 4. 검증 후 수정
 		project.update(projectRequestDto);
+
+		// tech 는 항상 선택되어 있으면 값이 동일한게 들어옴 -> list 클리어해주고 다시 update
+		if ( !project.getProjectTeches().isEmpty()){
+			project.getProjectTeches().clear();
+		}
+		addProjectTechs(project, projectRequestDto.getProjectTeches());
 
 		return new ProjectResponseDto(project);
 	}
