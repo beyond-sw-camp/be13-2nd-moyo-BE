@@ -27,24 +27,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/**
- * <p>
- *
- * <p>packageName    : com.beyond.backend.data.entity
- * <p>fileName       : Project
- * <p>author         : jaewoo
- * <p>date           : 2025. 2. 1.
- * <p>description    : 프로젝트 Entity
- */
-/*
- * ===========================================================
- * DATE              AUTHOR             NOTE
- * -----------------------------------------------------------
- * 2025. 2. 1.        jaewoo             최초 생성
- * 2025. 2. 3.        jaewoo             변수명 수정
- * 2025. 2. 4.        jaewoo             변수명 수정
- */
-
 @Entity
 @Getter
 @Builder
