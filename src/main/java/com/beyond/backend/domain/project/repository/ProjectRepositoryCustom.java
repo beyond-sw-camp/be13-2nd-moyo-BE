@@ -11,7 +11,6 @@ public interface ProjectRepositoryCustom {
 	// 모든 프로젝트 조회
 	Page<ProjectResponseDto> getProjects(Pageable pageable);
 
-
 	// 프로젝트 검색 조회
 	Page<ProjectResponseDto> searchProject(String keyword, ProjectSearchOption projectSearchOption, Pageable pageable);
 

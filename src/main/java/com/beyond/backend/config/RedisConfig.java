@@ -29,7 +29,7 @@ public class RedisConfig {
         RedisStandaloneConfiguration redisConf = new RedisStandaloneConfiguration(host, port);
         redisConf.setPassword(password);
 
-        // LettuceConnectionFactory에 구성 정보 전달
+        // LettuceConnectionFactory 에 구성 정보 전달
         return new LettuceConnectionFactory(redisConf);
     }
 
