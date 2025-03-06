@@ -63,6 +63,8 @@ public class Project extends BaseEntity {
     // 프로젝트 내용/설명
     private String content;
 
+    private int viewCnt;
+
     // 관계설정 수정
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_no")
@@ -78,6 +80,12 @@ public class Project extends BaseEntity {
     @JoinColumn(name = "project_no")// 단방향
     private List<ProjectTech> projectTeches;
 
+
+    // 조회수 증가
+    public void increaseViewCnt() {
+        this.viewCnt++;
+    }
+
     //== 연관관계 편의 메서드 ==//
     public void setTeam(Team team){
         this.team = team; // 프로젝트의 팀을 설정
@@ -92,10 +100,10 @@ public class Project extends BaseEntity {
     }
 
     // project Tech 연관관계 메서드 지정
-    public void addTech(Tech tech){
+/*    public void addTech(Tech tech){
         ProjectTech projectTech = new ProjectTech(tech, this.no);
         projectTeches.add(projectTech);
-    }
+    }*/
 
 
     // 프로젝트 제목, 내용, 상태만 변경

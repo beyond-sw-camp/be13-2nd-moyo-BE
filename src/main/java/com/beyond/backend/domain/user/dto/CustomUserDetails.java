@@ -12,11 +12,6 @@ import java.util.Collections;
 @Data
 public class CustomUserDetails implements UserDetails {
 
-/*    private final String username;
-    private final String password;
-    private final List<GrantedAuthority> authorities;
-    private boolean banned;*/
-
     private User user;
 
     /**
@@ -24,10 +19,6 @@ public class CustomUserDetails implements UserDetails {
      * @param user 사용자 엔티티
      */
     public CustomUserDetails(User user) {
-        /*this.username = user.getUsername();
-        this.password = user.getPassword();
-        this.authorities = List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
-        this.banned = user.getIsBanned();*/
         this.user = user;
     }
 
@@ -57,7 +48,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return user.getPasswordErrorCount() <= 4;
     }
 
     @Override

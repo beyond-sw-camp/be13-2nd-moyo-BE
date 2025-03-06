@@ -41,10 +41,10 @@ public class ProjectTech {
     //     this.project = project;
     //     project.getProjectTeches().add(this);
     // }
-    public ProjectTech(Tech tech, Long projectId){
+/*    public ProjectTech(Tech tech, Long projectNo){
         this.tech = tech;
-        this.projectId = projectId;
-    }
+        this.projectId =No projectNo;
+    }*/
 
 }
 

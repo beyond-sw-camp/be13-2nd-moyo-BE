@@ -2,6 +2,7 @@ package com.beyond.backend.controller;
 
 import java.util.List;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,9 +31,9 @@ public class TechController {
 	 * @return 생성된 기술 정보
 	 */
 	@PostMapping
-	public ResponseEntity<TechResponseDto> createTech(@RequestBody TechRequestDto dto) {
+	public ResponseEntity<TechResponseDto> createTech(HttpServletRequest request, @RequestBody TechRequestDto dto) {
 
-		TechResponseDto response = techService.createTech(dto);
+		TechResponseDto response = techService.createTech(request, dto);
 
 		return ResponseEntity.ok(response);
 	}
@@ -45,12 +46,13 @@ public class TechController {
 
 	/**
 	 * 기술 삭제 API
+	 *
 	 * @param id 삭제할 기술의 ID
 	 * @return 성공 메시지
 	 */
 	@DeleteMapping("/{id}")
-	public ResponseEntity<String> deleteTech(@PathVariable Long id) {
-		techService.deleteTech(id);
+	public ResponseEntity<String> deleteTech(HttpServletRequest request, @PathVariable Long id) {
+		techService.deleteTech(request, id);
 		return ResponseEntity.ok("기술이 성공적으로 삭제되었습니다.");
 	}
 }

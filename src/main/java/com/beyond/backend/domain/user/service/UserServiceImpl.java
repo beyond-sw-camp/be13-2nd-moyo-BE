@@ -6,12 +6,14 @@ import com.beyond.backend.domain.user.dto.UserUpdateRequestDto;
 import com.beyond.backend.domain.user.dto.UserUpdateResponseDto;
 import com.beyond.backend.domain.user.entity.User;
 import com.beyond.backend.domain.user.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
@@ -37,16 +39,13 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("Wrong password");
         }
 
-/*        if (!dto.getNewPassword().equals(dto.getConfirmPassword())) {
-            throw new IllegalArgumentException("New passwords don't match");
-        }*/
 
         String encodedPassword = passwordEncoder.encode(dto.getNewPassword());
         user.updatePassword(encodedPassword);
 
         userRepository.save(user);
 
-        return new PasswordUpdateResponseDto(); //비밀번호 body에 노출 위험 -> 메시지 반환
+        return new PasswordUpdateResponseDto(); //비밀번호 body 에 노출 위험 -> 메시지 반환
     }
 
     @Override

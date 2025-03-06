@@ -4,12 +4,13 @@ import java.util.List;
 
 import com.beyond.backend.domain.tech.dto.TechRequestDto;
 import com.beyond.backend.domain.tech.dto.TechResponseDto;
+import jakarta.servlet.http.HttpServletRequest;
 
 public interface TechService {
 
-	TechResponseDto createTech(TechRequestDto dto);
+	TechResponseDto createTech(HttpServletRequest request, TechRequestDto dto);
 
 	List<TechResponseDto> findAllTech();
 
-	void deleteTech(Long no);
+	void deleteTech(HttpServletRequest request, Long no);
 }

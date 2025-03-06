@@ -23,4 +23,6 @@ public class JoinRequestDto {
     @NotBlank
     @Email
     private String email;
+
+    private String phoneNum;
 }

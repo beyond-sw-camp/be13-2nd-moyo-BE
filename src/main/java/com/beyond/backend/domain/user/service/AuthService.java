@@ -1,6 +1,7 @@
 package com.beyond.backend.domain.user.service;
 
 import com.beyond.backend.domain.user.dto.*;
+import com.beyond.backend.domain.user.entity.User;
 
 
 public interface AuthService {
@@ -13,4 +14,6 @@ public interface AuthService {
     TokenResponseDto refresh(String bearerToken);
 
     BanResponseDto banUser(BanRequestDto dto);
+
+    UnlockResponseDto unlockUser(UnlockRequestDto dto);
 }
