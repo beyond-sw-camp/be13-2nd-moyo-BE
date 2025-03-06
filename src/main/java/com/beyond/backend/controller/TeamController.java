@@ -1,11 +1,11 @@
 package com.beyond.backend.controller;
 
-import com.beyond.backend.data.dto.teamDto.TeamDto;
-import com.beyond.backend.data.dto.teamDto.TeamMemberListDto;
-import com.beyond.backend.data.dto.teamDto.TeamResponseDto;
-import com.beyond.backend.data.entity.ProjectStatus;
-import com.beyond.backend.data.entity.TeamJoinStatus;
-import com.beyond.backend.service.TeamService;
+import com.beyond.backend.domain.team.dto.TeamDto;
+import com.beyond.backend.domain.team.dto.TeamMemberListDto;
+import com.beyond.backend.domain.team.dto.TeamResponseDto;
+import com.beyond.backend.domain.project.entity.ProjectStatus;
+import com.beyond.backend.domain.team.entity.TeamJoinStatus;
+import com.beyond.backend.domain.team.service.TeamService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -16,7 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.Mapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;

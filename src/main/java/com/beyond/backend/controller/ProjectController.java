@@ -1,9 +1,9 @@
 package com.beyond.backend.controller;
 
-import com.beyond.backend.data.dto.ProjectRequestDto;
-import com.beyond.backend.data.dto.ProjectResponseDto;
-import com.beyond.backend.data.entity.ProjectSearchOption;
-import com.beyond.backend.service.ProjectService;
+import com.beyond.backend.domain.project.dto.ProjectRequestDto;
+import com.beyond.backend.domain.project.dto.ProjectResponseDto;
+import com.beyond.backend.domain.project.entity.ProjectSearchOption;
+import com.beyond.backend.domain.project.service.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +46,7 @@ public class ProjectController {
     /**
      * Get product response entity.
      *
-     * @param teamNo 팀 번호
+     * @param projectRequestDto 팀 번호
      * @return the response entity
      */
 

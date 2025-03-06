@@ -1,10 +1,10 @@
 package com.beyond.backend.controller;
 
-import com.beyond.backend.data.dto.MessageDto;
-import com.beyond.backend.data.dto.MessageResponseDto;
-import com.beyond.backend.data.entity.User;
-import com.beyond.backend.data.repository.UserRepository;
-import com.beyond.backend.service.MessageService;
+import com.beyond.backend.domain.message.dto.MessageDto;
+import com.beyond.backend.domain.message.dto.MessageResponseDto;
+import com.beyond.backend.domain.message.service.MessageService;
+import com.beyond.backend.domain.user.entity.User;
+import com.beyond.backend.domain.user.repository.UserRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
@@ -141,7 +141,7 @@ public class MessageController {
      * 유저 있는지 메서드
      */
     private User getUserByNo(Long userNo) {
-        return userRepository.findByNo(userNo)
+        return userRepository.findById(userNo)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
     }
     // try catch 로..?
