@@ -62,4 +62,7 @@ public interface TeamService {
 
     // 팀원 신청 취소 / 탈퇴
     void teamJoinRequestCancel(Long teamNo) throws Exception;
+
+    // [팀장] 리더 권한 넘겨주기
+    void teamLeaderSwap(Long teamNo, Long userNo) throws Exception;
 }

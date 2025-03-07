@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.beyond.backend.domain.user.service.AuthService.getCurrentUsername;
 
@@ -325,6 +326,30 @@ public class TeamServiceImpl implements TeamService {
         teamUser.setStatus(TeamJoinStatus.Rejected);
         teamUserRepository.save(teamUser);
     }
+
+    @Override
+    public void teamLeaderSwap(Long teamNo, Long userNo) throws Exception {
+        User user = findUserByUsername();
+        
+        // 팀장 권한 부여
+        Long teamUserNo = teamUserRepository.findByUserNoForTeamUserNo(teamNo, userNo);
+
+        TeamUser teamUser = teamUserRepository.findById(teamUserNo)
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다!"));
+
+        teamUser.setLeader(true);
+        teamUserRepository.save(teamUser);
+
+        // 원래 팀장 해임
+        teamUserNo = teamUserRepository.findByUserNoForTeamUserNo(teamNo, user.getNo());
+
+        teamUser = teamUserRepository.findById(teamUserNo)
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다!"));
+        teamUser.setLeader(false);
+        teamUserRepository.save(teamUser);
+
+    }
+
 
     /**
      * 팀 탈퇴

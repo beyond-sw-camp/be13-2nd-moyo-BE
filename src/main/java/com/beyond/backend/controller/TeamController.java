@@ -218,6 +218,21 @@ public class TeamController {
     }
 
     /**
+     * 팀장 권한 양도
+     * @param teamNo 팀 번호
+     * @param userNo 양도받을 유저 번호
+     * @return 정상적으로 처리되었습니다.
+     * @throws Exception
+     */
+    @PutMapping("/{teamNo}/setting/members")
+    @Operation(summary = "[팀장] 팀장 권한 양도", description = "팀장 권한을 양도하는 메서드입니다.")
+    public ResponseEntity<String> teamLeaderSwap(@PathVariable Long teamNo,
+                                                 @RequestParam Long userNo) throws Exception {
+        teamService.teamLeaderSwap(teamNo,userNo);
+        return ResponseEntity.status(HttpStatus.OK).body("정상적으로 처리 되었습니다.");
+    }
+
+    /**
      * 팀원 목록 조회 메서드
      * @param teamNo 팀번호
      * @return TeamMemberListDto
