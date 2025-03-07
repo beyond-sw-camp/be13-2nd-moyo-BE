@@ -1,3 +1,4 @@
+
 package com.beyond.backend.domain.project.repository;
 
 
@@ -67,7 +68,7 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
 		Map<Long, List<String>> projectTechMap = getProjectTechs(projectList);
 
 		// 3. 각 프로젝트에 해당하는 projectTeches 설정
-		allProjects.forEach(proj -> proj.setProjectTeches(projectTechMap.getOrDefault(proj.getNo(), new ArrayList<>())));
+		//allProjects.forEach(proj -> proj.setProjectTeches(projectTechMap.getOrDefault(proj.getNo(), new ArrayList<>())));
 
 
 		// 4. 전체 프로젝트 개수 조회
@@ -127,9 +128,9 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
 		// 3. 프로젝트 기술 스택 조회 후 매핑
 		Map<Long, List<String>> projectTechMap = getProjectTechs(projectIds);
 
-		searchList.forEach(proj ->
+		/*searchList.forEach(proj ->
 				proj.setProjectTeches(projectTechMap.getOrDefault(proj.getNo(), new ArrayList<>()))
-		);
+		);*/
 
 		JPAQuery<Long> totalCount = queryFactory
 				.select( project.count() )
@@ -139,22 +140,24 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
 		return PageableExecutionUtils.getPage(searchList, pageable, totalCount::fetchOne);
 	}
 
-	public Map<Long, List<String>> getProjectTechs(List<Long> projectIds) {
-		if (projectIds == null || projectIds.isEmpty()) {
-			return new HashMap<>(); // 프로젝트가 없으면 빈 맵 반환
-		}
 
-		return queryFactory
-				.select(projectTech.projectId, projectTech.tech.techName)
-				.from(projectTech)
-				.where(projectTech.projectId.in(projectIds))
-				.fetch()
-				.stream()
-				.collect(Collectors.groupingBy(
-						tuple -> tuple.get(projectTech.projectId), // projectId 기준으로 그룹화
-						Collectors.mapping(tuple -> tuple.get(projectTech.tech.techName), Collectors.toList()) // techName 리스트 매핑
-				));
-	}
+    public Map<Long, List<String>> getProjectTechs(List<Long> projectIds) {
+        if (projectIds == null || projectIds.isEmpty()) {
+            return new HashMap<>(); // 프로젝트가 없으면 빈 맵 반환
+        }
+
+        return queryFactory
+                .select(projectTech.projectNo, projectTech.tech.techName)
+                .from(projectTech)
+                .where(projectTech.projectNo.in(projectIds))
+                .fetch()
+                .stream()
+                .collect(Collectors.groupingBy(
+                        tuple -> tuple.get(projectTech.projectNo), // projectId 기준으로 그룹화
+                        Collectors.mapping(tuple -> tuple.get(projectTech.tech.techName), Collectors.toList()) // techName 리스트 매핑
+                ));
+    }
+
 
 	private BooleanExpression searchOption(String keyword, ProjectSearchOption option){
 
@@ -174,19 +177,23 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
 	}
 
 
+
+
 	/// TODO 로직 확인
 	private BooleanExpression projectExistsInTech(String keyword) {
 
 		return JPAExpressions.selectOne()
 				.from(projectTech)
 				.where(
-						projectTech.projectId.eq(project.no)
+						projectTech.projectNo.eq(project.no)
 								.and(projectTech.tech.techName.contains(keyword))
 				)
 				.exists();
 	}
 
+
 	/// 유저가 참여한 모든 프로젝트 조회
+
 	public Page<ProjectResponseDto> findProjectsByUserId(Long userNo, Pageable pageable) {
 
 		List<ProjectResponseDto> projectList = queryFactory
@@ -211,7 +218,7 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
 		// 리스트 no 에 대응하는 projectTech 가져오기
 		Map<Long, List<String>> techList = getProjectTechs(projectNoList);
 
-		projectList.forEach(proj -> proj.setProjectTeches(techList.getOrDefault(proj.getNo(), new ArrayList<>())));
+		// projectList.forEach(proj -> proj.setProjectTeches(techList.getOrDefault(proj.getNo(), new ArrayList<>())));
 
 		// 한 유저가 참여한 프로젝트 개수
 		JPAQuery<Long> totalCount = queryFactory
@@ -224,4 +231,6 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
 		return PageableExecutionUtils.getPage(projectList, pageable, totalCount::fetchOne);
 	}
 
+
 }
+

@@ -2,9 +2,12 @@ package com.beyond.backend.domain.project.dto;
 
 import com.beyond.backend.domain.project.entity.ProjectStatus;
 
+import com.beyond.backend.domain.project.entity.ProjectTech;
+import com.beyond.backend.domain.tech.entity.Tech;
 import lombok.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -41,6 +44,11 @@ public class ProjectRequestDto {
     private ProjectStatus projectStatus;
 
     // tech 는 프론트에서 checkbox 이용해서 프론트에서 넘겨줘야 함. -> 이것도 그냥 내가 리스트로 받아야 하나 ???
+    private List<Long> techsNos;
 
-    private List<String> projectTeches;
+/*    public List<Long> getTechsNo() {
+        return techs.stream()
+                .map(Tech::getNo)
+                .toList();
+    }*/
 }

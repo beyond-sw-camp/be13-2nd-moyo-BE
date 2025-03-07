@@ -5,21 +5,21 @@ import com.beyond.backend.domain.user.entity.User;
 import com.beyond.backend.domain.user.entity.UserRoleType;
 import com.beyond.backend.domain.user.jwt.JwtTokenProvider;
 import com.beyond.backend.domain.user.repository.UserRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final AuthTransactionService authTransactionService; // 별도 서비스 주입
 
     @Override
     public void join(JoinRequestDto dto) {
@@ -49,6 +49,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public TokenResponseDto login(LoginRequestDto dto) {
         String username = dto.getUsername();
         String password = dto.getPassword();
@@ -56,35 +57,25 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("유저가 존재하지 않습니다"));
 
-        if (!passwordEncoder.matches(password, user.getPassword())) {
+        validPwd(password, user);
 
-            user.updatePasswordErrorCount(user.getPasswordErrorCount() + 1);
-            userRepository.save(user);
-            log.info("{} pwdErrCount = {}", user.getUsername(), user.getPasswordErrorCount());
-            throw new IllegalArgumentException("패스워드가 일치하지 않습니다");
-        }
-
-        //회원정보 유효성 검증 후 토큰 발급
-
+        // 비밀번호가 일치한 경우 나머지 로그인 로직 실행
         TokenResponseDto tokenResponseDto = new TokenResponseDto(
                 jwtTokenProvider.createAccessToken(user.getUsername(), user.getRole().toString()),
                 jwtTokenProvider.createRefreshToken(user.getUsername())
         );
 
-        // 스프링 시큐리티 필터를 통해서 로그인이 처리되었으면
-        // CustomUserDetails 안에 유저정보가 들어있으니까 그걸통해서 밴여부를 확인하는거져
-        // 사용자 밴 여부 확인 로직 이부분 메서드로 빼서 쓰시면 깔끔할듯
-        CustomUserDetails customUserDetails = (CustomUserDetails) jwtTokenProvider.getAuthentication(tokenResponseDto.getAccessToken()).getPrincipal();
+        // 추가 유효성 검사...
+        CustomUserDetails customUserDetails = (CustomUserDetails) jwtTokenProvider
+                .getAuthentication(tokenResponseDto.getAccessToken()).getPrincipal();
 
-        if(!customUserDetails.isEnabled()){
-            System.out.println("너 밴");
+        if (!customUserDetails.isEnabled()) {
             throw new RuntimeException("밴 사용자");
         }
-
         if (!customUserDetails.isAccountNonLocked()) {
-            System.out.println("너 임시 정지");
             throw new RuntimeException("임시 정지 사용자");
         }
+
         return tokenResponseDto;
     }
 
@@ -113,9 +104,8 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByUsername(jwtTokenProvider.getUserName(refreshToken)).get();
 
         return new TokenResponseDto(
-                jwtTokenProvider.createAccessToken(user.getUsername(),
-                                                   user.getRole().toString()),
-                                                   refreshToken
+                jwtTokenProvider.createAccessToken(user.getUsername(), user.getRole().toString()),
+                refreshToken
         );
     }
 
@@ -136,5 +126,15 @@ public class AuthServiceImpl implements AuthService {
         user.updatePasswordErrorCount(0);
         userRepository.save(user);
         return new UnlockResponseDto();
+    }
+
+    // 비밀번호 검증 로직 (login 메서드 내에서 호출)
+    public void validPwd(String password, User user) {
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            // passwordErrorCount 를 별도의 트랜잭션에서 업데이트
+            authTransactionService.increasePasswordErrorCount(user);
+            log.info("Username : {}, PasswordErrorCount : {}", user.getUsername(), user.getPasswordErrorCount());
+            throw new IllegalArgumentException("패스워드가 일치하지 않습니다");
+        }
     }
 }

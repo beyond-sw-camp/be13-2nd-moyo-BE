@@ -4,46 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.beyond.backend.domain.common.BaseEntity;
+import com.beyond.backend.domain.common.entity.Status;
 import com.beyond.backend.domain.feedback.entity.Feedback;
 import com.beyond.backend.domain.team.entity.Team;
 import com.beyond.backend.domain.tech.entity.Tech;
 import com.beyond.backend.domain.project.dto.ProjectRequestDto;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-/**
- * <p>
- *
- * <p>packageName    : com.beyond.backend.data.entity
- * <p>fileName       : Project
- * <p>author         : jaewoo
- * <p>date           : 2025. 2. 1.
- * <p>description    : 프로젝트 Entity
- */
-/*
- * ===========================================================
- * DATE              AUTHOR             NOTE
- * -----------------------------------------------------------
- * 2025. 2. 1.        jaewoo             최초 생성
- * 2025. 2. 3.        jaewoo             변수명 수정
- * 2025. 2. 4.        jaewoo             변수명 수정
- */
 
 @Entity
 @Getter
@@ -80,6 +51,13 @@ public class Project extends BaseEntity {
     @JoinColumn(name = "project_no")// 단방향
     private List<ProjectTech> projectTeches;
 
+    //기본 초기화
+    @PrePersist
+    public void prePersist() {
+        if (projectStatus == null) {
+            projectStatus = ProjectStatus.OPEN;
+        }
+    }
 
     // 조회수 증가
     public void increaseViewCnt() {
@@ -100,11 +78,13 @@ public class Project extends BaseEntity {
     }
 
     // project Tech 연관관계 메서드 지정
-/*    public void addTech(Tech tech){
-        ProjectTech projectTech = new ProjectTech(tech, this.no);
-        projectTeches.add(projectTech);
-    }*/
-
+    public void addProjectTech(List<ProjectTech> list){
+        if (this.projectTeches == null) {
+            this.projectTeches = new ArrayList<>();
+        }
+        this.projectTeches.clear(); // 기존 리스트 초기화
+        this.projectTeches.addAll(list); // 새로운 리스트 추가
+    }
 
     // 프로젝트 제목, 내용, 상태만 변경
     public void update(ProjectRequestDto projectRequestDto){
