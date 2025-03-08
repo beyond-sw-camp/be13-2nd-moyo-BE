@@ -60,9 +60,10 @@ public class ProjectController {
 
 
     @Operation(summary = "프로젝트 삭제 메서드", description = "프로젝트 삭제 메서드 입니다.")
-    @DeleteMapping("/{projectNo}")
+    @DeleteMapping("/{userNo}/{projectNo}")
     public ResponseEntity<Void> deleteProject( @PathVariable("userNo") Long userNo, @PathVariable("projectNo") Long projectNo ) throws Exception {
-
+        System.out.println("userNo = " + userNo);
+        System.out.println("projectNo = " + projectNo);
         projectService.deleteProject(userNo, projectNo);
 
         return ResponseEntity.noContent().build();
@@ -103,7 +104,7 @@ public class ProjectController {
     @Operation(summary = "프로젝트 검색 ")
     @GetMapping("/search")
     public ResponseEntity<Page<ProjectResponseDto>> searchPosts( @RequestParam String keyword, @RequestParam(required = false) ProjectSearchOption option, // 검색 옵션 (선택)
-                                                                @PageableDefault(size = 10, page = 0) Pageable pageable) {
+        @PageableDefault(size = 10, page = 0) Pageable pageable) {
 
         Page<ProjectResponseDto> searchResults = projectService.searchProject(keyword, option, pageable);
 
