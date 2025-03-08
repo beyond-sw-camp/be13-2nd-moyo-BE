@@ -3,6 +3,8 @@ package com.beyond.backend.controller;
 import com.beyond.backend.domain.comment.dto.CommentDto;
 import com.beyond.backend.domain.comment.dto.CommentResponseDto;
 import com.beyond.backend.domain.comment.service.CommentService;
+import com.beyond.backend.domain.post.dto.PostResponseDto;
+import com.beyond.backend.domain.post.dto.UserPostResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -52,7 +55,7 @@ public class CommentController {
 
     // 로그인한 유저만 가능하게 하기
     @Operation(summary = "댓글 수정", description = "댓글 내용 수정")
-    @PostMapping("/comments/{commentNo}")
+    @PostMapping("/comments/{commentNo}/update")
     public ResponseEntity<CommentResponseDto> updateComment(
             @PathVariable Long commentNo,
             @RequestBody CommentDto commentDto
@@ -84,14 +87,26 @@ public class CommentController {
 
 
 
-    // 댓글도 페이징 처리?
+    // 댓글도 페이징 처리
     // 게시글의 모든 댓글 조회
+    @Operation(summary = "게시글의 전체 댓글 조회", description = "게시글에 작성된 전체 댓글 조회")
+    @GetMapping("/posts/{postNo}/comments")
+    public ResponseEntity<Page<CommentResponseDto>> getPostComments(
+            @PathVariable Long postNo,
+             @PageableDefault(size = 10, page= 0) Pageable pageable){
+
+        Page<CommentResponseDto> result = commentService.getPostComments(postNo, pageable);
+
+        return ResponseEntity.ok(result);
+    }
+
+
     
     
     // 내가 쓴 댓글 전체 조회
     @Operation(summary = "유저의 댓글 전체 조회", description = "개인 페이지에서 자신의 댓글을 전체 조회 가능")
     @GetMapping("/{userNo}/user-page/comments")
-    public ResponseEntity<Page<CommentResponseDto>> getComments(
+    public ResponseEntity<Page<CommentResponseDto>> getUserComments(
             @PathVariable Long userNo,
             @PageableDefault(size = 10, page= 0) Pageable pageable){
 
@@ -102,6 +117,47 @@ public class CommentController {
 
     
     // 내가 댓글 단 게시글 전체 조회
+    @Operation(summary = "유저가 댓글단 게시글 전체 조회", description = "개인 페이지에서 자신이 댓글단 게시글 전체 조회 가능")
+    @GetMapping("/users/{userNo}/comments/posts")
+    public ResponseEntity<Page<PostResponseDto>> getUserCommentPosts(
+            @PathVariable Long userNo,
+            @PageableDefault(size = 10, page= 0) Pageable pageable){
+
+        Page<PostResponseDto> result = commentService.getUserCommentPosts(userNo, pageable);
+
+        return ResponseEntity.ok(result);
+    }
+
+
+
+    //------------------------
+
+    // 댓글 좋아요 / 좋아요 취소
+    @Operation(summary = "댓글 좋아요 추가 및 취소", description = "댓글 좋아요 상태 (추가, 취소)")
+    @PostMapping("/{commentNo}/like")
+    public ResponseEntity<String> likeComment(
+            @PathVariable Long commentNo,
+            @RequestParam Long userNo){
+
+        String result = commentService.checkCommentLike(commentNo, userNo);
+
+
+        return ResponseEntity.ok(result);
+
+    }
+
+    // 유저가 좋아요한 댓글 전체 조회
+    @Operation(summary = "유저가 좋아요한 댓글 전체 조회", description = "개인 페이지에서 자신이 좋아요한 댓글 전체 조회 가능")
+    @GetMapping("/users/{userNo}/liked-comments")
+    public ResponseEntity<Page<CommentResponseDto>> getUserLikedComments(
+            @PathVariable Long userNo,
+            @PageableDefault(size = 10, page= 0) Pageable pageable){
+
+
+        Page<CommentResponseDto> result = commentService.getUserLikedComments(userNo, pageable);
+
+        return ResponseEntity.ok(result);
+    }
 
 
 

@@ -58,17 +58,22 @@ public class PostServiceImpl implements PostService {
         return postRepository.searchPosts(boardType, option, keyword, pageable);
     }
 
+
+    // 게시글 단 건 조회
     @Override
     public PostResponseDto getPostById(Long postNo) {
-        Post foundPost = postRepository.findById(postNo)
+        Post post = postRepository.findById(postNo)
                 .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 존재하지 않습니다."));
 
 
         // 비활성화된 게시글인 경우 상세 조회 불가능
-        if(foundPost.getPostStatus() == PostStatus.INACTIVE){
+        if(post.getPostStatus() == PostStatus.INACTIVE){
             throw new IllegalArgumentException("해당 게시글은 비활성된 게시글로 볼 수 없습니다.");
         }
-        return new PostResponseDto(foundPost);
+
+        // 조회수 증가
+        post.increaseViewCount();
+        return new PostResponseDto(post);
     }
 
     // 게시글 생성
@@ -170,6 +175,14 @@ public class PostServiceImpl implements PostService {
                     .orElseThrow(() -> new RuntimeException("북마크가 존재하지 않습니다."));
 
             bookMarkRepository.delete(existingBookMark);
+
+
+            // 북마크 개수 감소
+            Post post = postRepository.findById(postNo).orElseThrow(); // post 조회해와서 값 변경
+            post.decreaseBookmarkCount();
+
+
+
             return "북마크가 해제되었습니다.";
         }
 
@@ -179,11 +192,14 @@ public class PostServiceImpl implements PostService {
                 .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
 
         User user = userRepository.findById(userNo)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저가 존재하지 않습니다."));
 
         // 새 북마크 생성 저장
         BookMark newBookMark = new BookMark(bookMarkNo, post, user);
         bookMarkRepository.save(newBookMark);
+
+        // 북마크 개수 증가
+        post.increaseBookmarkCount();
 
         return "북마크가 추가되었습니다.";
     }

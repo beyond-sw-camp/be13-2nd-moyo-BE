@@ -1,6 +1,6 @@
-package com.beyond.backend.domain.comment.entity;
+package com.beyond.backend.domain.like.entity;
 
-import com.beyond.backend.domain.post.entity.Post;
+import com.beyond.backend.domain.comment.entity.Comment;
 import com.beyond.backend.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -8,9 +8,8 @@ import lombok.Getter;
 
 @Entity
 @Getter
-@AllArgsConstructor
 @Table(name = "likes", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"post_no", "user_no"})
+        @UniqueConstraint(columnNames = {"comment_no", "user_no"})
 })
 public class Like {
 
@@ -21,8 +20,8 @@ public class Like {
 
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "post_no", nullable = false)
-    private Post post;
+    @JoinColumn(name = "comment_no", nullable = false)
+    private Comment comment;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_no", nullable = false)
@@ -30,5 +29,10 @@ public class Like {
 
     protected Like(){
 
+    }
+
+    public Like (Comment comment, User user){
+        this.comment = comment;
+        this.user = user;
     }
 }

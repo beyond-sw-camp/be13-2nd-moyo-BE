@@ -2,7 +2,7 @@ package com.beyond.backend.domain.user.entity;
 
 import com.beyond.backend.domain.bookMark.entity.BookMark;
 import com.beyond.backend.domain.comment.entity.Comment;
-import com.beyond.backend.domain.comment.entity.Like;
+import com.beyond.backend.domain.like.entity.Like;
 import com.beyond.backend.domain.common.BaseEntity;
 import com.beyond.backend.domain.common.entity.Status;
 import com.beyond.backend.domain.message.entity.Message;
