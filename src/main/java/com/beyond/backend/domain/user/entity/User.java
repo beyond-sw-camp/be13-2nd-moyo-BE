@@ -9,7 +9,6 @@ import com.beyond.backend.domain.message.entity.Message;
 import com.beyond.backend.domain.post.entity.Post;
 import com.beyond.backend.domain.reportUser.entity.ReportUser;
 import com.beyond.backend.domain.teamUser.entity.TeamUser;
-import io.jsonwebtoken.security.Password;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;

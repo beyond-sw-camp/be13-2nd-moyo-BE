@@ -1,5 +1,6 @@
 package com.beyond.backend.config;
 
+import com.beyond.backend.domain.common.service.RedisSubscriber;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -8,9 +9,8 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.listener.ChannelTopic;
+import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
-import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
@@ -49,20 +49,19 @@ public class RedisConfig {
         return redisTemplate;
     }
 
-    // Redis 메시지 리스너 어댑터 설정: 실제 메시지 처리 로직(RedisMessageSubscriber)을 주입
-/*    @Bean
-    public MessageListenerAdapter messageListener(RedisMessageSubscriber subscriber) {
-        return new MessageListenerAdapter(subscriber);
-    }*/
 
-    // Redis 메시지 리스너 컨테이너 설정: 특정 채널("notification")을 구독하도록 구성
-/*    @Bean
+    //Redis 메시지 리스너 컨테이너 설정: 특정 채널("notification")을 구독하도록 구성
+    @Bean
     public RedisMessageListenerContainer redisContainer(RedisConnectionFactory connectionFactory,
-                                                        MessageListenerAdapter listenerAdapter) {
+                                                        RedisSubscriber redisSubscriber) {
+
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
-        // "notification" 채널에 발행되는 모든 메시지를 listenerAdapter 가 수신
-        container.addMessageListener(listenerAdapter, new ChannelTopic("notification"));
+        container.addMessageListener((message, pattern) ->
+                        redisSubscriber.onMessage(new String(message.getChannel()), new String(message.getBody())),
+                new PatternTopic("commentNotification")
+        );
+
         return container;
-    }*/
+    }
 }

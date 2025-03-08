@@ -1,34 +1,33 @@
 package com.beyond.backend.domain.common.entity;
 
-import com.beyond.backend.domain.common.BaseEntity;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Entity
-@Table(name = "notification")
 @Getter
 @NoArgsConstructor
-public class Notification extends BaseEntity {
+@Entity
+public class Notification {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long no;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;          // 알림 ID (UUID)
 
-    @Column(nullable = false)
-    private Long recipientNo;
+    private String senderId;    // 보낸 사람 ID
+    private String receiverId;  // 받는 사람 ID
+    private NotificationType type;
+    private String message;     // 알림 메시지
 
-    @Column(nullable = false)
-    private NotificationStatus status;
-
-    @Column(nullable = false)
-    private String message;
-
-    @Column(nullable = false)
-    private boolean read;
-
-    public void updateRead(boolean read) {
-        this.read = read;
+    @Builder
+    public Notification(String id, String senderId, String receiverId, NotificationType type, String message) {
+        this.id = id;
+        this.senderId = senderId;
+        this.receiverId = receiverId;
+        this.type = type;
+        this.message = message;
     }
 }

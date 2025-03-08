@@ -1,6 +1,6 @@
 package com.beyond.backend.domain.common.entity;
 
-public enum NotificationStatus {
+public enum NotificationType {
     COMMENT,
     LIKE,
     REPORT,

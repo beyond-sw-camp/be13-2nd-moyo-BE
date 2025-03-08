@@ -40,7 +40,7 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
 		this.queryFactory = new JPAQueryFactory(em);
 	}
 
-	///  모든 프로젝트 조회 - 최신순 정렬 기능 추가 하기
+/*	///  모든 프로젝트 조회 - 최신순 정렬 기능 추가 하기
 	@Override
 	public Page<ProjectResponseDto> getProjects(Pageable pageable) {
 
@@ -78,7 +78,7 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
 
 
 		return PageableExecutionUtils.getPage(allProjects, pageable, totalCount::fetchOne);
-	}
+	}*/
 
 
 	// 정렬 (Pageable Sort 활용)
@@ -100,6 +100,11 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
 		return project.createdAt.desc();
 	}
 
+
+	@Override
+	public Page<ProjectResponseDto> getProjects(Pageable pageable) {
+		return null;
+	}
 
 	///  프로젝트 검색 조회
 	@Override
@@ -126,7 +131,7 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
 				.toList();
 
 		// 3. 프로젝트 기술 스택 조회 후 매핑
-		Map<Long, List<String>> projectTechMap = getProjectTechs(projectIds);
+		//Map<Long, List<String>> projectTechMap = getProjectTechs(projectIds);
 
 		/*searchList.forEach(proj ->
 				proj.setProjectTeches(projectTechMap.getOrDefault(proj.getNo(), new ArrayList<>()))
@@ -141,7 +146,7 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
 	}
 
 
-    public Map<Long, List<String>> getProjectTechs(List<Long> projectIds) {
+/*    public Map<Long, List<String>> getProjectTechs(List<Long> projectIds) {
         if (projectIds == null || projectIds.isEmpty()) {
             return new HashMap<>(); // 프로젝트가 없으면 빈 맵 반환
         }
@@ -156,7 +161,7 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
                         tuple -> tuple.get(projectTech.projectNo), // projectId 기준으로 그룹화
                         Collectors.mapping(tuple -> tuple.get(projectTech.tech.techName), Collectors.toList()) // techName 리스트 매핑
                 ));
-    }
+    }*/
 
 
 	private BooleanExpression searchOption(String keyword, ProjectSearchOption option){
@@ -182,13 +187,13 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
 	/// TODO 로직 확인
 	private BooleanExpression projectExistsInTech(String keyword) {
 
-		return JPAExpressions.selectOne()
+		return null;/*JPAExpressions.selectOne()
 				.from(projectTech)
 				.where(
 						projectTech.projectNo.eq(project.no)
 								.and(projectTech.tech.techName.contains(keyword))
 				)
-				.exists();
+				.exists();*/
 	}
 
 
@@ -216,7 +221,7 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
 		List<Long> projectNoList = projectList.stream().map(ProjectResponseDto::getNo).toList();
 
 		// 리스트 no 에 대응하는 projectTech 가져오기
-		Map<Long, List<String>> techList = getProjectTechs(projectNoList);
+		//Map<Long, List<String>> techList = getProjectTechs(projectNoList);
 
 		// projectList.forEach(proj -> proj.setProjectTeches(techList.getOrDefault(proj.getNo(), new ArrayList<>())));
 
