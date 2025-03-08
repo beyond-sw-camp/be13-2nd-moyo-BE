@@ -1,6 +1,7 @@
 package com.beyond.backend.domain.project.entity;
 
 import com.beyond.backend.domain.common.BaseEntity;
+import com.beyond.backend.domain.common.entity.Status;
 import com.beyond.backend.domain.feedback.entity.Feedback;
 import com.beyond.backend.domain.project.dto.ProjectRequestDto;
 import com.beyond.backend.domain.team.entity.Team;
@@ -33,7 +34,6 @@ public class Project extends BaseEntity {
 
     private int viewCnt;
 
-    // 관계설정 수정
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_no")
     private Team team;
@@ -44,8 +44,8 @@ public class Project extends BaseEntity {
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Feedback> feedbacks = new ArrayList<>();
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<ProjectTech> projectTechs = new ArrayList<>();
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProjectTech> projectTeches = new ArrayList<>();
 
     //기본 초기화
     @PrePersist
@@ -71,6 +71,10 @@ public class Project extends BaseEntity {
     public void addFeedbacks(Feedback feedback){
         this.feedbacks.add(feedback);
         feedback.setProject(this);
+    }
+
+    public void addProjectTechList(List<ProjectTech> teches){
+        this.projectTeches = teches;
     }
 
     public void update(ProjectRequestDto projectRequestDto){

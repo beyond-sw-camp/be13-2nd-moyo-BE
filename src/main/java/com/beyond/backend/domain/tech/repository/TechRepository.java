@@ -1,5 +1,7 @@
 package com.beyond.backend.domain.tech.repository;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.beyond.backend.domain.tech.entity.Tech;

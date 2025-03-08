@@ -21,7 +21,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,7 +43,7 @@ public class ProjectServiceImpl implements ProjectService {
 
 		// 팀이 존재하는지 검증
 		Team team = teamRepository.findById(projectRequestDto.getTeamNo()).orElseThrow(
-			() -> new IllegalArgumentException("해당하는 Team 이 없습니다.")
+			() -> new IllegalArgumentException("해당하는 Team이 없습니다.")
 		);
 
 		// 1. DTO -> entity 로 변환
@@ -53,41 +52,46 @@ public class ProjectServiceImpl implements ProjectService {
 			.content(projectRequestDto.getContent())
 			.team(team) // 여기에 검증된 팀 넣기
 			.build();
+
 		projectRepository.save(project);
 
 		// 3. techsNos 리스트를 순회하며 각 기술에 대해 ProjectTech 엔티티 생성
 		List<ProjectTech> projectTechList = projectRequestDto.getTechsNos().stream()
-				.map(techNo -> {
-					// 각 techNo로 Tech 엔티티 조회
-					Tech tech = techRepository.findById(techNo)
-							.orElseThrow(() -> new IllegalArgumentException("해당 기술이 존재하지 않습니다. techNo=" + techNo));
-					// ProjectTech 엔티티 생성: project.getNo()를 사용하여 project_no를 할당
-					return ProjectTech.builder()
-							.tech(tech)
-							.project(project)
-							.build();
-				})
-				.collect(Collectors.toList());
+			.map( techNo -> {
+				// 각 techNo로 Tech 엔티티 조회
+				Tech tech = techRepository.findById(techNo)
+					.orElseThrow(() -> new IllegalArgumentException("해당 기술이 존재하지 않습니다. techNo=" + techNo));
+				// ProjectTech 엔티티 생성: project.getNo()를 사용하여 project_no를 할당
+				return ProjectTech.builder()
+					.tech(tech)
+					.project(project)
+					.build();
+			})
+			.collect(Collectors.toList());
 
 		// 4. 생성한 ProjectTech 엔티티들을 한 번에 저장
 		projectTechRepository.saveAll(projectTechList);
 
+		project.addProjectTechList(projectTechList);
+
 		// 5. ProjectResponseDto 생성 후 반환
 		return new ProjectResponseDto(project);
-
 	}
 
+
 	@Override
+	@Transactional
 	public ProjectResponseDto updateProject(Long projectNo, Long userNo, ProjectRequestDto projectRequestDto) {
+
 		// 1. 프로젝트 있는지 검증
 		// 수정하고자 하는 프로젝트
 		Project project = projectRepository.findById(projectNo).orElseThrow(
-				() -> new IllegalArgumentException("해당하는 프로젝트가 없습니다.")
+			() -> new IllegalArgumentException("해당하는 프로젝트가 없습니다.")
 		);
 
 		// 2. 유저 존재하는지 검증
 		User user = userRepository.findById(userNo).orElseThrow(
-				() -> new IllegalArgumentException("해당하는 사용자가 없습니다.")
+			() -> new IllegalArgumentException("해당하는 사용자가 없습니다.")
 		);
 
 		Team team = project.getTeam();
@@ -99,25 +103,37 @@ public class ProjectServiceImpl implements ProjectService {
 			throw new IllegalArgumentException("사용자는 해당 프로젝트를 수정할 권한이 없습니다.");
 		}
 
-		// 프로젝트 ID를 사용하여 새롭게 ProjectTech 저장
+		// 4. 기존 ProjectTech 리스트 삭제 (중복 데이터 방지)
+		deleteProjectTechs(project);
+
+		// 5. 새로운 ProjectTech 리스트 생성
 		List<ProjectTech> newProjectTechList = projectRequestDto.getTechsNos().stream()
-				.map(techNo -> {
-					Tech tech = techRepository.findById(techNo)
-							.orElseThrow(() -> new IllegalArgumentException("해당 기술이 존재하지 않습니다. techNo=" + techNo));
-					return ProjectTech.builder()
-							.tech(tech)
-							.project(project)
-							.build();
-				})
-				.collect(Collectors.toList());
+			.distinct() // 중복 제거
+			.map(techNo -> {
+				Tech tech = techRepository.findById(techNo)
+					.orElseThrow(() -> new IllegalArgumentException("해당 기술이 존재하지 않습니다. techNo=" + techNo));
+				return ProjectTech.builder()
+					.tech(tech)
+					.project(project)
+					.build();
+			})
+			.collect(Collectors.toList());
 
-		// 5. 새롭게 저장
+		// 6. 프로젝트에 새로운 프로젝트 기술 리스트 설정
+		project.getProjectTeches().clear(); // 기존 리스트를 비움
+		project.getProjectTeches().addAll(newProjectTechList); // 새로운 리스트 추가
 
+		// 7. 프로젝트 업데이트 수행
 		project.update(projectRequestDto);
-		projectTechRepository.saveAll(newProjectTechList);
 
-		// 6. 업데이트된 프로젝트 정보 반환
+		// 8. 업데이트된 프로젝트 정보 반환
 		return new ProjectResponseDto(project);
+	}
+
+	@Transactional
+	public void deleteProjectTechs(Project project) {
+		projectTechRepository.deleteAllByProject(project);
+		projectTechRepository.flush(); // DB 반영 보장
 	}
 
 	//  모든 프로젝트 조회
@@ -175,13 +191,13 @@ public class ProjectServiceImpl implements ProjectService {
 
 		// 1. user 검증
 		User user = userRepository.findById(userNo).orElseThrow(
-				()-> new IllegalArgumentException("해당하는 유저가 없습니다.")
+			()-> new IllegalArgumentException("해당하는 유저가 없습니다.")
 		);
 
 
 		// 2. project 검증
 		Project project = projectRepository.findById(projectNo).orElseThrow(
-				() -> new IllegalArgumentException("해당 프로젝트가 존재하지 않습니다.")
+			() -> new IllegalArgumentException("해당 프로젝트가 존재하지 않습니다.")
 		);
 
 		Team team = project.getTeam();
@@ -198,6 +214,7 @@ public class ProjectServiceImpl implements ProjectService {
 		if( !teamUserRepository.isLeader(team.getNo(), userNo) ){
 			throw new IllegalArgumentException("사용자는 해당 프로젝트를 수정할 권한이 없습니다.");
 		}
+
 
 		// 5. 프로젝트 삭제
 		projectRepository.deleteById(projectNo);

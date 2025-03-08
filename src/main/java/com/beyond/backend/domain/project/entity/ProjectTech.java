@@ -14,7 +14,7 @@ import java.beans.Transient;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "project_tech", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"project_no", "tech_no"})
+    @UniqueConstraint(columnNames = {"project_no", "tech_no"})
 })
 public class ProjectTech {
 
@@ -31,7 +31,7 @@ public class ProjectTech {
     private Tech tech;
 
     @Builder
-    public ProjectTech(Tech tech, Project project) {
+    public ProjectTech(Tech tech, Project project){
         this.tech = tech;
         this.project = project;
     }
