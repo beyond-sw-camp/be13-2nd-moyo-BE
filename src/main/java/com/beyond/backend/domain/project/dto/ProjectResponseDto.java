@@ -24,7 +24,7 @@ public class ProjectResponseDto {
 
     private ProjectStatus projectStatus;
 
-    private List<Long> projectTeches;
+    private List<String> projectTeches;
 
     private int view;
 
