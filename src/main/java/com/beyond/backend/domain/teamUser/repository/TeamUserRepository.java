@@ -117,5 +117,4 @@ public interface TeamUserRepository extends JpaRepository<TeamUser, Long> {
 
     // [홍도현] userNo가 teamNo에 속해 있는지 확인 (존재하면 true, 없으면 false 반환)
     boolean existsByUserNoAndTeamNo(Long userNo, Long teamNo);
-
 }

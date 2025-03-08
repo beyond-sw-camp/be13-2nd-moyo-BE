@@ -46,7 +46,7 @@ public class User extends BaseEntity{
     @Column(nullable = false)
     Boolean Banned = false;
 
-    @Access(AccessType.FIELD)
+    @Column(nullable = false)
     Integer passwordErrorCount;
 
     @Builder
@@ -61,7 +61,9 @@ public class User extends BaseEntity{
     //기본 초기화
     @PrePersist
     public void prePersist() {
-        passwordErrorCount = 0;
+        if (passwordErrorCount == null) {
+            passwordErrorCount = 0;
+        }
 
         if (Banned == null) {
             Banned = false;

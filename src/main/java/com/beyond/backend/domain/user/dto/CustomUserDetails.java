@@ -58,7 +58,6 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        //return !banned;
         return !user.getBanned();
     }
 }

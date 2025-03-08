@@ -35,7 +35,7 @@ public class ProjectResponseDto {
 
     private ProjectStatus projectStatus;
 
-    private List<String> projectTeches;
+    private List<Long> projectTeches;
 
     public ProjectResponseDto(Long no, String name, String teamName, String content, ProjectStatus projectStatus) {
         this.no = no;
@@ -44,10 +44,6 @@ public class ProjectResponseDto {
         this.content = content;
         this.projectStatus = projectStatus;
         this.projectTeches = List.of(); // 기본값 설정
-    }
-
-    public void setProjectTeches(List<String> projectTeches) {
-        this.projectTeches = projectTeches;
     }
 
     public ProjectResponseDto(Project project) {
