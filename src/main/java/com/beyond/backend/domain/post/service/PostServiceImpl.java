@@ -11,8 +11,10 @@ import com.beyond.backend.domain.post.entity.PostSearchOption;
 import com.beyond.backend.domain.post.entity.PostStatus;
 import com.beyond.backend.domain.bookMark.repository.BookMarkRepository;
 import com.beyond.backend.domain.post.repository.PostRepository;
+import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import com.beyond.backend.domain.user.entity.User;
 import com.beyond.backend.domain.user.repository.UserRepository;
+import com.beyond.backend.domain.user.service.AuthService;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
@@ -46,6 +48,7 @@ public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
     private final BookMarkRepository bookMarkRepository;
     private final UserRepository userRepository;
+    private final AuthService authService;
 
 
     @Override
@@ -57,7 +60,6 @@ public class PostServiceImpl implements PostService {
     public Page<PostResponseDto> searchPosts(BoardType boardType, PostSearchOption option, String keyword, Pageable pageable) {
         return postRepository.searchPosts(boardType, option, keyword, pageable);
     }
-
 
     // 게시글 단 건 조회
     @Override
@@ -78,14 +80,14 @@ public class PostServiceImpl implements PostService {
 
     // 게시글 생성
     @Override
-    public PostResponseDto createPost(BoardType boardType, PostDto postDto) {
+    public PostResponseDto createPost(BoardType boardType, PostDto postDto, Long userNo) {
 
 
         if(boardType == BoardType.NOTICE){
             throw new IllegalArgumentException("공지 게시판에는 게시글을 작성할 수 없습니다.");
         }
         // 유저가 존재하는 지 확인
-        User user = userRepository.findById(postDto.getUserNo()).orElseThrow(
+        User user = userRepository.findById(userNo).orElseThrow(
                 () -> new IllegalArgumentException("해당 유저가 없습니다.")
         );
 
@@ -113,7 +115,8 @@ public class PostServiceImpl implements PostService {
     // 게시글 번호에 해당하는 게시글을 찾고
     // 업데이트된 게시글 dto 객체로 반환
     @Override
-    public PostResponseDto updatePost(BoardType boardType, PostStatus postStatus, Long postNo, PostDto postDto) {
+    public PostResponseDto updatePost(BoardType boardType, PostStatus postStatus, Long postNo, PostDto postDto, Long userNo) {
+        CustomUserDetails userDetails = authService.getCurrentUser();
 
         if(boardType == BoardType.NOTICE){
             throw new IllegalArgumentException("공지 게시판의 게시글은 수정할 수 없습니다.");
@@ -124,8 +127,12 @@ public class PostServiceImpl implements PostService {
                 .orElseThrow(()-> new IllegalArgumentException("해당 게시글은 존재하지 않습니다."));
 
         // 수정하려는 유저 찾기
-        User user = userRepository.findById(postDto.getUserNo())
+        User user = userRepository.findById(userNo)
                 .orElseThrow(()-> new IllegalArgumentException("해당 유저가 존재하지 않습니다."));
+
+        if (!user.equals(userDetails.getUser()) || authService.isAdminFromUserDetails(userDetails)) {
+            throw new IllegalArgumentException("bad request");
+        }
 
 
 
@@ -140,9 +147,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public void deletePost(Long postNo){
 
-
      postRepository.deleteById(postNo);
-
 
     }
 
@@ -154,8 +159,6 @@ public class PostServiceImpl implements PostService {
     }
 
 
-    //------------------------------------------------------------
-
     // 게시글 북마크
     @Override
     public String checkBookMark(Long postNo, Long userNo) {
@@ -166,7 +169,6 @@ public class PostServiceImpl implements PostService {
         // 활성화 상태이던 게시글이 비활성화된 경우 내 북마크 리스트에서는 보이지만 게시글에 들어갈 수는 없고 
         // 북마크 취소만 가능
         // 내가 북마크한 게시글 리스트 조회 시 비활성화된 게시글이 보임 상세 조회가 안됨
-
 
         // 게시글이 북마크된 게시글인지 찾고 있으면 삭제
         if (bookMarkRepository.existsById(bookMarkNo)) {
@@ -210,7 +212,4 @@ public class PostServiceImpl implements PostService {
     public Page<UserPostResponseDto> getBookmarkedPosts(Long userNo, BoardType boardType, Pageable pageable) {
         return bookMarkRepository.getBookmarkedPosts(userNo, boardType, pageable);
     }
-
-
-
 }

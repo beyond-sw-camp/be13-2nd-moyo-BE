@@ -48,5 +48,4 @@ public class ProjectResponseDto {
             .map(pt -> pt.getTech().getTechName()) // Tech 엔티티에서 techName 필드 추출
             .toList();
     }
-
 }

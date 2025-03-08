@@ -42,7 +42,6 @@ public class PostResponseDto {
     private String title;
     private String content;
     private Long userNo; // 유저 넘버로 게시글 조회하기 위해 돌려줌
-    private String userName;
     private int bookmarkCount;
     private PostStatus postStatus; // 유저가 비뢀성 상태인 경우도 게시글이 보임
     private LocalDateTime createdAt;
@@ -54,15 +53,11 @@ public class PostResponseDto {
     // 북마크 개수
 
 
-
-
-
-    public PostResponseDto(Post post ) {
+    public PostResponseDto(Post post) {
         this.postNo = post.getNo();
         this.title = post.getPostTitle();
         this.content = post.getPostContent();
         this.userNo = post.getUser().getNo();
-        this.userName = post.getUser().getUsername();
         this.bookmarkCount = post.getBookmarkCount();
         this.postStatus = post.getPostStatus();
         this.createdAt = post.getCreatedAt();

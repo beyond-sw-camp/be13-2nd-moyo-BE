@@ -39,10 +39,10 @@ import org.springframework.data.domain.Pageable;
 
 
     // 게시글 생성
-    PostResponseDto createPost(BoardType boardType, PostDto postDto);
+    PostResponseDto createPost(BoardType boardType, PostDto postDto, Long userNo);
 
     // 게시글 수정
-    PostResponseDto updatePost(BoardType boardType,PostStatus postStatus, Long postNo, PostDto postDto);
+    PostResponseDto updatePost(BoardType boardType,PostStatus postStatus, Long postNo, PostDto postDto, Long userNo);
 
     // 게시글 삭제
     void deletePost(Long postNo) ;

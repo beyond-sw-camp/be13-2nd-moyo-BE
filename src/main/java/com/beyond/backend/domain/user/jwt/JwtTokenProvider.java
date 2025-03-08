@@ -89,7 +89,7 @@ public class JwtTokenProvider {
         Map<String, String> claims = Map.of("username", username);
         String refreshToken = createToken(claims, REFRESH_TOKEN_EXP);
 
-        // 리프레시 토큰을 Redis에 저장 (유효기간을 설정하여 자동 만료 처리)
+        // 리프레시 토큰을 Redis 에 저장 (유효기간을 설정하여 자동 만료 처리)
         redisTemplate.opsForValue().set("refresh:" + username, refreshToken, REFRESH_TOKEN_EXP, TimeUnit.MILLISECONDS);
 
         return refreshToken;
