@@ -40,7 +40,8 @@ public class RedisPublisher {
         try {
             String notificationJson = objectMapper.writeValueAsString(notification);
             redisTemplate.opsForValue().set(key, notificationJson, ttl, timeUnit);
-            log.debug("Saved notification in Redis - key: {}, TTL: {} {}", key, ttl, timeUnit);
+            log.info("✅ [REDIS STORE] Key: {} | Expiration: {} {} | Data: {}",
+                    key, ttl, timeUnit, notificationJson);
         } catch (JsonProcessingException e) {
             log.error("Error serializing notification: {}", e.getMessage(), e);
         }

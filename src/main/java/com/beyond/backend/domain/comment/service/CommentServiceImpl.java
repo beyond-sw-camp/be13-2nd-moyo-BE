@@ -6,6 +6,7 @@ import com.beyond.backend.domain.common.CustomTransactionSynchronization;
 import com.beyond.backend.domain.common.dto.RequestNotificationDto;
 import com.beyond.backend.domain.common.entity.Notification;
 import com.beyond.backend.domain.common.entity.NotificationType;
+import com.beyond.backend.domain.common.entity.Status;
 import com.beyond.backend.domain.common.service.NotificationService;
 import com.beyond.backend.domain.post.entity.BoardType;
 import com.beyond.backend.domain.comment.entity.Comment;
@@ -72,37 +73,29 @@ public class CommentServiceImpl implements CommentService {
             throw new IllegalArgumentException("비활성화된 게시글에는 댓글을 작성할 수 없습니다.");
         }
 
-        // 활성화된 사용자만 댓글을 달 수 있음
-        User user = userRepository.findById(commentDto.getUserNo())
+        // 댓글 작성자 확인 및 활성화 여부 체크
+        User sender = userRepository.findById(commentDto.getUserNo())
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-        // if(user.getStatus() != Status.ACTIVE){
-        //     throw new IllegalArgumentException("비활성화 상태거나 삭제된 회원은 댓글을 달 수 없습니다.");
-        // }
-        // DTO -> entity 로 변환(생성자 이용)
-        Comment comment = new Comment(
-                commentDto.getContent(),
-                post,
-                user
-        );
+        if (sender.getStatus() != Status.ACTIVE) {
+            throw new IllegalArgumentException("비활성화 상태거나 삭제된 회원은 댓글을 달 수 없습니다.");
+        }
 
-        // repository 에 entity 저장
+        // 댓글 저장
+        Comment comment = new Comment(commentDto.getContent(), post, sender);
         commentRepository.save(comment);
-        User sender = userRepository.findById(commentDto.getUserNo()).get();
-        User receiver = userRepository.findById(post.getNo()).get();
-        TransactionSynchronizationManager.registerSynchronization(new CustomTransactionSynchronization() {
-            @Override
-            public void afterCommit() {
-                User user = post.getUser();
-                notificationService.sendNotification(
-                        new RequestNotificationDto(
-                                sender.getUsername(),
-                                receiver.getUsername(),
-                                NotificationType.COMMENT,
-                                "새 댓글 등록 완료")
-                );
-            }
-        });
+
+        // 📌 올바른 방식으로 게시글 작성자 가져오기
+        User receiver = post.getUser(); // post.getNo()가 아니라 post.getUser() 사용
+
+        // 🚀 트랜잭션 종료 후가 아니라, 바로 알림 전송
+        notificationService.sendNotification(
+                new RequestNotificationDto(
+                        sender.getUsername(),
+                        receiver.getUsername(),
+                        NotificationType.COMMENT,
+                        "새 댓글 등록 완료")
+        );
 
 
         // entity -> responseDto 로 변환 후 반환

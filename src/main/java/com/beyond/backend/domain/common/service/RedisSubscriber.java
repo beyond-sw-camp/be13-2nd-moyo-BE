@@ -51,6 +51,10 @@ public class RedisSubscriber {
                 }
 
                 Notification notification = objectMapper.readValue(notificationJson, Notification.class);
+                log.info("📨 [REDIS RECEIVED] {} → {} | Type: {} | Message: {}",
+                        notification.getSenderId(), notification.getReceiverId(),
+                        notification.getType(), notification.getMessage());
+
                 sendNotificationToEmitters(notification.getReceiverId(), notification);
             } catch (JsonProcessingException e) {
                 log.error("Error parsing notification JSON for key: {}", key, e);
@@ -73,9 +77,12 @@ public class RedisSubscriber {
                     emitter.send(SseEmitter.event()
                             .name("notification")
                             .data(notification));
-                    log.info("Sent SSE notification to user: {} - {}", username, notification);
+                    log.info("📡 [SSE SENT] {} → {} | Type: {} | Message: {}",
+                            notification.getSenderId(), notification.getReceiverId(),
+                            notification.getType(), notification.getMessage());
+
                 } catch (IOException e) {
-                    log.error("Failed to send SSE notification to user: {}", username, e);
+                    log.error("❌ [ERROR] SSE 전송 실패: {}", notification.getReceiverId(), e);
                     deadEmitters.add(emitter);
                 }
             }

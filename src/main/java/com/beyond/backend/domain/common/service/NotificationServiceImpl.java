@@ -42,6 +42,9 @@ public class NotificationServiceImpl implements NotificationService {
 
         String notificationKey = dto.getReceiverId() + ":" + dto.getSenderId();
 
+        log.info("[SEND NOTIFICATION] {} → {} | Type: {} | Message: {}",
+                dto.getSenderId(), dto.getReceiverId(), dto.getNotificationType(), dto.getMessage());
+
         // Redis에 저장 및 발행
         redisPublisher.saveNotificationWithTTL(notificationKey, notification, 3, TimeUnit.DAYS);
         redisPublisher.publish("notificationChannel", notificationKey);
