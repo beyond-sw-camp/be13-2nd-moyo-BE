@@ -42,7 +42,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 	
-
+	 // 북마크 카운트 같이 조회해오기
 	@Override
     public Page<PostResponseDto> getPostsByBoardType(BoardType boardType,  Pageable pageable) {
         List<PostResponseDto> content = queryFactory
@@ -52,6 +52,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                  post.postContent,
 				user.no,
                 user.username,
+				post.bookmarkCount,
 				post.postStatus,
                 post.createdAt,
                 post.updatedAt
@@ -91,6 +92,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 						post.postContent,
 						user.no,
 						user.username,
+						post.bookmarkCount,
 						post.postStatus,
 						post.createdAt,
 						post.updatedAt
@@ -154,7 +156,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 	
 	// 미완성--------------------------------------------------------------
 
-	// 유저가 작성한 게시글 전체 조회
+	// 유저가 작성한 게시글 전체 조회 ( 활성, 비활성 상태 둘 다 가져옴 )
 	@Override
 	public Page<UserPostResponseDto> getUserPosts(Long userNo, Pageable pageable) {
 
@@ -166,6 +168,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 						post.postContent,
 						user.no,
 						user.username,
+						post.bookmarkCount,
 						post.boardType,
 						post.postStatus,
 						post.createdAt,

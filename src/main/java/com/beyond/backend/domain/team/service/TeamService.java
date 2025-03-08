@@ -36,7 +36,7 @@ public interface TeamService {
     TeamResponseDto createTeam(TeamDto teamDto);
     
     // 팀 정보 업데이트
-    TeamResponseDto updateTeam(TeamDto team) throws Exception;
+    void updateTeam(TeamResponseDto team) throws Exception;
 
     // 모든 팀 정보 조회
     PageImpl<TeamResponseDto> filterUserTeams(
@@ -49,17 +49,20 @@ public interface TeamService {
     List<TeamMemberListDto> getTeamMembers(Long teamNo) throws Exception;
 
     // [팀장] 팀원 신청 목록 조회
-    List<TeamMemberListDto> getTeamMemberRequest(Long teamNo, Long userNo, TeamJoinStatus status) throws Exception;
+    List<TeamMemberListDto> getTeamMemberRequest(Long teamNo, TeamJoinStatus status) throws Exception;
 
     // [팀장] 팀원 신청 수락
     void teamAccept(Long teamNo, Long userNo) throws Exception;
-    
+
     // [팀장] 팀원 신청 거부
     void teamDelete(Long teamNo, Long userNo) throws Exception;
 
     // 팀원 신청
-    void teamJoinRequest(Long teamNo, Long userNo) throws Exception;
-    
+    void teamJoinRequest(Long teamNo) throws Exception;
+
     // 팀원 신청 취소 / 탈퇴
-    void teamJoinRequestCancel(Long teamNo, Long userNo) throws Exception;
+    void teamJoinRequestCancel(Long teamNo) throws Exception;
+
+    // [팀장] 리더 권한 넘겨주기
+    void teamLeaderSwap(Long teamNo, Long userNo) throws Exception;
 }

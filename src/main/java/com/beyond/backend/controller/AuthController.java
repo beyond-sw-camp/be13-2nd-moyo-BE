@@ -71,7 +71,7 @@ public class AuthController {
     public ResponseEntity<Void> logout(@RequestHeader("Authorization") String bearerToken) {
         log.info("로그아웃 요청 - 토큰: {}", bearerToken);
 
-        // AuthService를 이용하여 로그아웃 처리 (토큰 블랙리스트 처리 등)
+        // AuthService 를 이용하여 로그아웃 처리 (토큰 블랙리스트 처리 등)
         authService.logout(bearerToken);
 
         log.info("로그아웃 성공");

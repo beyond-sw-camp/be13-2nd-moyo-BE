@@ -2,6 +2,9 @@ package com.beyond.backend.domain.user.service;
 
 import com.beyond.backend.domain.user.dto.*;
 import com.beyond.backend.domain.user.entity.User;
+import com.beyond.backend.domain.user.repository.UserRepository;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 
 
 public interface AuthService {
@@ -16,4 +19,13 @@ public interface AuthService {
     BanResponseDto banUser(BanRequestDto dto);
 
     UnlockResponseDto unlockUser(UnlockRequestDto dto);
+
+    static String getCurrentUsername() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof UserDetails) {
+            return ((UserDetails) principal).getUsername();
+        } else {
+            return principal.toString();
+        }
+    }
 }

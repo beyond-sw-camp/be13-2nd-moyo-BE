@@ -1,5 +1,6 @@
 package com.beyond.backend.config;
 
+import com.beyond.backend.domain.common.service.RedisSubscriber;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -8,6 +9,9 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.PatternTopic;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
@@ -29,19 +33,35 @@ public class RedisConfig {
         RedisStandaloneConfiguration redisConf = new RedisStandaloneConfiguration(host, port);
         redisConf.setPassword(password);
 
-        // LettuceConnectionFactory에 구성 정보 전달
-        return new LettuceConnectionFactory(redisConf);
+        // LettuceConnectionFactory 에 구성 정보 전달
+        return new LettuceConnectionFactory(redisConf); // -> 비동기 및 논블로킹 방식으로 효율적
     }
 
     @Bean
-    public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
-        RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory);
 
         // Key, Value 직렬화 설정
         redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer()); //복잡한 문자열
 
         return redisTemplate;
+    }
+
+
+    //Redis 메시지 리스너 컨테이너 설정: 특정 채널("notification")을 구독하도록 구성
+    @Bean
+    public RedisMessageListenerContainer redisContainer(RedisConnectionFactory connectionFactory,
+                                                        RedisSubscriber redisSubscriber) {
+
+        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+        container.setConnectionFactory(connectionFactory);
+        container.addMessageListener((message, pattern) ->
+                        redisSubscriber.onMessage(new String(message.getChannel()), new String(message.getBody())),
+                new PatternTopic("commentNotification")
+        );
+
+        return container;
     }
 }

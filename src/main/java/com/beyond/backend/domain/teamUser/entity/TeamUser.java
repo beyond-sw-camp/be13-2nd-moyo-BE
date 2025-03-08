@@ -47,4 +47,8 @@ public class TeamUser {
     public void setStatus(TeamJoinStatus status) {
         this.status = status;
     }
+
+    public void setLeader(boolean isLeader) {
+        this.isLeader = isLeader;
+    }
 }

@@ -1,20 +1,18 @@
 package com.beyond.backend.domain.project.entity;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.beyond.backend.domain.common.BaseEntity;
 import com.beyond.backend.domain.common.entity.Status;
 import com.beyond.backend.domain.feedback.entity.Feedback;
-import com.beyond.backend.domain.team.entity.Team;
-import com.beyond.backend.domain.tech.entity.Tech;
 import com.beyond.backend.domain.project.dto.ProjectRequestDto;
-
+import com.beyond.backend.domain.team.entity.Team;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -47,7 +45,7 @@ public class Project extends BaseEntity {
     private List<Feedback> feedbacks = new ArrayList<>();
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProjectTech> projectTeches;
+    private List<ProjectTech> projectTeches = new ArrayList<>();
 
     //기본 초기화
     @PrePersist
@@ -79,8 +77,6 @@ public class Project extends BaseEntity {
         this.projectTeches = teches;
     }
 
-
-    // 프로젝트 제목, 내용, 상태만 변경
     public void update(ProjectRequestDto projectRequestDto){
         this.name = projectRequestDto.getName();
         this.content = projectRequestDto.getContent();

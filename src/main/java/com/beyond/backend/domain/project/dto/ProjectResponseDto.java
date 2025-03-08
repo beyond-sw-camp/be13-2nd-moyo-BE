@@ -1,11 +1,9 @@
 package com.beyond.backend.domain.project.dto;
 
 import java.util.List;
-
 import com.beyond.backend.domain.project.entity.Project;
 import com.beyond.backend.domain.project.entity.ProjectStatus;
 import com.beyond.backend.domain.project.entity.ProjectTech;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,7 +24,7 @@ public class ProjectResponseDto {
 
     private ProjectStatus projectStatus;
 
-    private List<String> projectTeches;
+    private List<Long> projectTeches;
 
     private int view;
 
@@ -50,7 +48,5 @@ public class ProjectResponseDto {
             .map(pt -> pt.getTech().getTechName()) // Tech 엔티티에서 techName 필드 추출
             .toList();
     }
-
-
 
 }

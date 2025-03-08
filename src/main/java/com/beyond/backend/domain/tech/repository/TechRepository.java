@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.beyond.backend.domain.tech.entity.Tech;
 
+import java.util.List;
+
 public interface TechRepository extends JpaRepository<Tech, Long> {
 	Boolean existsByTechName(String techName);
 
