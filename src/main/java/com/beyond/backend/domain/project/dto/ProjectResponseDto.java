@@ -4,20 +4,11 @@ import java.util.List;
 
 import com.beyond.backend.domain.project.entity.Project;
 import com.beyond.backend.domain.project.entity.ProjectStatus;
+import com.beyond.backend.domain.project.entity.ProjectTech;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-/**
- * <p>
- *
- * <p>packageName    : com.beyond.backend.data.dto
- * <p>fileName       : ProjectResponseDto
- * <p>author         : jaewoo
- * <p>date           : 2025. 2. 2.
- * <p>description    : 프로젝트 응답 Dto
- */
 
 
 @Data
@@ -37,17 +28,15 @@ public class ProjectResponseDto {
 
     private List<String> projectTeches;
 
-    public ProjectResponseDto(Long no, String name, String teamName, String content, ProjectStatus projectStatus) {
+    private int view;
+
+    public ProjectResponseDto(Long no, String name, String teamName, String content, int view,  ProjectStatus projectStatus) {
         this.no = no;
         this.name = name;
         this.teamName = teamName;
         this.content = content;
+        this.view = view;
         this.projectStatus = projectStatus;
-        this.projectTeches = List.of(); // 기본값 설정
-    }
-
-    public void setProjectTeches(List<String> projectTeches) {
-        this.projectTeches = projectTeches;
     }
 
     public ProjectResponseDto(Project project) {
@@ -55,8 +44,11 @@ public class ProjectResponseDto {
         this.name = project.getName();
         this.teamName = project.getTeam().getTeamName();
         this.content = project.getContent();
+        this.view = project.getViewCnt();
         this.projectStatus = project.getProjectStatus();
-
+        this.projectTeches = project.getProjectTeches().stream()
+            .map(pt -> pt.getTech().getTechName()) // Tech 엔티티에서 techName 필드 추출
+            .toList();
     }
 
 

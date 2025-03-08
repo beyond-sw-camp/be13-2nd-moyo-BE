@@ -1,28 +1,30 @@
 package com.beyond.backend.domain.project.service;
 
-import com.beyond.backend.domain.project.entity.ProjectTech;
-import com.beyond.backend.domain.user.entity.User;
-import com.beyond.backend.domain.user.repository.UserRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.parameters.P;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.beyond.backend.domain.project.dto.ProjectRequestDto;
 import com.beyond.backend.domain.project.dto.ProjectResponseDto;
 import com.beyond.backend.domain.project.entity.Project;
 import com.beyond.backend.domain.project.entity.ProjectSearchOption;
-import com.beyond.backend.domain.team.entity.Team;
+import com.beyond.backend.domain.project.entity.ProjectTech;
 import com.beyond.backend.domain.project.repository.ProjectRepository;
+import com.beyond.backend.domain.project.repository.ProjectTechRepository;
+import com.beyond.backend.domain.team.entity.Team;
 import com.beyond.backend.domain.team.repository.TeamRepository;
 import com.beyond.backend.domain.teamUser.repository.TeamUserRepository;
-
+import com.beyond.backend.domain.tech.entity.Tech;
+import com.beyond.backend.domain.tech.repository.TechRepository;
+import com.beyond.backend.domain.user.entity.User;
+import com.beyond.backend.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -32,6 +34,8 @@ public class ProjectServiceImpl implements ProjectService {
 	private final TeamRepository teamRepository;
 	private final ProjectRepository projectRepository;
 	private final TeamUserRepository teamUserRepository;
+	private final TechRepository techRepository;
+	private final ProjectTechRepository projectTechRepository;
 
 	@Override
 	@Transactional
@@ -49,28 +53,31 @@ public class ProjectServiceImpl implements ProjectService {
 			.team(team) // 여기에 검증된 팀 넣기
 			.build();
 
-		// 2. repository 에 entity 저장
 		projectRepository.save(project);
 
-		addProjectTechs(project, projectRequestDto.getProjectTeches());
+		// 3. techsNos 리스트를 순회하며 각 기술에 대해 ProjectTech 엔티티 생성
+		List<ProjectTech> projectTechList = projectRequestDto.getTechsNos().stream()
+			.map( techNo -> {
+				// 각 techNo로 Tech 엔티티 조회
+				Tech tech = techRepository.findById(techNo)
+					.orElseThrow(() -> new IllegalArgumentException("해당 기술이 존재하지 않습니다. techNo=" + techNo));
+				// ProjectTech 엔티티 생성: project.getNo()를 사용하여 project_no를 할당
+				return ProjectTech.builder()
+					.tech(tech)
+					.project(project)
+					.build();
+			})
+			.collect(Collectors.toList());
 
-		// 3. entity -> responseDto 로 변환 후 반환
+		// 4. 생성한 ProjectTech 엔티티들을 한 번에 저장
+		projectTechRepository.saveAll(projectTechList);
+
+		project.addProjectTechList(projectTechList);
+
+		// 5. ProjectResponseDto 생성 후 반환
 		return new ProjectResponseDto(project);
 	}
 
-	private void addProjectTechs(Project project, List<String> techNames){
-		if (techNames == null || techNames.isEmpty())
-			return;
-
-	/*	// 프론트에서 string으로 받은 projectTech 로 변환
-		List<ProjectTech> teches = techNames.stream()
-				.map(tech -> new ProjectTech(tech, project.getNo()))
-				.collect(Collectors.toList());
-
-
-*/
-
-	}
 
 	@Override
 	@Transactional
@@ -96,12 +103,38 @@ public class ProjectServiceImpl implements ProjectService {
 			throw new IllegalArgumentException("사용자는 해당 프로젝트를 수정할 권한이 없습니다.");
 		}
 
-		// 4. 검증 후 수정
+		// 4. 기존 ProjectTech 리스트 삭제 (중복 데이터 방지)
+		deleteProjectTechs(project);
+
+		// 5. 새로운 ProjectTech 리스트 생성
+		List<ProjectTech> newProjectTechList = projectRequestDto.getTechsNos().stream()
+			.distinct() // 중복 제거
+			.map(techNo -> {
+				Tech tech = techRepository.findById(techNo)
+					.orElseThrow(() -> new IllegalArgumentException("해당 기술이 존재하지 않습니다. techNo=" + techNo));
+				return ProjectTech.builder()
+					.tech(tech)
+					.project(project)
+					.build();
+			})
+			.collect(Collectors.toList());
+
+		// 6. 프로젝트에 새로운 프로젝트 기술 리스트 설정
+		project.getProjectTeches().clear(); // 기존 리스트를 비움
+		project.getProjectTeches().addAll(newProjectTechList); // 새로운 리스트 추가
+
+		// 7. 프로젝트 업데이트 수행
 		project.update(projectRequestDto);
 
+		// 8. 업데이트된 프로젝트 정보 반환
 		return new ProjectResponseDto(project);
 	}
 
+	@Transactional
+	public void deleteProjectTechs(Project project) {
+		projectTechRepository.deleteAllByProject(project);
+		projectTechRepository.flush(); // DB 반영 보장
+	}
 
 	//  모든 프로젝트 조회
 	@Override
@@ -158,13 +191,13 @@ public class ProjectServiceImpl implements ProjectService {
 
 		// 1. user 검증
 		User user = userRepository.findById(userNo).orElseThrow(
-				()-> new IllegalArgumentException("해당하는 유저가 없습니다.")
+			()-> new IllegalArgumentException("해당하는 유저가 없습니다.")
 		);
 
 
 		// 2. project 검증
 		Project project = projectRepository.findById(projectNo).orElseThrow(
-				() -> new IllegalArgumentException("해당 프로젝트가 존재하지 않습니다.")
+			() -> new IllegalArgumentException("해당 프로젝트가 존재하지 않습니다.")
 		);
 
 		Team team = project.getTeam();

@@ -1,17 +1,9 @@
 package com.beyond.backend.domain.project.entity;
 
 import com.beyond.backend.domain.tech.entity.Tech;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -20,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "project_tech", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"project_no", "tech_no"})
+    @UniqueConstraint(columnNames = {"project_no", "tech_no"})
 })
 public class ProjectTech {
 
@@ -28,26 +20,19 @@ public class ProjectTech {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "project_no", nullable = false)
-    private Long projectId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_no", nullable = false)
+    private Project project;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tech_no", nullable = false)
     private Tech tech;
 
-
-    //== 연관관계 편의 메서드 ==//
-    // public void setProject(Project project){
-    //     this.project = project;
-    //     project.getProjectTeches().add(this);
-    // }
-/*    public ProjectTech(Tech tech, Long projectNo){
+    @Builder
+    public ProjectTech(Tech tech, Project project){
         this.tech = tech;
-        this.projectId =No projectNo;
-    }*/
+        this.project = project;
+    }
 
 }
-
-
-// tech = 모든 기술들
-// project tech = 이 프로젝트에서 사용하는 기술들
