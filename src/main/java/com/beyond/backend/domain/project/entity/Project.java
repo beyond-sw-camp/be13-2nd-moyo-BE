@@ -1,20 +1,17 @@
 package com.beyond.backend.domain.project.entity;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.beyond.backend.domain.common.BaseEntity;
-import com.beyond.backend.domain.common.entity.Status;
 import com.beyond.backend.domain.feedback.entity.Feedback;
-import com.beyond.backend.domain.team.entity.Team;
-import com.beyond.backend.domain.tech.entity.Tech;
 import com.beyond.backend.domain.project.dto.ProjectRequestDto;
-
+import com.beyond.backend.domain.team.entity.Team;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -47,9 +44,8 @@ public class Project extends BaseEntity {
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Feedback> feedbacks = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "project_no")// 단방향
-    private List<ProjectTech> projectTeches;
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<ProjectTech> projectTechs = new ArrayList<>();
 
     //기본 초기화
     @PrePersist
@@ -77,16 +73,6 @@ public class Project extends BaseEntity {
         feedback.setProject(this);
     }
 
-    // project Tech 연관관계 메서드 지정
-    public void addProjectTech(List<ProjectTech> list){
-        if (this.projectTeches == null) {
-            this.projectTeches = new ArrayList<>();
-        }
-        this.projectTeches.clear(); // 기존 리스트 초기화
-        this.projectTeches.addAll(list); // 새로운 리스트 추가
-    }
-
-    // 프로젝트 제목, 내용, 상태만 변경
     public void update(ProjectRequestDto projectRequestDto){
         this.name = projectRequestDto.getName();
         this.content = projectRequestDto.getContent();

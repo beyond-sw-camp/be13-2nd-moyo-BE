@@ -22,5 +22,4 @@ public class AuthTransactionService {
         user.updatePasswordErrorCount(user.getPasswordErrorCount() + 1);
         userRepository.save(user);
     }
-
 }

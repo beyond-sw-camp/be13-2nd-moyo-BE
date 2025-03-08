@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.beans.Transient;
+
 @Entity
 @Getter
 @NoArgsConstructor
@@ -20,18 +22,17 @@ public class ProjectTech {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "project_no", nullable = false)
-    private Long projectNo;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_no", nullable = false)
+    private Project project;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tech_no", nullable = false)
     private Tech tech;
 
-
-
     @Builder
-    public ProjectTech(Tech tech, Long projectNo){
+    public ProjectTech(Tech tech, Project project) {
         this.tech = tech;
-        this.projectNo = projectNo;
+        this.project = project;
     }
 }

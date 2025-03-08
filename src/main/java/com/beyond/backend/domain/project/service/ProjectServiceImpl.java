@@ -64,7 +64,7 @@ public class ProjectServiceImpl implements ProjectService {
 					// ProjectTech 엔티티 생성: project.getNo()를 사용하여 project_no를 할당
 					return ProjectTech.builder()
 							.tech(tech)
-							.projectNo(project.getNo())
+							.project(project)
 							.build();
 				})
 				.collect(Collectors.toList());
@@ -77,20 +77,17 @@ public class ProjectServiceImpl implements ProjectService {
 
 	}
 
-
 	@Override
-	@Transactional
 	public ProjectResponseDto updateProject(Long projectNo, Long userNo, ProjectRequestDto projectRequestDto) {
-
 		// 1. 프로젝트 있는지 검증
 		// 수정하고자 하는 프로젝트
 		Project project = projectRepository.findById(projectNo).orElseThrow(
-			() -> new IllegalArgumentException("해당하는 프로젝트가 없습니다.")
+				() -> new IllegalArgumentException("해당하는 프로젝트가 없습니다.")
 		);
 
 		// 2. 유저 존재하는지 검증
 		User user = userRepository.findById(userNo).orElseThrow(
-			() -> new IllegalArgumentException("해당하는 사용자가 없습니다.")
+				() -> new IllegalArgumentException("해당하는 사용자가 없습니다.")
 		);
 
 		Team team = project.getTeam();
@@ -102,18 +99,26 @@ public class ProjectServiceImpl implements ProjectService {
 			throw new IllegalArgumentException("사용자는 해당 프로젝트를 수정할 권한이 없습니다.");
 		}
 
-		// 4. 검증 후 수정
+		// 프로젝트 ID를 사용하여 새롭게 ProjectTech 저장
+		List<ProjectTech> newProjectTechList = projectRequestDto.getTechsNos().stream()
+				.map(techNo -> {
+					Tech tech = techRepository.findById(techNo)
+							.orElseThrow(() -> new IllegalArgumentException("해당 기술이 존재하지 않습니다. techNo=" + techNo));
+					return ProjectTech.builder()
+							.tech(tech)
+							.project(project)
+							.build();
+				})
+				.collect(Collectors.toList());
+
+		// 5. 새롭게 저장
+
 		project.update(projectRequestDto);
+		projectTechRepository.saveAll(newProjectTechList);
 
-		// tech 는 항상 선택되어 있으면 값이 동일한게 들어옴 -> list 클리어해주고 다시 update
-		if ( !project.getProjectTeches().isEmpty()){
-			project.getProjectTeches().clear();
-		}
-		//addProjectTechs(project, projectRequestDto.getProjectTeches());
-
+		// 6. 업데이트된 프로젝트 정보 반환
 		return new ProjectResponseDto(project);
 	}
-
 
 	//  모든 프로젝트 조회
 	@Override
@@ -193,7 +198,6 @@ public class ProjectServiceImpl implements ProjectService {
 		if( !teamUserRepository.isLeader(team.getNo(), userNo) ){
 			throw new IllegalArgumentException("사용자는 해당 프로젝트를 수정할 권한이 없습니다.");
 		}
-
 
 		// 5. 프로젝트 삭제
 		projectRepository.deleteById(projectNo);
