@@ -1,12 +1,16 @@
 package com.beyond.backend.domain.comment.entity;
 
 import com.beyond.backend.domain.common.BaseEntity;
+import com.beyond.backend.domain.like.entity.Like;
 import com.beyond.backend.domain.post.entity.Post;
 import com.beyond.backend.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -30,6 +34,16 @@ public class Comment extends BaseEntity {
     @JoinColumn(name = "post_no", nullable = false)
     private Post post;
 
+
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Like> likes = new ArrayList<>();
+
+
+    //좋아요 연관관계 로직
+    public int getLikeCount() {
+        return likes.size();
+    }
+
     protected Comment(){
 
     }
@@ -45,7 +59,7 @@ public class Comment extends BaseEntity {
 
     //( 댓글 )연관관계 편의 메서드
 
-    private void setPost(Post post) {
+    public void setPost(Post post) {
         this.post = post;
         post.getComments().add(this);
     }

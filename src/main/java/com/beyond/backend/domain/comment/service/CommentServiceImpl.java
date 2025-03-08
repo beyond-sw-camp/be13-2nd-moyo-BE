@@ -1,7 +1,13 @@
 package com.beyond.backend.domain.comment.service;
 
+import com.beyond.backend.domain.bookMark.entity.BookMark;
+import com.beyond.backend.domain.bookMark.entity.BookMarkNo;
 import com.beyond.backend.domain.comment.dto.CommentDto;
 import com.beyond.backend.domain.comment.dto.CommentResponseDto;
+import com.beyond.backend.domain.like.entity.Like;
+import com.beyond.backend.domain.like.repository.LikeRepository;
+import com.beyond.backend.domain.post.dto.PostResponseDto;
+import com.beyond.backend.domain.post.dto.UserPostResponseDto;
 import com.beyond.backend.domain.common.CustomTransactionSynchronization;
 import com.beyond.backend.domain.common.dto.RequestNotificationDto;
 import com.beyond.backend.domain.common.entity.Notification;
@@ -47,6 +53,7 @@ import java.util.Optional;
 public class CommentServiceImpl implements CommentService {
 
 
+    private final LikeRepository likeRepository;
     private final NotificationService notificationService;
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
@@ -152,6 +159,60 @@ public class CommentServiceImpl implements CommentService {
     public Page<CommentResponseDto> getUserComments(Long userNo, Pageable pageable) {
 
         return commentRepository.getUserComments(userNo, pageable);
+    }
+
+
+    // 게시글의 댓글 전체 조회
+    @Override
+    public Page<CommentResponseDto> getPostComments(Long postNo, Pageable pageable) {
+        return commentRepository.getPostComments(postNo, pageable);
+    }
+
+    // 유저가 작성한 댓글이 있는 게시글 전체 조회
+    @Override
+    public Page<PostResponseDto> getUserCommentPosts(Long userNo, Pageable pageable) {
+        return commentRepository.getUserCommentPosts(userNo, pageable);
+    }
+
+    
+
+
+    //-----------------------------------------------------------
+
+    // 댓글 좋아요
+    @Override
+    public String checkCommentLike(Long commentNo, Long userNo) {
+
+        // 댓글이 존재하는지 확인
+        Comment comment = commentRepository.findById(commentNo).orElseThrow(
+                ()-> new IllegalArgumentException("댓글이 존재하지 않습니다."));
+
+        // 유저가 존재하는지 확인
+        User user = userRepository.findById(userNo).orElseThrow(
+                ()-> new IllegalArgumentException("해당 유저가 존재하지 않습니다."));
+
+
+
+        // 좋아요가 되어있는지 확인
+        Like existingLike = likeRepository.findByCommentAndUser(comment, user);
+
+        if (existingLike != null) {
+            // 좋아요가 이미 있다면 삭제 (좋아요 취소)
+            likeRepository.delete(existingLike);
+            return "좋아요가 취소되었습니다.";
+        }
+
+        // 4. 좋아요 추가
+        Like newLike = new Like( comment, user);
+        likeRepository.save(newLike);
+
+        return "좋아요가 추가되었습니다.";
+    }
+
+    // 유저가 좋아요한 댓글 전체 조회
+    @Override
+    public Page<CommentResponseDto> getUserLikedComments(Long userNo, Pageable pageable) {
+        return likeRepository.getUserLikedComments(userNo,pageable);
     }
 
 

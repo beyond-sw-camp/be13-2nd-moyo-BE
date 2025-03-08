@@ -42,6 +42,10 @@ public class CommentResponseDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    // 뎃글 개수와 좋아요 수 전달
+/*    private int commentCount;
+    private int likeCount;*/
+
     public CommentResponseDto(Comment comment) {
         this.commentNo = comment.getNo();
         this.content = comment.getContent();

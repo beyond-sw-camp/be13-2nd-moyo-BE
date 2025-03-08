@@ -55,6 +55,7 @@ public class BookMarkRepositoryImpl implements BookMarkRepositoryCustom {
                         post.postContent,
                         user.no,
                         user.username,
+                        post.bookmarkCount,
                         post.boardType,
                         post.postStatus,
                         post.createdAt,
@@ -76,7 +77,7 @@ public class BookMarkRepositoryImpl implements BookMarkRepositoryCustom {
 
 
         JPAQuery<Long> totalCount = queryFactory
-                .select(post.count())
+                .select(bookMark.count())
                 .from(bookMark)
                 .join(bookMark.post, post)
                 .where(

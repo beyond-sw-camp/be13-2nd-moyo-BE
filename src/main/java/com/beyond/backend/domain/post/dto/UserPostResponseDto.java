@@ -43,12 +43,14 @@ public class UserPostResponseDto { // 회원 개인 페이지에서 게시글 �
         private String content;
         private Long userNo; // 유저 넘버로 게시글 조회하기 위해 돌려줌
         private String userName;
+        private int bookmarkCount;
         private BoardType boardType;
         private PostStatus postStatus;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
 
 
+        //
 
 
         public UserPostResponseDto(Post post) {
@@ -57,6 +59,7 @@ public class UserPostResponseDto { // 회원 개인 페이지에서 게시글 �
             this.content = post.getPostContent();
             this.userNo = post.getUser().getNo();
             this.userName = post.getUser().getUsername();
+            this.bookmarkCount = post.getBookmarkCount();
             this.boardType = post.getBoardType();
             this.postStatus = post.getPostStatus();
             this.createdAt = post.getCreatedAt();
