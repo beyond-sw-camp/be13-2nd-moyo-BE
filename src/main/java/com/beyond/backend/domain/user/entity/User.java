@@ -44,33 +44,24 @@ public class User extends BaseEntity{
     private String phoneNum;
 
     @Column(nullable = false)
-    Boolean Banned = false;
+    private Boolean Banned;
 
     @Column(nullable = false)
-    Integer passwordErrorCount;
+    private Integer passwordErrorCount;
 
     @Builder
-    public User(String username, String password, UserRoleType role, String email, String phoneNum) {
+    public User(String username, String password, String email, String phoneNum) {
         this.username = username;
         this.password = password;
-        this.role = role;
+        this.role = UserRoleType.USER;
         this.email = email;
         this.phoneNum = phoneNum;
+        this.Banned = false;
+        this.passwordErrorCount = 0;
+        this.status = Status.ACTIVE;
     }
 
-    //기본 초기화
-    @PrePersist
-    public void prePersist() {
-        if (passwordErrorCount == null) {
-            passwordErrorCount = 0;
-        }
 
-        if (Banned == null) {
-            Banned = false;
-        }
-
-        status = Status.ACTIVE;
-    }
 
     public void updateUser(String username, String email) {
         this.username = username;
