@@ -7,9 +7,9 @@ import com.beyond.backend.domain.user.dto.UserUpdateResponseDto;
 
 public interface UserService {
 
-    public UserUpdateResponseDto updateUser(Long id, UserUpdateRequestDto dto);
+    UserUpdateResponseDto updateUser(Long id, UserUpdateRequestDto dto);
 
-    public void deleteUser(String username);
+    void deleteUser(String username);
 
-    public PasswordUpdateResponseDto updatePassword(PasswordUpdateRequestDto dto);
+    PasswordUpdateResponseDto updatePassword(PasswordUpdateRequestDto dto);
 }
