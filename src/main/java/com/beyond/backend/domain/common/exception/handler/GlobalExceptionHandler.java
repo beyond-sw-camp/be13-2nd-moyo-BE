@@ -54,7 +54,7 @@ public class GlobalExceptionHandler {
                         HttpStatus.BAD_REQUEST.name(),   // 상태 이름 ("BAD_REQUEST")
                         errors.toString()               // 조합된 오류 메시지
                 ),
-                HttpStatus.BAD_REQUEST  // ResponseEntity의 상태 코드 설정
+                HttpStatus.BAD_REQUEST  // ResponseEntity 의 상태 코드 설정
         );
     }
 
@@ -78,7 +78,7 @@ public class GlobalExceptionHandler {
                         HttpStatus.INTERNAL_SERVER_ERROR.name(),   // 상태 이름 ("INTERNAL_SERVER_ERROR")
                         e.getMessage()  // 예외 메시지 (보안상 필요하면 변경 가능)
                 ),
-                HttpStatus.INTERNAL_SERVER_ERROR  // ResponseEntity의 상태 코드 설정
+                HttpStatus.INTERNAL_SERVER_ERROR  // ResponseEntity 의 상태 코드 설정
         );
     }
 }

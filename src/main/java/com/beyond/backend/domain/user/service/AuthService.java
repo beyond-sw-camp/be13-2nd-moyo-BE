@@ -3,6 +3,8 @@ package com.beyond.backend.domain.user.service;
 import com.beyond.backend.domain.user.dto.*;
 import com.beyond.backend.domain.user.entity.User;
 import com.beyond.backend.domain.user.repository.UserRepository;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -20,12 +22,7 @@ public interface AuthService {
 
     UnlockResponseDto unlockUser(UnlockRequestDto dto);
 
-    static String getCurrentUsername() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (principal instanceof UserDetails) {
-            return ((UserDetails) principal).getUsername();
-        } else {
-            return principal.toString();
-        }
-    }
+    CustomUserDetails getCurrentUser();
+
+    boolean isAdminFromUserDetails(CustomUserDetails userDetails);
 }

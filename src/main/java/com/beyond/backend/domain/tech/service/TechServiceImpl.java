@@ -1,22 +1,21 @@
 package com.beyond.backend.domain.tech.service;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import com.beyond.backend.domain.user.dto.CustomUserDetails;
-import com.beyond.backend.domain.user.jwt.JwtTokenProvider;
-import com.beyond.backend.domain.user.repository.UserRepository;
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.beyond.backend.domain.tech.dto.TechRequestDto;
 import com.beyond.backend.domain.tech.dto.TechResponseDto;
 import com.beyond.backend.domain.tech.entity.Tech;
 import com.beyond.backend.domain.tech.repository.TechRepository;
+import com.beyond.backend.domain.user.dto.CustomUserDetails;
+import com.beyond.backend.domain.user.jwt.JwtTokenProvider;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +28,7 @@ public class TechServiceImpl implements TechService {
 
 	@Override
 	public TechResponseDto createTech(HttpServletRequest request, TechRequestDto dto) {
+
 		validationAdmin(request);
 
 		if (techRepository.existsByTechName(dto.getTechName())) {
@@ -36,13 +36,9 @@ public class TechServiceImpl implements TechService {
 		}
 
 		Tech tech = new Tech(dto.getTechName());
-
 		techRepository.save(tech);
-
 		return new TechResponseDto(tech);
 	}
-
-
 
 	@Override
 	@Transactional(readOnly = true)
@@ -89,4 +85,6 @@ public class TechServiceImpl implements TechService {
 			throw new SecurityException("관리자 권한이 필요합니다.");
 		}
 	}
+
+
 }

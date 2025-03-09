@@ -15,6 +15,4 @@ public class ProjectTechServiceImpl {
     private final ProjectTechRepository projectTechRepository;
     private final ProjectRepository projectRepository;
     private final TechRepository techRepository;
-
-
 }
