@@ -43,7 +43,6 @@ public class AuthServiceImpl implements AuthService {
         User user = User.builder()
                 .username(username)
                 .password(encodedPassword)
-                .role(UserRoleType.USER)
                 .email(dto.getEmail())
                 .phoneNum(dto.getPhoneNum())
                 .build();
