@@ -13,5 +13,4 @@ public interface UserService {
     BanResponseDto banUser(BanRequestDto dto);
 
     UnlockResponseDto unlockUser(UnlockRequestDto dto);
-
 }

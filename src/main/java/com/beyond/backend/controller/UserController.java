@@ -17,10 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserRepository userRepository;
     private final UserService userService;
 
-    @PostMapping("/ban")
+    @PostMapping("/{username}/ban")
     public ResponseEntity<BanResponseDto> ban(@Valid @RequestBody BanRequestDto dto) {
 
         BanResponseDto banResponseDto = userService.banUser(dto);
@@ -48,6 +47,4 @@ public class UserController {
         userService.deleteUser(username);
         return ResponseEntity.ok().build();
     }
-
-
 }
