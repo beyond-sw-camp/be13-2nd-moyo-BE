@@ -55,6 +55,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                         user.no,
                         user.username,
                         post.no,
+                        comment.likeCount,
                         comment.createdAt,
                         comment.updatedAt
                 ))
@@ -67,7 +68,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
 
         JPAQuery<Long> totalCount = queryFactory
                 .select(comment.count())
-                .from(post)
+                .from(comment)
                 .join(comment.user, user)
                 .where(user.no.eq(userNo));
 
@@ -87,6 +88,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                         user.no,
                         user.username,
                         post.no,
+                        comment.likeCount,
                         comment.createdAt,
                         comment.updatedAt
                 ))
@@ -121,6 +123,9 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                         post.postContent,
                         post.user.no,
                         post.user.username,
+                        post.viewCount,
+                        post.bookmarkCount,
+                        post.commentCount,
                         post.postStatus,
                         post.createdAt,
                         post.updatedAt

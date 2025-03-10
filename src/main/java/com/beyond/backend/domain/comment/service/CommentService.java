@@ -3,7 +3,6 @@ package com.beyond.backend.domain.comment.service;
 import com.beyond.backend.domain.comment.dto.CommentDto;
 import com.beyond.backend.domain.comment.dto.CommentResponseDto;
 import com.beyond.backend.domain.post.dto.PostResponseDto;
-import com.beyond.backend.domain.post.dto.UserPostResponseDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -35,7 +34,7 @@ import org.springframework.data.domain.Pageable;
     // 유저가 쓴 댓글 전체 조회
     Page<CommentResponseDto> getUserComments(Long userNo, Pageable pageable);
 
-    // 게시판 하나의 댓글 전체 조회
+    // 게시글 하나의 댓글 전체 조회
     Page<CommentResponseDto> getPostComments(Long postNo, Pageable pageable);
 
     // 내가 댓글 단 게시글 전체 조회

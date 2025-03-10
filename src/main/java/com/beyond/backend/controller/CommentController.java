@@ -4,7 +4,6 @@ import com.beyond.backend.domain.comment.dto.CommentDto;
 import com.beyond.backend.domain.comment.dto.CommentResponseDto;
 import com.beyond.backend.domain.comment.service.CommentService;
 import com.beyond.backend.domain.post.dto.PostResponseDto;
-import com.beyond.backend.domain.post.dto.UserPostResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

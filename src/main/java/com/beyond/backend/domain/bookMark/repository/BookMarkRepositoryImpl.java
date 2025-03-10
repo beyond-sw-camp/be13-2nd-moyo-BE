@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import static com.beyond.backend.domain.post.entity.QPost.*;
 import static com.beyond.backend.domain.user.entity.QUser.*;
@@ -55,6 +56,7 @@ public class BookMarkRepositoryImpl implements BookMarkRepositoryCustom {
                         post.postContent,
                         user.no,
                         user.username,
+                        post.viewCount,
                         post.bookmarkCount,
                         post.boardType,
                         post.postStatus,
@@ -99,4 +101,48 @@ public class BookMarkRepositoryImpl implements BookMarkRepositoryCustom {
 
         return post.boardType.eq(boardType);
     }
+
+
+    //--------------
+    // 최신 북마크 개수 조회
+
+    // 북마크 추가, 삭제 후 최신 북마크 개수
+ /*   @Override
+    public int getLatestBookmarkCount(Long postNo) {
+        Integer bookmarkCount = queryFactory
+                .select(post.bookmarkCount)
+                .from(post)
+                .where(post.no.eq(postNo))
+                .fetchOne();
+
+        // Null 처리 (데이터가 없을 경우 0 반환)
+        return bookmarkCount != null ? bookmarkCount : 0;
+    }
+
+    // 북마크 개수 증가
+    @Override
+    @Transactional
+    public int increaseBookmark(Long postNo) {
+        long updatedCount = queryFactory
+                .update(post)
+                .set(post.bookmarkCount, post.bookmarkCount.add(1))
+                .where(post.no.eq(postNo))
+                .execute();
+
+        return (int) updatedCount;
+    }
+
+    // 북마크 개수 감소
+    @Override
+    @Transactional
+    public int decreaseBookmark(Long postNo) {
+        long updatedCount = queryFactory
+                .update(post)
+                .set(post.bookmarkCount, post.bookmarkCount.subtract(1))
+                .where(post.no.eq(postNo)
+                        .and(post.bookmarkCount.gt(0))) // 0 이하로 내려가지 않도록 처리
+                .execute();
+
+        return (int) updatedCount;
+    }*/
 }

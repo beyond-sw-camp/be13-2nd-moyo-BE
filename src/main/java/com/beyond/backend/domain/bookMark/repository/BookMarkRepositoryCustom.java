@@ -22,4 +22,11 @@ import org.springframework.data.domain.Pageable;
  */public interface BookMarkRepositoryCustom {
 
     Page<UserPostResponseDto> getBookmarkedPosts(Long userNo, BoardType boardType,Pageable pageable);
+
+   /* int increaseBookmark(Long postNo);
+    int decreaseBookmark(Long postNo);
+
+
+    // 최신 북마크 개수 구하기
+    int getLatestBookmarkCount(Long postNo);*/
 }

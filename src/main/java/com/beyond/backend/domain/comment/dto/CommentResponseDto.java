@@ -39,6 +39,7 @@ public class CommentResponseDto {
     private Long userNo; // userNo를 돌려줘서 나중에 로그인한 회원 비교로 사용할 예정
     private String userName;
     private Long postNo;
+    private int likeCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -52,6 +53,7 @@ public class CommentResponseDto {
         this.userNo = comment.getUser().getNo();
         this.userName = comment.getUser().getUsername();
         this.postNo = comment.getPost().getNo();
+        this.likeCount = comment.getLikeCount();
         this.createdAt = comment.getCreatedAt();
         this.updatedAt = comment.getUpdatedAt();
     }
