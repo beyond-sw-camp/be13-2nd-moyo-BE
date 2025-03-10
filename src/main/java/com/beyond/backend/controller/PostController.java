@@ -5,6 +5,7 @@ import com.beyond.backend.domain.post.dto.PostResponseDto;
 import com.beyond.backend.domain.post.dto.UserPostResponseDto;
 import com.beyond.backend.domain.post.entity.BoardType;
 import com.beyond.backend.domain.post.entity.PostSearchOption;
+import com.beyond.backend.domain.post.entity.PostSortOption;
 import com.beyond.backend.domain.post.entity.PostStatus;
 import com.beyond.backend.domain.post.service.PostService;
 import com.beyond.backend.domain.user.service.UserService;
@@ -55,14 +56,16 @@ public class PostController {
     private final UserService userService;
     
     
-    // 게시글 검색, 조회
+    // 게시글 전체 조회
+    // 게시글 정렬 조건 ( 기본이 최신순)
 
     @Operation(summary = "게시글 전체 조회", description = "게시판 타입별로 게시글 조회")
     @GetMapping("/posts")
     public ResponseEntity<Page<PostResponseDto>> getPosts(
             @RequestParam BoardType boardType,
+            @RequestParam(required = false) PostSortOption postSortOption,
             @PageableDefault(size = 10, page= 0)Pageable pageable) {
-        Page<PostResponseDto> allPosts = postService.getPosts(boardType, pageable);
+        Page<PostResponseDto> allPosts = postService.getPosts(boardType, pageable, postSortOption);
        
       /* 
         if (allPosts.isEmpty()) {

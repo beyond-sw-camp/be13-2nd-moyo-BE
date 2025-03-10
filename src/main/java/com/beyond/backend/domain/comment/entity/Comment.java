@@ -25,8 +25,8 @@ public class Comment extends BaseEntity {
     @Column(nullable = false)
     private String content;
 
-    @Column(nullable = false)
-    private int likeCount; 
+
+    private int likeCount=0;
     // 조회하는 경우가 많아서 필드로 만들어줌
 
 
