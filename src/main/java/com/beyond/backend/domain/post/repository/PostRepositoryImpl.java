@@ -4,8 +4,10 @@ import static com.beyond.backend.domain.post.entity.QPost.*;
 import static com.beyond.backend.domain.user.entity.QUser.*;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.beyond.backend.domain.post.dto.UserPostResponseDto;
+import com.beyond.backend.domain.post.entity.Post;
 import com.beyond.backend.domain.post.entity.PostSearchOption;
 import com.beyond.backend.domain.post.entity.PostStatus;
 import lombok.RequiredArgsConstructor;
@@ -47,15 +49,17 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     public Page<PostResponseDto> getPostsByBoardType(BoardType boardType,  Pageable pageable) {
         List<PostResponseDto> content = queryFactory
                 .select(Projections.constructor(PostResponseDto.class,
-                 post.no,
-                 post.postTitle,
-                 post.postContent,
+				post.no,
+				post.postTitle,
+				post.postContent,
 				user.no,
-                user.username,
+				user.username,
+				post.viewCount,
 				post.bookmarkCount,
+				post.commentCount,
 				post.postStatus,
-                post.createdAt,
-                post.updatedAt
+				post.createdAt,
+				post.updatedAt
 				))
                 .from(post)
 			    .leftJoin(post.user, user)
@@ -92,7 +96,9 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 						post.postContent,
 						user.no,
 						user.username,
+						post.viewCount,
 						post.bookmarkCount,
+						post.commentCount,
 						post.postStatus,
 						post.createdAt,
 						post.updatedAt
@@ -153,8 +159,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 	
 	
 	//----------------------------
-	
-	// 미완성--------------------------------------------------------------
+
 
 	// 유저가 작성한 게시글 전체 조회 ( 활성, 비활성 상태 둘 다 가져옴 )
 	@Override
@@ -168,7 +173,9 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 						post.postContent,
 						user.no,
 						user.username,
+						post.viewCount,
 						post.bookmarkCount,
+						post.commentCount,
 						post.boardType,
 						post.postStatus,
 						post.createdAt,
@@ -192,7 +199,18 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 		
 	}
 
+	// 유저가 북마크한 게시글의 최신 상태 조회
+
+/*	@Override
+	public Optional<Post> findByIdWithFreshData(Long postId) {
+		return Optional.ofNullable(
+				queryFactory
+						.selectFrom(post)
+						.where(post.no.eq(postId))
+						.fetchOne()                  /
+		);
 
 
+	}*/
 }
 

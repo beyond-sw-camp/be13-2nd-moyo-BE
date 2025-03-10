@@ -29,7 +29,8 @@ public class Post extends BaseEntity {
     @Column(nullable = false)
     private String postContent;
 
-    private Long viewCount;
+    @Column(nullable = false)
+    private int viewCount;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -39,13 +40,12 @@ public class Post extends BaseEntity {
     @Column(nullable = false)
     private BoardType boardType;
 
-    @Enumerated(EnumType.STRING)
-    private PostSearchOption searchOption;
-
 
     @Column(nullable = false)
     private int bookmarkCount;
 
+    @Column(nullable = false)
+    private int commentCount;
 
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -69,25 +69,6 @@ public class Post extends BaseEntity {
     protected Post() {
     }
 
-    // 게시글 조회수 증가
-    public void increaseViewCount() {
-        this.viewCount++;
-    }
-
-
-
-    //  북마크 수 증가
-    public void increaseBookmarkCount() {
-        this.bookmarkCount++;
-    }
-
-    // 북마크 수 감소
-    public void decreaseBookmarkCount() {
-        if (this.bookmarkCount > 0) {
-            this.bookmarkCount--;
-        }
-    }
-
 
     // 연관관계 편의 메서드 -------------------------
 
@@ -97,9 +78,8 @@ public class Post extends BaseEntity {
         comment.setPost(this);
     }
 
-    //---------------------------------------------
 
-
+    //------------------------------------------
 
     //게시글 수정 용 메서드
     public void update(String postTitle, String postContent, PostStatus postStatus){

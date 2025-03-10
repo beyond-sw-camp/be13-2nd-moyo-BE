@@ -29,4 +29,6 @@ import org.springframework.data.domain.Pageable;
 
     Page<UserPostResponseDto> getUserPosts(Long userNo, Pageable pageable);
 
+
+
 }

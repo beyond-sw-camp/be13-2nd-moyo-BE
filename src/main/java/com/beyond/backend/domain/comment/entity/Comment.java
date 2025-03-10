@@ -25,6 +25,11 @@ public class Comment extends BaseEntity {
     @Column(nullable = false)
     private String content;
 
+    @Column(nullable = false)
+    private int likeCount; 
+    // 조회하는 경우가 많아서 필드로 만들어줌
+
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_no", nullable = false)
@@ -39,10 +44,10 @@ public class Comment extends BaseEntity {
     private List<Like> likes = new ArrayList<>();
 
 
-    //좋아요 연관관계 로직
-    public int getLikeCount() {
+    //좋아요 연관관계 로직 -> 데이터 정합성 문제 발생 db에서 직접 조회하기
+  /*  public int getLikeCount() {
         return likes.size();
-    }
+    }*/
 
     protected Comment(){
 

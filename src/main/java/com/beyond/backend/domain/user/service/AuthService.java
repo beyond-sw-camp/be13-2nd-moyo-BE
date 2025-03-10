@@ -10,6 +10,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 
 public interface AuthService {
+
+    CustomUserDetails getCurrentUser();
+
+    boolean isAdminFromUserDetails(CustomUserDetails userDetails);
+
     void join(JoinRequestDto dto);
 
     TokenResponseDto login(LoginRequestDto dto);

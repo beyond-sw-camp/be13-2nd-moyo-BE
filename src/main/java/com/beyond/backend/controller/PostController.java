@@ -7,6 +7,7 @@ import com.beyond.backend.domain.post.entity.BoardType;
 import com.beyond.backend.domain.post.entity.PostSearchOption;
 import com.beyond.backend.domain.post.entity.PostStatus;
 import com.beyond.backend.domain.post.service.PostService;
+import com.beyond.backend.domain.user.service.UserService;
 import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -51,6 +52,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class PostController {
 
     private final PostService postService;
+    private final UserService userService;
     
     
     // 게시글 검색, 조회
@@ -109,7 +111,7 @@ public class PostController {
     //게시글 생성
 
     @Operation(summary = "게시글 등록", description = "게시글 등록 ")
-    @PostMapping("/posts/create")
+    @PostMapping("/posts")
     public ResponseEntity<PostResponseDto> createPost(
             @RequestParam BoardType boardType,
             @RequestBody PostDto postDto,
@@ -152,7 +154,7 @@ public class PostController {
 
     // 로그인한 유저가 작성한 게시글 리스트
     @Operation(summary = "유저가 작성한 게시글 전체 조회", description = "개인 페이지에서 자신의 게시글 전체 조회")
-    @GetMapping("/user-page/my-post")
+    @GetMapping("/user/post")
     public ResponseEntity<Page<UserPostResponseDto>> getMyPost(
             @RequestParam Long userNo,
             @PageableDefault(size = 10, page= 0)Pageable pageable

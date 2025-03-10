@@ -51,9 +51,10 @@ public class LikeRepositoryCustomImpl implements LikeRepositoryCustom {
 
                         comment.no,
                         comment.content,
-                        user.no,
-                        user.username,
+                        comment.user.no, // 댓글 작성자
+                        comment.user.username, // 댓글 작성자
                         post.no,
+                        comment.likeCount,
                         comment.createdAt,
                         comment.updatedAt
 

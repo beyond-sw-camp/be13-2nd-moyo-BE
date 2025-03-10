@@ -84,6 +84,7 @@ public class CommentServiceImpl implements CommentService {
         User sender = userRepository.findById(commentDto.getUserNo())
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
+
         if (sender.getStatus() != Status.ACTIVE) {
             throw new IllegalArgumentException("비활성화 상태거나 삭제된 회원은 댓글을 달 수 없습니다.");
         }
@@ -91,6 +92,15 @@ public class CommentServiceImpl implements CommentService {
         // 댓글 저장
         Comment comment = new Comment(commentDto.getContent(), post, sender);
         commentRepository.save(comment);
+
+        // 댓글 개수 증가 (오류 처리 추가)
+        int updatedCount = postRepository.increaseCommentCount(post.getNo());
+
+        int latestCommentCount = postRepository.getLatestCommentCount(post.getNo());
+
+
+
+
 
         // 📌 올바른 방식으로 게시글 작성자 가져오기
         User receiver = post.getUser(); // post.getNo()가 아니라 post.getUser() 사용
@@ -146,9 +156,17 @@ public class CommentServiceImpl implements CommentService {
         User user = userRepository.findById(userNo)
                 .orElseThrow(()-> new IllegalArgumentException("해당하는 유저가 없습니다."));
         //작성자와 로그인한 유저가 같은지 확인
-        
+
+        Post post = comment.getPost();
         // 댓글 삭제
         commentRepository.deleteById(commentNo); // 일단은 그냥 삭제
+
+        // 댓글 개수 감소
+        int updatedCount = postRepository.decreaseCommentCount(post.getNo());
+
+        int latestCommentCount = postRepository.getLatestCommentCount(post.getNo());
+
+
 
     }
 
@@ -165,6 +183,16 @@ public class CommentServiceImpl implements CommentService {
     // 게시글의 댓글 전체 조회
     @Override
     public Page<CommentResponseDto> getPostComments(Long postNo, Pageable pageable) {
+
+        // 게시글 조회
+        Post post = postRepository.findById(postNo)
+                .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 존재하지 않습니다."));
+
+
+        if (post.getBoardType() != BoardType.FREE) {
+            throw new IllegalArgumentException("해당 게시판에서는 댓글을 조회할 수 없습니다.");
+        }
+
         return commentRepository.getPostComments(postNo, pageable);
     }
 
@@ -199,12 +227,35 @@ public class CommentServiceImpl implements CommentService {
         if (existingLike != null) {
             // 좋아요가 이미 있다면 삭제 (좋아요 취소)
             likeRepository.delete(existingLike);
+
+            // 좋아요 개수 -1
+            int updatedCount = commentRepository.decreaseLikeCount(commentNo);
+
+            // 좋아요 개수가 0이면 좋아요 취소 실패
+            if (updatedCount == 0) {
+                throw new IllegalStateException("좋아요 취소 실패(이미 좋아요 개수가 0입니다.)");
+            }
+
+            // 최신 좋아요 개수 반환
+            int latestCount = commentRepository.getLatestLikeCount(commentNo);
+
             return "좋아요가 취소되었습니다.";
         }
 
         // 4. 좋아요 추가
         Like newLike = new Like( comment, user);
         likeRepository.save(newLike);
+
+        // 좋아요 개수 +1
+        int updatedCount = commentRepository.increaseLikeCount(commentNo);
+
+        if (updatedCount == 0) {
+            throw new IllegalStateException("좋아요 추가 실패: 댓글이 존재하지 않습니다.");
+        }
+
+
+        // 최신 좋아요 개수 반환
+        int latestCount = commentRepository.getLatestLikeCount(commentNo);
 
         return "좋아요가 추가되었습니다.";
     }
