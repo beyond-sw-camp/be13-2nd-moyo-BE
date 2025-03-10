@@ -46,7 +46,7 @@ import org.springframework.data.domain.Pageable;
     PostResponseDto updatePost(BoardType boardType,PostStatus postStatus, Long postNo, PostDto postDto, Long userNo);
 
     // 게시글 삭제
-    void deletePost(Long postNo) ;
+    void deletePost(Long postNo, Long userNo) ;
 
 
     // 내가 쓴 게시글 전체 조회
