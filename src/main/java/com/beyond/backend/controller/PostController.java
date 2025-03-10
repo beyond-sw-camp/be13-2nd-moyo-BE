@@ -53,7 +53,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class PostController {
 
     private final PostService postService;
-    private final UserService userService;
+
     
     
     // 게시글 전체 조회
@@ -146,10 +146,11 @@ public class PostController {
     @Operation(summary = "게시글 삭제", description = "게시글 삭제")
     @DeleteMapping( "/posts/{postNo}")
     public ResponseEntity<String> deletePost(
-            @PathVariable Long postNo
+            @PathVariable Long postNo,
+            @AuthenticationPrincipal CustomUserDetails userDetails
 
     ) {
-         postService.deletePost(postNo);
+         postService.deletePost(postNo, userDetails.getUser().getNo());
 
         return ResponseEntity.status(HttpStatus.OK).body("게시물이 삭제되었습니다.");
     }
@@ -159,14 +160,14 @@ public class PostController {
     @Operation(summary = "유저가 작성한 게시글 전체 조회", description = "개인 페이지에서 자신의 게시글 전체 조회")
     @GetMapping("/user/post")
     public ResponseEntity<Page<UserPostResponseDto>> getMyPost(
-            @RequestParam Long userNo,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PageableDefault(size = 10, page= 0)Pageable pageable
 
     ){
         // 내가 쓴 게시글을 게시판 종류를 나눠서 볼 수 있음,
         // 내가 쓴 게시글은 전체 조회랑 다르게 비활성 상태여도 볼 수 있음
 
-        Page<UserPostResponseDto> result =  postService.getUserPosts(userNo,pageable);
+        Page<UserPostResponseDto> result =  postService.getUserPosts( userDetails.getUser().getNo(),pageable);
         
         // 조회 결과가 없는 경우 처리
 
@@ -184,24 +185,24 @@ public class PostController {
     @PostMapping("/posts/{postNo}/bookmark")
     public ResponseEntity<String> checkBookMark(
             @PathVariable Long postNo,
-            @RequestParam Long userNo) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         // 로그인된 세션에서 유저 번호 가져오기
 
 
-        String result = postService.checkBookMark(postNo, userNo);
+        String result = postService.checkBookMark(postNo, userDetails.getUser().getNo());
         return ResponseEntity.ok(result);
     }
 
 
     // 유저가 북마크한 게시글 전체 조회
     @Operation(summary = "북마크한 게시글 조회", description = "유저가 북마크한 게시글을 게시판 타입별로 조회. 타입이 없으면 전체 조회.")
-    @GetMapping("/user-page/{userNo}/bookmark")
+    @GetMapping("/user-page/bookmark")
     public ResponseEntity<Page<UserPostResponseDto>> getBookmarkedPosts(
-            @PathVariable Long userNo,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(required = false) BoardType boardType, // boardType에 따라 북마크한 게시글을 나눠서 볼 수 있음 (전체 다 보려면 빼기 )
             @PageableDefault(size = 10, page = 0) Pageable pageable) {
 
-        Page<UserPostResponseDto> result = postService.getBookmarkedPosts(userNo, boardType , pageable);
+        Page<UserPostResponseDto> result = postService.getBookmarkedPosts( userDetails.getUser().getNo(), boardType , pageable);
         return ResponseEntity.ok(result);
     }
 

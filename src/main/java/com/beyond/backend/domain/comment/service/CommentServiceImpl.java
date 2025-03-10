@@ -20,8 +20,10 @@ import com.beyond.backend.domain.post.entity.Post;
 import com.beyond.backend.domain.post.entity.PostStatus;
 import com.beyond.backend.domain.comment.repository.CommentRepository;
 import com.beyond.backend.domain.post.repository.PostRepository;
+import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import com.beyond.backend.domain.user.entity.User;
 import com.beyond.backend.domain.user.repository.UserRepository;
+import com.beyond.backend.domain.user.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -59,8 +61,10 @@ public class CommentServiceImpl implements CommentService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
 
+    private final AuthService authService;
+
     @Override
-    public CommentResponseDto createComment(CommentDto commentDto) {
+    public CommentResponseDto createComment(CommentDto commentDto, Long userNo) {
 
         // 게시글이 존재하는지 확인
         Post post = postRepository.findById(commentDto.getPostNo())
@@ -81,7 +85,7 @@ public class CommentServiceImpl implements CommentService {
         }
 
         // 댓글 작성자 확인 및 활성화 여부 체크
-        User sender = userRepository.findById(commentDto.getUserNo())
+        User sender = userRepository.findById(userNo)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
 
@@ -121,7 +125,9 @@ public class CommentServiceImpl implements CommentService {
 
     // 댓글 수정
     @Override
-    public CommentResponseDto updateComment(Long commentNo, CommentDto commentDto) {
+    public CommentResponseDto updateComment(Long commentNo, CommentDto commentDto, Long userNo) {
+
+        CustomUserDetails userDetails = authService.getCurrentUser();
 
         // 게시글이 존재하는지 확인
         Post post  = postRepository.findById(commentDto.getPostNo())
@@ -132,11 +138,16 @@ public class CommentServiceImpl implements CommentService {
                 .orElseThrow(()-> new IllegalArgumentException("해당 댓글을 찾을 수 없습니다."));
 
 
-        // 유저가 존재하는지 확인
-        User user = userRepository.findById(commentDto.getUserNo())
+
+        User user = userRepository.findById(userNo)
                 .orElseThrow(()-> new IllegalArgumentException("해당하는 유저가 없습니다."));
 
         // 댓글 작성자가 로그인한 회원과 같은지 비교 userNo로
+        // 댓글을 수정하려는 유저가 댓글을 작성한 유저인지 확인
+        if (!user.equals(userDetails.getUser())) {
+            throw new IllegalArgumentException("bad request");
+        }
+
 
         // 댓글 수정 (update 메서드 사용)
         comment.update(commentDto.getContent());
@@ -146,7 +157,8 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public void deleteComment(Long commentNo, Long userNo) {
-        // 게시글이 지워지면 댓글도 같이 지워져서 생갛
+        // 게시글이 지워지면 댓글도 같이 지워지는 것 생각
+        CustomUserDetails userDetails = authService.getCurrentUser();
 
         // 댓글이 존재하는 지 검증
         Comment comment  = commentRepository.findById(commentNo)
@@ -155,7 +167,12 @@ public class CommentServiceImpl implements CommentService {
         // 유저가 존재라는 지 검증
         User user = userRepository.findById(userNo)
                 .orElseThrow(()-> new IllegalArgumentException("해당하는 유저가 없습니다."));
+
         //작성자와 로그인한 유저가 같은지 확인
+        if (!user.equals(userDetails.getUser()) && authService.isAdminFromUserDetails(userDetails)) {
+            throw new IllegalArgumentException("bad request");
+        }
+
 
         Post post = comment.getPost();
         // 댓글 삭제
