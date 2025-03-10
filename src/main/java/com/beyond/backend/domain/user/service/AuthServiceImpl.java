@@ -117,7 +117,7 @@ public class AuthServiceImpl implements AuthService {
     public CustomUserDetails getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
-            throw new IllegalArgumentException("유요하지 않은 토큰입니다");
+            throw new IllegalArgumentException("유효하지 않은 토큰입니다");
         }
 
         Object principal = authentication.getPrincipal();
