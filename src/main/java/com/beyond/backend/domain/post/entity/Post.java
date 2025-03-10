@@ -15,7 +15,6 @@ import java.util.List;
 
 @Entity
 @Getter
-@Builder
 @AllArgsConstructor
 public class Post extends BaseEntity {
 
@@ -29,8 +28,8 @@ public class Post extends BaseEntity {
     @Column(nullable = false)
     private String postContent;
 
-    @Column(nullable = false)
-    private int viewCount;
+
+    private int viewCount =0;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -41,11 +40,9 @@ public class Post extends BaseEntity {
     private BoardType boardType;
 
 
-    @Column(nullable = false)
-    private int bookmarkCount;
+    private int bookmarkCount=0;
 
-    @Column(nullable = false)
-    private int commentCount;
+    private int commentCount=0;
 
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -69,6 +66,15 @@ public class Post extends BaseEntity {
     protected Post() {
     }
 
+    @Builder
+    public Post(String postTitle, String postContent, BoardType boardType, User user, PostStatus postStatus) {
+        this.postTitle = postTitle;
+        this.postContent = postContent;
+        this.boardType = boardType;
+        this.user = user;
+        this.postStatus = postStatus;
+    }
+
 
     // 연관관계 편의 메서드 -------------------------
 
@@ -88,6 +94,10 @@ public class Post extends BaseEntity {
         this.postStatus = postStatus;
 
     }
+
+
+    //
+
 
 
 }

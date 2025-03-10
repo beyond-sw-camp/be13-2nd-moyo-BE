@@ -6,6 +6,7 @@ import com.beyond.backend.domain.post.dto.UserPostResponseDto;
 import com.beyond.backend.domain.post.entity.BoardType;
 import com.beyond.backend.domain.post.entity.PostSearchOption;
 
+import com.beyond.backend.domain.post.entity.PostSortOption;
 import com.beyond.backend.domain.post.entity.PostStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,7 +30,7 @@ import org.springframework.data.domain.Pageable;
  */public interface PostService {
 
      // 게시글 전체 조회
-    Page<PostResponseDto> getPosts(BoardType boardType, Pageable pageable);
+    Page<PostResponseDto> getPosts(BoardType boardType, Pageable pageable, PostSortOption postSortOption);
 
     // 게시글 검색
     Page<PostResponseDto> searchPosts(BoardType boardType, PostSearchOption option, String keyword, Pageable pageable);

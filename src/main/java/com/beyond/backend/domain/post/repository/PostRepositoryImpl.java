@@ -7,6 +7,7 @@ import com.beyond.backend.domain.post.dto.PostResponseDto;
 import com.beyond.backend.domain.post.dto.UserPostResponseDto;
 import com.beyond.backend.domain.post.entity.BoardType;
 import com.beyond.backend.domain.post.entity.PostSearchOption;
+import com.beyond.backend.domain.post.entity.PostSortOption;
 import com.beyond.backend.domain.post.entity.PostStatus;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -46,7 +47,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 	
 	 // 북마크 카운트 같이 조회해오기
 	@Override
-    public Page<PostResponseDto> getPostsByBoardType(BoardType boardType,  Pageable pageable) {
+    public Page<PostResponseDto> getPostsByBoardType(BoardType boardType, Pageable pageable, PostSortOption postSortOption) {
         List<PostResponseDto> content = queryFactory
                 .select(Projections.constructor(PostResponseDto.class,
 				post.no,
@@ -64,6 +65,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .from(post)
 			    .leftJoin(post.user, user)
                 .where(post.boardType.eq(boardType), post.postStatus.eq(PostStatus.ACTIVE))
+				.orderBy(post.createdAt.desc()) //
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -78,6 +80,8 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         return PageableExecutionUtils.getPage(content,pageable, totalCount::fetchOne);
     }
 
+	// 게시글 정렬
+//
 
 
 

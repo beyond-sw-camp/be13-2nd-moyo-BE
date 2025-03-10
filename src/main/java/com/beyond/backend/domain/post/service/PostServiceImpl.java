@@ -8,6 +8,7 @@ import com.beyond.backend.domain.bookMark.entity.BookMark;
 import com.beyond.backend.domain.bookMark.entity.BookMarkNo;
 import com.beyond.backend.domain.post.entity.Post;
 import com.beyond.backend.domain.post.entity.PostSearchOption;
+import com.beyond.backend.domain.post.entity.PostSortOption;
 import com.beyond.backend.domain.post.entity.PostStatus;
 import com.beyond.backend.domain.bookMark.repository.BookMarkRepository;
 import com.beyond.backend.domain.post.repository.PostRepository;
@@ -53,8 +54,8 @@ public class PostServiceImpl implements PostService {
 
 
     @Override
-    public Page<PostResponseDto> getPosts(BoardType boardType, Pageable pageable) {
-        return postRepository.getPostsByBoardType(boardType, pageable);
+    public Page<PostResponseDto> getPosts(BoardType boardType, Pageable pageable, PostSortOption postSortOption) {
+        return postRepository.getPostsByBoardType(boardType, pageable, postSortOption);
     }
 
     @Override
@@ -145,16 +146,13 @@ public class PostServiceImpl implements PostService {
         User user = userRepository.findById(userNo)
                 .orElseThrow(()-> new IllegalArgumentException("해당 유저가 존재하지 않습니다."));
 
-        if (!user.equals(userDetails.getUser()) || authService.isAdminFromUserDetails(userDetails)) {
-            throw new IllegalArgumentException("bad request");
-        }
 
         // post의 유저와 수정하려는 유저가 같은지 확인
-
-        if (!user.equals(userDetails.getUser()) || authService.isAdminFromUserDetails(userDetails)) {
+        if (!user.equals(userDetails.getUser()) && authService.isAdminFromUserDetails(userDetails)) {
             throw new IllegalArgumentException("bad request");
         }
 
+        post.update(postDto.getTitle(), postDto.getContent(), postDto.getPostStatus());
 
 
         return new PostResponseDto(post);
