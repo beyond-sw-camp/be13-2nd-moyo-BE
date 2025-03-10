@@ -50,8 +50,6 @@ public class PostServiceImpl implements PostService {
     private final UserRepository userRepository;
     private final AuthService authService;
 
-    private final AuthService authService;
-
 
 
     @Override
@@ -151,8 +149,6 @@ public class PostServiceImpl implements PostService {
             throw new IllegalArgumentException("bad request");
         }
 
-
-        CustomUserDetails userDetails = authService.getCurrentUser();
         // post의 유저와 수정하려는 유저가 같은지 확인
 
         if (!user.equals(userDetails.getUser()) || authService.isAdminFromUserDetails(userDetails)) {

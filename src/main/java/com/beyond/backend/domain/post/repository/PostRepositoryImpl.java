@@ -1,27 +1,27 @@
 package com.beyond.backend.domain.post.repository;
 
-import static com.beyond.backend.domain.post.entity.QPost.*;
-import static com.beyond.backend.domain.user.entity.QUser.*;
+/*import static com.beyond.backend.domain.post.entity.QPost.*;
+import static com.beyond.backend.domain.user.entity.QUser.*;*/
 
-import java.util.List;
-import java.util.Optional;
-
+import com.beyond.backend.domain.post.dto.PostResponseDto;
 import com.beyond.backend.domain.post.dto.UserPostResponseDto;
-import com.beyond.backend.domain.post.entity.Post;
+import com.beyond.backend.domain.post.entity.BoardType;
 import com.beyond.backend.domain.post.entity.PostSearchOption;
 import com.beyond.backend.domain.post.entity.PostStatus;
+import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQuery;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
-import com.beyond.backend.domain.post.dto.PostResponseDto;
-import com.beyond.backend.domain.post.entity.BoardType;
-import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.impl.JPAQuery;
-import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.util.List;
+
+import static com.beyond.backend.domain.post.entity.QPost.post;
+import static com.beyond.backend.domain.user.entity.QUser.user;
 
 
 /**

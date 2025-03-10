@@ -12,14 +12,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
-import static com.beyond.backend.domain.post.entity.QPost.*;
+/*import static com.beyond.backend.domain.post.entity.QPost.*;
 import static com.beyond.backend.domain.user.entity.QUser.*;
-import static com.beyond.backend.domain.bookMark.entity.QBookMark.*;
+import static com.beyond.backend.domain.bookMark.entity.QBookMark.*;*/
 
 
 import java.util.List;
+
+import static com.beyond.backend.domain.bookMark.entity.QBookMark.bookMark;
+import static com.beyond.backend.domain.post.entity.QPost.post;
+import static com.beyond.backend.domain.user.entity.QUser.user;
 
 /**
  * <p>

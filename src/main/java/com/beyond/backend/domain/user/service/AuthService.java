@@ -17,7 +17,4 @@ public interface AuthService {
 
     TokenResponseDto refresh(String bearerToken);
 
-    CustomUserDetails getCurrentUser();
-
-    boolean isAdminFromUserDetails(CustomUserDetails userDetails);
 }
