@@ -20,15 +20,9 @@ import org.springframework.web.bind.annotation.*;
 public class MessageController {
     private final MessageService messageService;
     private final UserRepository userRepository;
-
-    //    @Operation(summary = "쪽지 단일 조회", description = "쪽지를 조회합니다.")
-//    @GetMapping("/read/{userNo}/{messageNo}")
-//    public ResponseEntity<MessageResponseDto> getMessage(@PathVariable Long messageNo, @PathVariable Long userNo) {
-//        MessageResponseDto messageResponseDto = messageService.getMessage(messageNo, userNo);
-//
-//        return ResponseEntity.status(HttpStatus.OK).body(messageResponseDto);
-//    }
-
+    /**
+     * user null(로그인 안 했을때 처리)
+     */
     /**
      * 쪽지 단일 조회
      */
@@ -40,19 +34,17 @@ public class MessageController {
         return ResponseEntity.status(HttpStatus.OK).body(messageResponseDto);
     }
 
+
     /**
      * 쪽지 전송
      */
     @Operation(summary = "쪽지 전송", description = "쪽지를 전송(저장)합니다")
     @PostMapping("/messages")
-    public ResponseEntity<MessageResponseDto> sendMessage(@RequestBody MessageDto messageDto) {
-        MessageResponseDto messageResponseDto = messageService.messageWrite(messageDto);
+    public ResponseEntity<MessageResponseDto> sendMessage(@RequestParam Long senderNo, @RequestBody MessageDto messageDto) { // senderNo는 토큰으로 어찌저찌 하기
+        MessageResponseDto messageResponseDto = messageService.messageWrite(senderNo, messageDto);
 
         return ResponseEntity.status(HttpStatus.OK).body(messageResponseDto);
     }
-
-    //
-
 
     /**
      * 쪽지 조회 리스트
@@ -87,9 +79,7 @@ public class MessageController {
 
         messageService.deleteMessage(userNo, messageNo);
 
-        MessageResponseDto responseDto = new MessageResponseDto();
-        responseDto.setContent("삭제되었습니다.");
-
+        MessageResponseDto responseDto = new MessageResponseDto("삭제되었습니다");
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 
@@ -106,77 +96,12 @@ public class MessageController {
         return ResponseEntity.ok(unreadCount);
     }
 
-//    @Operation(summary = "보낸쪽지리스트")
-//    @GetMapping("/messages/sent/{userNo}")
-//    public ResponseEntity<Page<MessageResponseDto>> getSentMessages(
-//            @PathVariable Long userNo,
-//            @Parameter(name = "page", description = "페이지 번호", example = "0") @RequestParam(defaultValue = "0") int page,
-//            @Parameter(name = "size", description = "페이지 크기", example = "10") @RequestParam(defaultValue = "10") int size,
-//            @Parameter(name = "sort", description = "정렬 필드", example = "no") @RequestParam(defaultValue = "no") String sort) { // User 객체로 바꾸기
-//        Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
-//        User user = getUserByNo(userNo);
-//        Page<MessageResponseDto> messageResponseDto = messageService.getSentMessageList(user.getNo(), pageable);
-//
-//        return ResponseEntity.ok(messageResponseDto);
-//    }
-//
-//    @Operation(summary = "받은쪽지리스트")
-//    @GetMapping("/messages/received/{userNo}")
-//    public ResponseEntity<Page<MessageResponseDto>> getReceivedMessages(
-//            @PathVariable Long userNo,
-//            @Parameter(name = "page", description = "페이지 번호", example = "0") @RequestParam(defaultValue = "0") int page,
-//            @Parameter(name = "size", description = "페이지 크기", example = "10") @RequestParam(defaultValue = "10") int size,
-//            @Parameter(name = "sort", description = "정렬 필드", example = "no") @RequestParam(defaultValue = "no") String sort
-//    ) { // User 객체로 바꾸기
-//        Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
-//        User user = getUserByNo(userNo);
-//        Page<MessageResponseDto> messageResponseDto = messageService.getReceivedMessageList(user.getNo(), pageable);
-//
-//        return ResponseEntity.ok(messageResponseDto);
-//    }
-
-    //
 
     /**
      * 유저 있는지 메서드
      */
     private User getUserByNo(Long userNo) {
         return userRepository.findById(userNo)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new IllegalArgumentException("해당 회원을 찾을 수 없습니다."));
     }
-    // try catch 로..?
-/*
-    @DeleteMapping("/delete/sent")
-    public ResponseEntity<MessageResponseDto> deleteSentMessage(@RequestParam Long no, @RequestParam String userId) {
-//        User user = userRepository.findByUserId(user.getNo())
-//                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        // 현재 로그인 한 계정 번호
-
-        messageService.deleteMessageBySender(no, userId);
-        return deleteResponse();
-    }
-
-    @DeleteMapping("/delete/received")
-    public ResponseEntity<MessageResponseDto> deleteReceivedMessage(@RequestParam Long no, @RequestParam String userId) {
-//        User user = userRepository.findByUserId(user.getNo())
-//                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        // 현재 로그인 한 계정 번호
-
-        messageService.deleteMessageByReceiver(no, userId);
-        return deleteResponse();
-    }
-
-    private ResponseEntity<MessageResponseDto> deleteResponse() {
-        MessageResponseDto responseDto = MessageResponseDto.fromContent("삭제 되었습니다."); // 유저, 메시지 일치하지않는것 추가하기 일단 throw
-        return ResponseEntity.status(HttpStatus.OK).body(responseDto);
-    }
-    */
-
-
-//    @DeleteMapping("/delete")
-//    public ResponseEntity<String> deleteMessage(Long id) throws Exception {
-//        messageService.deleteMessage(id);
-//
-//        return ResponseEntity.status(HttpStatus.OK).body("정상적으로 삭제되었습니다");
-//    }
 }

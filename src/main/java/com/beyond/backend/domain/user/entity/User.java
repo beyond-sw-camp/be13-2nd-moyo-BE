@@ -7,7 +7,7 @@ import com.beyond.backend.domain.common.BaseEntity;
 import com.beyond.backend.domain.common.entity.Status;
 import com.beyond.backend.domain.message.entity.Message;
 import com.beyond.backend.domain.post.entity.Post;
-import com.beyond.backend.domain.reportUser.entity.ReportUser;
+import com.beyond.backend.domain.report.entity.Report;
 import com.beyond.backend.domain.teamUser.entity.TeamUser;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -22,7 +22,7 @@ import java.util.Set;
 @Entity
 @Getter
 @NoArgsConstructor
-public class User extends BaseEntity{
+public class User extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -97,11 +97,11 @@ public class User extends BaseEntity{
     private Set<UserBadge> userBadges = new HashSet<>();
 
     // 보낸 쪽지 리스트 (1:N 관계)
-    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = false)
     private Set<Message> sentMessages = new HashSet<>();
 
     // 받은 쪽지 리스트 (1:N 관계)
-    @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL, orphanRemoval = false)
     private Set<Message> receivedMessages = new HashSet<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -120,9 +120,9 @@ public class User extends BaseEntity{
     private List<BookMark> bookmarks;
 
     // 신고
-    @OneToMany(mappedBy = "reporter", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<ReportUser> reportsMade = new HashSet<>();
+    @OneToMany(mappedBy = "reporter", cascade = CascadeType.ALL, orphanRemoval = false)
+    private Set<Report> reportsMade = new HashSet<>();
 
-    @OneToMany(mappedBy = "reported", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<ReportUser> reportsReceived = new HashSet<>();
+    @OneToMany(mappedBy = "reported", cascade = CascadeType.ALL, orphanRemoval = false)
+    private Set<Report> reportsReceived = new HashSet<>();
 }
