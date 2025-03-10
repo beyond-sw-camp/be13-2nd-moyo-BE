@@ -65,7 +65,7 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
 			.limit(pageable.getPageSize())
 			.fetch();
 
-		///  projectTech 넣어주기
+
 		// 2. 프로젝트 ID 리스트 추출
 		List<Long> projectIds = allProjects.stream()
 			.map(ProjectResponseDto::getNo)
@@ -79,7 +79,6 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
 			proj.setProjectTeches(projectTechMap.getOrDefault(proj.getNo(), List.of()))
 		);
 
-		///
 
 		// 5. 전체 프로젝트 개수 조회
 		JPAQuery<Long> totalCount = queryFactory

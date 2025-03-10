@@ -25,6 +25,7 @@ public class TechServiceImpl implements TechService {
 	private final TechRepository techRepository;
 	private final JwtTokenProvider jwtTokenProvider;
 
+	/// 관리자용
 
 	@Override
 	public TechResponseDto createTech(HttpServletRequest request, TechRequestDto dto) {
@@ -54,7 +55,8 @@ public class TechServiceImpl implements TechService {
 		validationAdmin(request);
 
 		techRepository.findById(no)
-			.orElseThrow(() -> new IllegalArgumentException("해당하는 기술이 없습니다"));
+						.orElseThrow(() -> new IllegalArgumentException("해당하는 기술이 없습니다"));
+
 		techRepository.deleteById(no);
 	}
 
@@ -86,5 +88,5 @@ public class TechServiceImpl implements TechService {
 		}
 	}
 
-
 }
+

@@ -2,8 +2,10 @@ package com.beyond.backend.domain.project.service;
 
 import com.beyond.backend.domain.project.dto.ProjectRequestDto;
 import com.beyond.backend.domain.project.dto.ProjectResponseDto;
+import com.beyond.backend.domain.project.dto.ProjectUpdateRequestDto;
 import com.beyond.backend.domain.project.entity.Project;
 import com.beyond.backend.domain.project.entity.ProjectSearchOption;
+import com.beyond.backend.domain.project.entity.ProjectStatus;
 import com.beyond.backend.domain.project.entity.ProjectTech;
 import com.beyond.backend.domain.project.repository.ProjectRepository;
 import com.beyond.backend.domain.project.repository.ProjectTechRepository;
@@ -14,6 +16,10 @@ import com.beyond.backend.domain.tech.entity.Tech;
 import com.beyond.backend.domain.tech.repository.TechRepository;
 import com.beyond.backend.domain.user.entity.User;
 import com.beyond.backend.domain.user.repository.UserRepository;
+
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -41,12 +47,24 @@ public class ProjectServiceImpl implements ProjectService {
 	@Transactional
 	public ProjectResponseDto createProject(ProjectRequestDto projectRequestDto) {
 
-		// 팀이 존재하는지 검증
+		// 1. 팀이 존재하는지 검증
 		Team team = teamRepository.findById(projectRequestDto.getTeamNo()).orElseThrow(
 			() -> new IllegalArgumentException("해당하는 Team이 없습니다.")
 		);
 
-		// 1. DTO -> entity 로 변환
+		// 2. 회원이 팀에 속하는지
+
+		User user = userRepository.findById(projectRequestDto.getUserNo()).orElseThrow(
+			() -> new IllegalArgumentException("해당하는 사용자가 없습니다.")
+		);
+
+		boolean existsByUserNoAndTeamNo = teamUserRepository.existsByUserNoAndTeamNo(user.getNo(), team.getNo());
+
+		if (!existsByUserNoAndTeamNo) {
+			throw new IllegalArgumentException("사용자는 해당 팀에 속하지 않습니다.");
+		}
+
+		// 3. DTO -> entity 로 변환
 		Project project = Project.builder()
 			.name(projectRequestDto.getName())
 			.content(projectRequestDto.getContent())
@@ -60,7 +78,7 @@ public class ProjectServiceImpl implements ProjectService {
 			.map( techNo -> {
 				// 각 techNo로 Tech 엔티티 조회
 				Tech tech = techRepository.findById(techNo)
-					.orElseThrow(() -> new IllegalArgumentException("해당 기술이 존재하지 않습니다. techNo=" + techNo));
+					.orElseThrow(() -> new IllegalArgumentException("해당 기술이 존재하지 않습니다."));
 				// ProjectTech 엔티티 생성: project.getNo()를 사용하여 project_no를 할당
 				return ProjectTech.builder()
 					.tech(tech)
@@ -81,7 +99,7 @@ public class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	@Transactional
-	public ProjectResponseDto updateProject(Long projectNo, Long userNo, ProjectRequestDto projectRequestDto) {
+	public ProjectResponseDto updateProject(Long projectNo, ProjectStatus projectStatus, ProjectUpdateRequestDto projectRequestDto) {
 
 		// 1. 프로젝트 있는지 검증
 		// 수정하고자 하는 프로젝트
@@ -90,7 +108,7 @@ public class ProjectServiceImpl implements ProjectService {
 		);
 
 		// 2. 유저 존재하는지 검증
-		User user = userRepository.findById(userNo).orElseThrow(
+		User user = userRepository.findById(projectRequestDto.getUserNo()).orElseThrow(
 			() -> new IllegalArgumentException("해당하는 사용자가 없습니다.")
 		);
 
@@ -124,7 +142,7 @@ public class ProjectServiceImpl implements ProjectService {
 		project.getProjectTeches().addAll(newProjectTechList); // 새로운 리스트 추가
 
 		// 7. 프로젝트 업데이트 수행
-		project.update(projectRequestDto);
+		project.update(projectStatus, projectRequestDto);
 
 		// 8. 업데이트된 프로젝트 정보 반환
 		return new ProjectResponseDto(project);
@@ -154,9 +172,15 @@ public class ProjectServiceImpl implements ProjectService {
 		);
 
 		// 조회수 증가
-		project.increaseViewCnt();
+		increaseViewCount(projectNo);
 
 		return new ProjectResponseDto(project);
+	}
+
+
+	@Transactional
+	public void increaseViewCount(Long projectNo) {
+		projectRepository.increaseViewCount(projectNo); // JPQL or QueryDSL 사용 가능
 	}
 
 
@@ -210,11 +234,9 @@ public class ProjectServiceImpl implements ProjectService {
 		}
 
 		//  4. 리더가 아니면 예외
-		//// 프로젝트 방장 인지 검증 로직 추가 <- 방장만 프로젝트 삭제 가능
 		if( !teamUserRepository.isLeader(team.getNo(), userNo) ){
 			throw new IllegalArgumentException("사용자는 해당 프로젝트를 수정할 권한이 없습니다.");
 		}
-
 
 		// 5. 프로젝트 삭제
 		projectRepository.deleteById(projectNo);

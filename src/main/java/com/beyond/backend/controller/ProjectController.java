@@ -2,7 +2,9 @@ package com.beyond.backend.controller;
 
 import com.beyond.backend.domain.project.dto.ProjectRequestDto;
 import com.beyond.backend.domain.project.dto.ProjectResponseDto;
+import com.beyond.backend.domain.project.dto.ProjectUpdateRequestDto;
 import com.beyond.backend.domain.project.entity.ProjectSearchOption;
+import com.beyond.backend.domain.project.entity.ProjectStatus;
 import com.beyond.backend.domain.project.service.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -15,30 +17,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * <p>프로젝트 API
- *
- * <p>packageName    : com.beyond.backend.controller
- * <p>fileName       : ProjectController
- * <p>author         : jaewoo
- * <p>date           : 2025. 2. 2.
- * <p>description    : 프로젝트 API
- */
-
 @Tag(name = "프로젝트 API", description = "프로젝트 API")
 @RestController
 @RequestMapping("/project")
 @RequiredArgsConstructor
-public class ProjectController {
+public class    ProjectController {
 
     private final ProjectService projectService;
 
-    /**
-     * Get product response entity.
-     *
-     * @param projectRequestDto 팀 번호
-     * @return the response entity
-     */
 
     @Operation(summary = "프로젝트 등록 메서드", description = "프로젝트 등록 메서드입니다.")
     @PostMapping("/create")
@@ -50,19 +36,22 @@ public class ProjectController {
     }
 
     @Operation(summary = "프로젝트 수정 메서드", description = "프로젝트 수정 메서드입니다.")
-    @PostMapping("/{userNo}/{projectNo}")
-    public ResponseEntity<ProjectResponseDto> updateProject(@PathVariable("projectNo") Long projectNo, @PathVariable("userNo") Long userNo, @RequestBody ProjectRequestDto projectRequestDto) {
+    @PostMapping("/update/{projectNo}")
+    public ResponseEntity<ProjectResponseDto> updateProject(
+                                                            @RequestParam ProjectStatus projectStatus,
+                                                            @PathVariable("projectNo") Long projectNo,
+                                                            @RequestBody ProjectUpdateRequestDto projectRequestDto) {
 
-        ProjectResponseDto projectResponseDto = projectService.updateProject(projectNo, userNo , projectRequestDto);
+        ProjectResponseDto projectResponseDto = projectService.updateProject(projectNo, projectStatus, projectRequestDto);
 
         return ResponseEntity.status(HttpStatus.OK).body(projectResponseDto);
     }
 
     @Operation(summary = "프로젝트 삭제 메서드", description = "프로젝트 삭제 메서드 입니다.")
-    @DeleteMapping("/{userNo}/{projectNo}")
-    public ResponseEntity<Void> deleteProject( @PathVariable("userNo") Long userNo, @PathVariable("projectNo") Long projectNo ) throws Exception {
-        System.out.println("userNo = " + userNo);
-        System.out.println("projectNo = " + projectNo);
+    @DeleteMapping("/{projectNo}/{userNo}")
+    public ResponseEntity<Void> deleteProject(  @PathVariable("userNo") Long userNo,
+                                                @PathVariable("projectNo") Long projectNo ) throws Exception {
+
         projectService.deleteProject(userNo, projectNo);
 
         return ResponseEntity.noContent().build();
@@ -74,7 +63,6 @@ public class ProjectController {
 
         Page<ProjectResponseDto> allProjects = projectService.getAllProjects(pageable);
 
-
         if (allProjects.isEmpty())
             System.out.println("프로젝트가 비어있습니다.");
 
@@ -83,7 +71,7 @@ public class ProjectController {
 
 
     @Operation(summary = "프로젝트 단건 조회")
-    @GetMapping("/select/{projectNo}")
+    @GetMapping("/{projectNo}")
     public ResponseEntity<ProjectResponseDto> getProjectByNo(@PathVariable("projectNo") Long projectNo){
         ProjectResponseDto projectByProjectNo = projectService.getProjectByProjectNo(projectNo);
 
@@ -92,8 +80,9 @@ public class ProjectController {
 
 
     @Operation(summary = "사용자의 모든 프로젝트 조회")
-    @GetMapping("/users/{userNo}/projects")
-    public ResponseEntity<Page<ProjectResponseDto>> getProject(@PathVariable("userNo") Long userNo, @PageableDefault(size = 10, page = 0) Pageable pageable ){
+    @GetMapping("/projects/users/{userNo}")
+    public ResponseEntity<Page<ProjectResponseDto>> getProject(@PathVariable("userNo") Long userNo,
+                                                                @PageableDefault(size = 10, page = 0) Pageable pageable ){
 
         Page<ProjectResponseDto> projectsByUserNo = projectService.getProjectsByUserNo(userNo, pageable);
 

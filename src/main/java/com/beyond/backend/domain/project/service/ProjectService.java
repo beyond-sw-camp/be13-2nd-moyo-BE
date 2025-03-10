@@ -2,9 +2,11 @@ package com.beyond.backend.domain.project.service;
 
 import com.beyond.backend.domain.project.dto.ProjectRequestDto;
 import com.beyond.backend.domain.project.dto.ProjectResponseDto;
+import com.beyond.backend.domain.project.dto.ProjectUpdateRequestDto;
 import com.beyond.backend.domain.project.entity.Project;
 import com.beyond.backend.domain.project.entity.ProjectSearchOption;
 
+import com.beyond.backend.domain.project.entity.ProjectStatus;
 import com.beyond.backend.domain.team.entity.Team;
 import com.beyond.backend.domain.user.entity.User;
 import org.springframework.data.domain.Page;
@@ -27,7 +29,7 @@ public interface ProjectService {
     ProjectResponseDto createProject(ProjectRequestDto projectRequestDto);
 
     // 프로젝트 수정
-    ProjectResponseDto updateProject(Long projectNo, Long userNo, ProjectRequestDto projectRequestDto);
+    ProjectResponseDto updateProject(Long projectNo, ProjectStatus projectStatus, ProjectUpdateRequestDto projectRequestDto);
 
     // 프로젝트 삭제
     void deleteProject(Long userNo, Long projectNo);

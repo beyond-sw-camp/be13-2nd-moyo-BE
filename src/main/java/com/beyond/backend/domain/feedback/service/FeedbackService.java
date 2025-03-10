@@ -6,12 +6,13 @@ import org.springframework.data.domain.Pageable;
 import com.beyond.backend.domain.feedback.dto.FeedbackRequestDto;
 import com.beyond.backend.domain.feedback.dto.FeedbackResponseDto;
 import com.beyond.backend.domain.feedback.dto.FeedbackUpdateRequestDto;
+import com.beyond.backend.domain.feedback.entity.FeedbackType;
 
 public interface FeedbackService {
 
-	FeedbackResponseDto createFeedback(Long userNo, Long projectNo, FeedbackRequestDto dto);
+	FeedbackResponseDto createFeedback(Long userNo, Long projectNo, FeedbackType feedbackType, FeedbackRequestDto dto);
 
-	FeedbackResponseDto updateFeedback(Long userNo, Long projectNo, Long feedbackNo, FeedbackUpdateRequestDto dto);
+	FeedbackResponseDto updateFeedback(Long userNo, Long projectNo, Long feedbackNo, FeedbackType feedbackType, FeedbackUpdateRequestDto dto);
 
 	void deleteFeedback(Long userNo, Long feedbackNo);
 

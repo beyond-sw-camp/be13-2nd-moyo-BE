@@ -12,6 +12,5 @@ import lombok.NoArgsConstructor;
 public class FeedbackRequestDto {
 
 	private String content;
-	private FeedbackType feedbackType;
 
 }

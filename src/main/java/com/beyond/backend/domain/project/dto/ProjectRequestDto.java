@@ -1,13 +1,10 @@
 package com.beyond.backend.domain.project.dto;
 
+import java.util.List;
+
 import com.beyond.backend.domain.project.entity.ProjectStatus;
 
-import com.beyond.backend.domain.project.entity.ProjectTech;
-import com.beyond.backend.domain.tech.entity.Tech;
-import lombok.*;
-
-import java.util.List;
-import java.util.stream.Collectors;
+import lombok.Data;
 
 
 @Data
@@ -19,8 +16,9 @@ public class ProjectRequestDto {
 
     private Long teamNo;
 
-    private ProjectStatus projectStatus;
+    private Long userNo;
 
+    private ProjectStatus projectStatus;
 
     private List<Long> techsNos;
 }
