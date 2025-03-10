@@ -57,9 +57,6 @@ public class PostResponseDto {
     // 북마크 개수
 
 
-
-
-
     public PostResponseDto(Post post) {
         this.postNo = post.getNo();
         this.title = post.getPostTitle();

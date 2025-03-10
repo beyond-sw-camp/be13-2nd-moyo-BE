@@ -153,6 +153,27 @@ public class AuthServiceImpl implements AuthService {
         return new UnlockResponseDto();
     }
 
+    @Override
+    public CustomUserDetails getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new IllegalArgumentException("유요하지 않은 토큰입니다");
+        }
+
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof CustomUserDetails) {
+            return (CustomUserDetails) principal;
+        }
+        return null;
+    }
+
+    @Override
+    public boolean isAdminFromUserDetails(CustomUserDetails userDetails) {
+        return userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch(role -> role.equals("ROLE_ADMIN"));
+    }
+
     // 비밀번호 검증 로직 (login 메서드 내에서 호출)
     public void validPwd(String password, User user) {
         if (!passwordEncoder.matches(password, user.getPassword())) {
