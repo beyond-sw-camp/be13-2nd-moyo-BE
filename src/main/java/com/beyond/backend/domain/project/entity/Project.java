@@ -4,6 +4,7 @@ import com.beyond.backend.domain.common.BaseEntity;
 import com.beyond.backend.domain.common.entity.Status;
 import com.beyond.backend.domain.feedback.entity.Feedback;
 import com.beyond.backend.domain.project.dto.ProjectRequestDto;
+import com.beyond.backend.domain.project.dto.ProjectUpdateRequestDto;
 import com.beyond.backend.domain.team.entity.Team;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -32,6 +33,7 @@ public class Project extends BaseEntity {
     // 프로젝트 내용/설명
     private String content;
 
+    @Column(nullable = false)
     private int viewCnt;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -55,10 +57,6 @@ public class Project extends BaseEntity {
         }
     }
 
-    // 조회수 증가
-    public void increaseViewCnt() {
-        this.viewCnt++;
-    }
 
     //== 연관관계 편의 메서드 ==//
     public void setTeam(Team team){
@@ -68,18 +66,15 @@ public class Project extends BaseEntity {
         }
     }
 
-    public void addFeedbacks(Feedback feedback){
-        this.feedbacks.add(feedback);
-        feedback.setProject(this);
-    }
 
     public void addProjectTechList(List<ProjectTech> teches){
         this.projectTeches = teches;
     }
 
-    public void update(ProjectRequestDto projectRequestDto){
+
+    public void update(ProjectStatus projectStatus, ProjectUpdateRequestDto projectRequestDto){
         this.name = projectRequestDto.getName();
         this.content = projectRequestDto.getContent();
-        this.projectStatus = projectRequestDto.getProjectStatus();
+        this.projectStatus = projectStatus;
     }
 }

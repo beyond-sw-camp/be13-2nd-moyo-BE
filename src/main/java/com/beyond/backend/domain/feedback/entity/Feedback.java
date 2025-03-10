@@ -48,8 +48,9 @@ public class Feedback extends BaseEntity {
         }
     }
 
-    public void updateFeedback(String content) {
+    public void updateFeedback(String content, FeedbackType feedbackType) {
         this.content = content;
+        this.feedbackType = feedbackType;
     }
 
 }

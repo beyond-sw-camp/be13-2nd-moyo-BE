@@ -1,5 +1,6 @@
 package com.beyond.backend.domain.feedback.service;
 
+import com.beyond.backend.domain.feedback.entity.FeedbackType;
 import com.beyond.backend.domain.user.entity.User;
 import com.beyond.backend.domain.user.repository.UserRepository;
 import org.springframework.data.domain.Page;
@@ -33,15 +34,16 @@ public class FeedbackServiceImpl implements FeedbackService {
 	// 3. 그 외의 것은 게시판 그잡채
 
 	@Transactional
-	public FeedbackResponseDto createFeedback(Long userNo, Long projectNo, FeedbackRequestDto dto) {
-		// 1. user가 존재하는지
-		User user = userRepository.findById(userNo).orElseThrow(
-			() -> new IllegalArgumentException("해당하는 사용자가 없습니다.")
-		);
+	public FeedbackResponseDto createFeedback(Long userNo, Long projectNo, FeedbackType feedbackType, FeedbackRequestDto feedbackDto) {
 
-		// 2. 프로젝트가 존재하는지
+		// 1. 프로젝트가 존재하는지
 		Project project = projectRepository.findById(projectNo).orElseThrow(
 			() -> new IllegalArgumentException("해당하는 프로젝트가 없습니다.")
+		);
+
+		// 2. user가 존재하는지
+		User user = userRepository.findById(userNo).orElseThrow(
+			() -> new IllegalArgumentException("해당하는 사용자가 없습니다.")
 		);
 
 		// 3. user 가 팀에 속하는지
@@ -51,29 +53,30 @@ public class FeedbackServiceImpl implements FeedbackService {
 		Team team = project.getTeam();
 		for (TeamUser teamUser : team.getTeamUsers()) {
 			if (teamUser.getUser().getNo().equals(userNo)){
-				System.out.println("w존재한다. 왜지 "+ teamUser.getNo() +" "+ userNo );
 				isExist = true;
 			}
 		}
 
 		if (!isExist){
-			throw new IllegalArgumentException("권한이 없습니다.");
+			throw new IllegalArgumentException("해당 프로젝트에 피드백을 작성할 권한이 없습니다.");
 		}
 
 		// 3. create
 		Feedback feedback = Feedback.builder()
-			.content(dto.getContent())
-			.user(user)
-			.project(project)
-			.feedbackType(dto.getFeedbackType())
-			.build();
+									.content(feedbackDto.getContent())
+									.user(user)
+									.project(project)
+									.feedbackType(feedbackType)
+									.build();
 
 		feedbackRepository.save(feedback);
+
 		return new FeedbackResponseDto(feedback);
 	}
 
 	@Transactional
-	public FeedbackResponseDto updateFeedback(Long userNo, Long projectNo, Long feedbackNo, FeedbackUpdateRequestDto dto){
+	public FeedbackResponseDto updateFeedback(Long userNo, Long projectNo, Long feedbackNo, FeedbackType feedbackType, FeedbackUpdateRequestDto dto){
+
 		// 1. user가 존재하는지
 		User user = userRepository.findById(userNo).orElseThrow(
 			() -> new IllegalArgumentException("해당하는 사용자가 없습니다.")
@@ -86,11 +89,11 @@ public class FeedbackServiceImpl implements FeedbackService {
 
 		// 3. user 가 팀에 속하는지
 		boolean isExist = false;
-		System.out.println(user.getUsername()+" is name ");
+
+
 		Team team = project.getTeam();
 		for (TeamUser teamUser : team.getTeamUsers()) {
 			if (teamUser.getUser().getNo().equals(userNo)){
-				System.out.println(teamUser.getUser().getUsername() );
 				isExist = true;
 			}
 		}
@@ -105,14 +108,13 @@ public class FeedbackServiceImpl implements FeedbackService {
 
 
 		if (!feedback.getUser().getNo().equals(userNo)){
-			throw new IllegalArgumentException("본인의 피드백만 삭제할 수 있습니다");
+			throw new IllegalArgumentException("본인의 피드백만 수정할 수 있습니다");
 		}
 
-		feedback.updateFeedback(dto.getContent());
-		feedbackRepository.save(feedback);
+		feedback.updateFeedback(dto.getContent(), feedbackType);
+
 		return new FeedbackResponseDto(feedback);
 	}
-
 
 
 
@@ -133,7 +135,7 @@ public class FeedbackServiceImpl implements FeedbackService {
 		feedbackRepository.deleteById(feedbackNo);
 	}
 
-	// userNo ->
+
 	@Override
 	public Page<FeedbackResponseDto> getFeedbackByUserNo(Long userNo, Pageable pageable) {
 
