@@ -30,7 +30,7 @@ public class MessageResponseDto {
     private String content;
 
     private String senderName;
-    private String senderId;
+    private String senderId; //username
     private String receiverName;
     private String receiverId;
 
@@ -40,14 +40,20 @@ public class MessageResponseDto {
 
     private LocalDateTime sendAt;
 
+    public MessageResponseDto(String content) { //삭제시 쓰기 위해.
+        this.content = content;
+    }
+
     public static MessageResponseDto returnMessageDto(Message message) {
+        String senderId = (message.getSender() != null) ? message.getSender().getUsername() : "탈퇴한 회원입니다";
+        String receiverId = (message.getReceiver() != null) ? message.getReceiver().getUsername() : "탈퇴한 회원입니다";
 
         return new MessageResponseDto(
                 message.getContent(),
                 null,
-                message.getSender().getUsername(),
+                senderId,
                 null,
-                message.getReceiver().getUsername(),
+                receiverId,
                 message.isDeletedBySender(),
                 message.isDeletedByReceiver(),
                 message.isRead(),

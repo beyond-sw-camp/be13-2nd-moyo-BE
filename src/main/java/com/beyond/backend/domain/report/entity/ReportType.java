@@ -1,4 +1,4 @@
-package com.beyond.backend.domain.reportUser.entity;
+package com.beyond.backend.domain.report.entity;
 
 /**
  * <p>
@@ -15,9 +15,9 @@ DATE              AUTHOR             NOTE
 2025. 3. 3.        mlnstone             최초 생성
 */
 
-public enum ReportUserType {
-    ABUSIVE_LANGUAGE, // 욕설
-    SPAMMING,         // 도배
-    POLITICS,          // 정치
-    OTHER
+public enum ReportType {
+    USER_REPORT,    // 유저 신고
+    POST_REPORT,    // 게시글 신고
+    MESSAGE_REPORT,  // 쪽지 신고
+    OTHER           // 기타
 }

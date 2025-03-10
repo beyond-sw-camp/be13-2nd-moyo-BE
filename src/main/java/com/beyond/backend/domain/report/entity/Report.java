@@ -1,4 +1,4 @@
-package com.beyond.backend.domain.reportUser.entity;
+package com.beyond.backend.domain.report.entity;
 
 import com.beyond.backend.domain.common.BaseEntity;
 import com.beyond.backend.domain.user.entity.User;
@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 /**
  * <p>
@@ -28,8 +30,8 @@ DATE              AUTHOR             NOTE
 @AllArgsConstructor
 @Getter
 @Builder
-@Table(name = "report_user")
-public class ReportUser extends BaseEntity {
+@Table(name = "report")
+public class Report extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long no;
@@ -37,15 +39,20 @@ public class ReportUser extends BaseEntity {
     // N+1
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reporter_no")
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     private User reporter;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     @JoinColumn(name = "reported_no")
     private User reported;
 
     @Column
     @Enumerated(EnumType.STRING)
-    private ReportUserType reportUserType;
+    private ReportType reportType;
+
+    @Column
+    private String url;
 
     @Lob
     @Column
@@ -60,6 +67,10 @@ public class ReportUser extends BaseEntity {
 
     public void markAsCompleted() {
         this.isCompleted = true;
+    }
+
+    public void updateComment(String comment) {
+        this.comment = comment;
     }
 
 }

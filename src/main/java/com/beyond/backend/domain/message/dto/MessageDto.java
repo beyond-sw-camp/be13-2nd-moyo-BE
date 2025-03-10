@@ -23,9 +23,7 @@ DATE              AUTHOR             NOTE
 @NoArgsConstructor
 @AllArgsConstructor
 public class MessageDto {
-    private Long senderNo;
     private Long receiverNo;
 
     private String content;
-    // sendAt, sender 아이디 필요한지?
 }

@@ -1,9 +1,9 @@
 package com.beyond.backend.controller;
 
-import com.beyond.backend.domain.reportUser.dto.ReportUserAdminResDto;
-import com.beyond.backend.domain.reportUser.dto.ReportUserDto;
-import com.beyond.backend.domain.reportUser.dto.ReportUserResponseDto;
-import com.beyond.backend.domain.reportUser.service.ReportUserService;
+import com.beyond.backend.domain.report.dto.ReportAdminResDto;
+import com.beyond.backend.domain.report.dto.ReportDto;
+import com.beyond.backend.domain.report.dto.ReportResponseDto;
+import com.beyond.backend.domain.report.service.ReportService;
 import com.beyond.backend.domain.user.entity.User;
 import com.beyond.backend.domain.user.repository.UserRepository;
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,35 +32,41 @@ DATE              AUTHOR             NOTE
 
 @RestController
 @RequiredArgsConstructor
-public class ReportUserController {
-    private final ReportUserService reportService;
+public class ReportController {
+    private final ReportService reportService;
     private final UserRepository userRepository;
 
     @Operation(summary = "유저 신고 리스트")
+    // role(ADMIN) 추가 예정!
     @GetMapping("/user-reports/{userNo}")
-    public ResponseEntity<Page<ReportUserResponseDto>> getUserReports(
+    public ResponseEntity<Page<ReportResponseDto>> getUserReports(
             @PathVariable Long userNo,
             @PageableDefault(size = 10, page = 0, sort = "no") Pageable pageable) {
 
         User user = getUserByNo(userNo);
-        Page<ReportUserResponseDto> reportUserResponseDto = reportService.getReportList(user.getNo(), pageable);
+        Page<ReportResponseDto> reportResponseDto = reportService.getReportList(user.getNo(), pageable);
 
-        return ResponseEntity.ok(reportUserResponseDto);
+        return ResponseEntity.ok(reportResponseDto);
     }
 
 
-    @Operation(summary = "신고 작성", description = "신고를 생성합니다<br> ABUSIVE_LANGUAGE(욕설)<br> SPAMMING(도배)<br> POLITICS(정치)<br> OTHER")
+    @Operation(summary = "신고 작성", description = "신고를 생성합니다<br> USER_REPORT(유저)<br> POST_REPORT(게시글)<br> MESSAGE_REPORT(쪽지)<br> OTHER(기타)")
     @PostMapping("/user-reports")
-    public ResponseEntity<ReportUserResponseDto> createReport(@RequestBody ReportUserDto reportDto) {
-        ReportUserResponseDto reportResponseDto = reportService.createReport(reportDto);
+    public ResponseEntity<ReportResponseDto> createReport(
+            @Parameter(name = "reporterNo", description = "신고하는사람 no") @RequestParam Long reporterNo,
+            @RequestBody ReportDto reportDto) {
+        ReportResponseDto reportResponseDto = reportService.createReport(reporterNo, reportDto);
 
         return ResponseEntity.ok(reportResponseDto);
     }
 
     @Operation(summary = "comment 작성", description = "어드민이 comment를 작성합니다")
-    @PutMapping("/user-reports/comment")
-    public ResponseEntity<ReportUserResponseDto> updateReport(@Parameter(description = "no는 신고번호입니다") @RequestBody ReportUserAdminResDto reportUserAdminResDto) {
-        ReportUserResponseDto reportResponseDto = reportService.addComment(reportUserAdminResDto);
+    @PutMapping("/user-reports/{reportNo}")
+    // role(ADMIN) 추가 예정!
+    public ResponseEntity<ReportResponseDto> updateReport(
+            @PathVariable Long reportNo,
+            @Parameter(description = "no는 신고번호입니다") @RequestBody ReportAdminResDto reportAdminResDto) {
+        ReportResponseDto reportResponseDto = reportService.addComment(reportNo, reportAdminResDto);
 
         return ResponseEntity.ok(reportResponseDto);
 
@@ -72,7 +78,7 @@ public class ReportUserController {
      */
     private User getUserByNo(Long userNo) {
         return userRepository.findById(userNo)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new IllegalArgumentException("해당 회원을 찾을 수 없습니다."));
     }
 }
 

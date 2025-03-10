@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @NoArgsConstructor
@@ -25,11 +27,13 @@ public class Message extends BaseEntity {
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sender_no", nullable = false)
-    private User sender; //직관적 네이밍
+    @JoinColumn(name = "sender_no") // NULL 허용
+    @OnDelete(action = OnDeleteAction.SET_NULL) //
+    private User sender;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "receiver_no", nullable = false)
+    @JoinColumn(name = "receiver_no") // NULL 허용
+    @OnDelete(action = OnDeleteAction.SET_NULL) // 삭제 시 NULL로 변경
     private User receiver; //직관적 네이밍
 
     @Column(nullable = false)
@@ -57,5 +61,8 @@ public class Message extends BaseEntity {
         this.isRead = true;
     } // 읽음 안읽음
 
-
+    public boolean hasPermission(Long userNo) {
+        return (getReceiver() != null && userNo.equals(getReceiver().getNo())) ||
+                (getSender() != null && userNo.equals(getSender().getNo()));
+    }
 }
