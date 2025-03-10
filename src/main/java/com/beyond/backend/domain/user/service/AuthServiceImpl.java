@@ -65,7 +65,6 @@ public class AuthServiceImpl implements AuthService {
         User user = User.builder()
                 .username(username)
                 .password(encodedPassword)
-                .role(UserRoleType.USER)
                 .email(dto.getEmail())
                 .phoneNum(dto.getPhoneNum())
                 .build();
@@ -132,25 +131,6 @@ public class AuthServiceImpl implements AuthService {
                 jwtTokenProvider.createAccessToken(user.getUsername(), user.getRole().toString()),
                 refreshToken
         );
-    }
-
-    @Override
-    public BanResponseDto banUser(BanRequestDto dto) {
-        User user = userRepository.findByUsername(dto.getUsername())
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-
-        user.updateBan(dto.getBan());
-        userRepository.save(user);
-        return new BanResponseDto();
-    }
-
-    @Override
-    public UnlockResponseDto unlockUser(UnlockRequestDto dto) {
-        User user = userRepository.findByUsername(dto.getUsername())
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        user.updatePasswordErrorCount(0);
-        userRepository.save(user);
-        return new UnlockResponseDto();
     }
 
     @Override
