@@ -16,7 +16,7 @@ public class ProjectRequestDto {
 
     private Long teamNo;
 
-    private Long userNo;
+    // private Long userNo;
 
     private ProjectStatus projectStatus;
 

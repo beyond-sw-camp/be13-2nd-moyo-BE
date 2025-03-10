@@ -14,8 +14,10 @@ import com.beyond.backend.domain.team.repository.TeamRepository;
 import com.beyond.backend.domain.teamUser.repository.TeamUserRepository;
 import com.beyond.backend.domain.tech.entity.Tech;
 import com.beyond.backend.domain.tech.repository.TechRepository;
+import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import com.beyond.backend.domain.user.entity.User;
 import com.beyond.backend.domain.user.repository.UserRepository;
+import com.beyond.backend.domain.user.service.AuthService;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -42,10 +44,13 @@ public class ProjectServiceImpl implements ProjectService {
 	private final TeamUserRepository teamUserRepository;
 	private final TechRepository techRepository;
 	private final ProjectTechRepository projectTechRepository;
+	private final AuthService authService;
 
 	@Override
 	@Transactional
-	public ProjectResponseDto createProject(ProjectRequestDto projectRequestDto) {
+	public ProjectResponseDto createProject(ProjectRequestDto projectRequestDto, Long userNo) {
+
+		CustomUserDetails userDetails = authService.getCurrentUser();
 
 		// 1. 팀이 존재하는지 검증
 		Team team = teamRepository.findById(projectRequestDto.getTeamNo()).orElseThrow(
@@ -53,8 +58,7 @@ public class ProjectServiceImpl implements ProjectService {
 		);
 
 		// 2. 회원이 팀에 속하는지
-
-		User user = userRepository.findById(projectRequestDto.getUserNo()).orElseThrow(
+		User user = userRepository.findById(userNo).orElseThrow(
 			() -> new IllegalArgumentException("해당하는 사용자가 없습니다.")
 		);
 
@@ -66,10 +70,10 @@ public class ProjectServiceImpl implements ProjectService {
 
 		// 3. DTO -> entity 로 변환
 		Project project = Project.builder()
-			.name(projectRequestDto.getName())
-			.content(projectRequestDto.getContent())
-			.team(team) // 여기에 검증된 팀 넣기
-			.build();
+								.name(projectRequestDto.getName())
+								.content(projectRequestDto.getContent())
+								.team(team) // 여기에 검증된 팀 넣기
+								.build();
 
 		projectRepository.save(project);
 
@@ -99,7 +103,10 @@ public class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	@Transactional
-	public ProjectResponseDto updateProject(Long projectNo, ProjectStatus projectStatus, ProjectUpdateRequestDto projectRequestDto) {
+	public ProjectResponseDto updateProject(Long projectNo, ProjectStatus projectStatus, ProjectUpdateRequestDto projectRequestDto, Long userNo ) {
+
+		CustomUserDetails userDetails = authService.getCurrentUser();
+
 
 		// 1. 프로젝트 있는지 검증
 		// 수정하고자 하는 프로젝트
@@ -108,16 +115,16 @@ public class ProjectServiceImpl implements ProjectService {
 		);
 
 		// 2. 유저 존재하는지 검증
-		User user = userRepository.findById(projectRequestDto.getUserNo()).orElseThrow(
+		User user = userRepository.findById(userNo).orElseThrow(
 			() -> new IllegalArgumentException("해당하는 사용자가 없습니다.")
 		);
 
 		Team team = project.getTeam();
 
 		// 3. user 가 team 에 속하는가
-		boolean existsByUserNoAndTeamNo = teamUserRepository.existsByUserNoAndTeamNo(user.getNo(), team.getNo());
+		boolean existsByUserNoAndTeamNo = teamUserRepository.existsByUserNoAndTeamNo(userNo, team.getNo());
 
-		if (!existsByUserNoAndTeamNo) {
+		if (!existsByUserNoAndTeamNo && !authService.isAdminFromUserDetails(userDetails)) {
 			throw new IllegalArgumentException("사용자는 해당 프로젝트를 수정할 권한이 없습니다.");
 		}
 
@@ -129,11 +136,15 @@ public class ProjectServiceImpl implements ProjectService {
 			.distinct() // 중복 제거
 			.map(techNo -> {
 				Tech tech = techRepository.findById(techNo)
-					.orElseThrow(() -> new IllegalArgumentException("해당 기술이 존재하지 않습니다. techNo=" + techNo));
+											.orElseThrow(
+												() -> new IllegalArgumentException("해당 기술이 존재하지 않습니다. techNo=" + techNo)
+											);
+
+
 				return ProjectTech.builder()
-					.tech(tech)
-					.project(project)
-					.build();
+									.tech(tech)
+									.project(project)
+									.build();
 			})
 			.collect(Collectors.toList());
 
@@ -213,11 +224,16 @@ public class ProjectServiceImpl implements ProjectService {
 	@Transactional
 	public void deleteProject(Long userNo, Long projectNo) {
 
+		CustomUserDetails userDetails = authService.getCurrentUser();
+
 		// 1. user 검증
 		User user = userRepository.findById(userNo).orElseThrow(
 			()-> new IllegalArgumentException("해당하는 유저가 없습니다.")
 		);
 
+		if (!userDetails.getUser().getNo().equals(userNo)) {
+			throw new IllegalArgumentException("잘못된 요청입니다. 로그인한 사용자와 일치하지 않습니다.");
+		}
 
 		// 2. project 검증
 		Project project = projectRepository.findById(projectNo).orElseThrow(
@@ -230,12 +246,12 @@ public class ProjectServiceImpl implements ProjectService {
 		boolean existsByUserNoAndTeamNo = teamUserRepository.existsByUserNoAndTeamNo(user.getNo(), project.getTeam().getNo());
 
 		if (!existsByUserNoAndTeamNo) {
-			throw new IllegalArgumentException("사용자는 해당 프로젝트를 수정할 권한이 없습니다.");
+			throw new IllegalArgumentException("사용자는 해당 프로젝트를 삭제할 권한이 없습니다.");
 		}
 
-		//  4. 리더가 아니면 예외
-		if( !teamUserRepository.isLeader(team.getNo(), userNo) ){
-			throw new IllegalArgumentException("사용자는 해당 프로젝트를 수정할 권한이 없습니다.");
+		//  4. 리더가 아니고 관리자가 아니면 예외
+		if( !teamUserRepository.isLeader(team.getNo(), userNo) && !authService.isAdminFromUserDetails(userDetails)){
+			throw new IllegalArgumentException("사용자는 해당 프로젝트를 삭제할 권한이 없습니다.");
 		}
 
 		// 5. 프로젝트 삭제
