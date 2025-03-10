@@ -12,10 +12,6 @@ public interface AuthService {
 
     TokenResponseDto refresh(String bearerToken);
 
-    BanResponseDto banUser(BanRequestDto dto);
-
-    UnlockResponseDto unlockUser(UnlockRequestDto dto);
-
     CustomUserDetails getCurrentUser();
 
     boolean isAdminFromUserDetails(CustomUserDetails userDetails);

@@ -5,6 +5,7 @@ import com.beyond.backend.domain.user.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,7 +24,7 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
-@RequestMapping
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -41,21 +42,29 @@ public class AuthController {
     /**
      * 로그인 API
      * - 사용자 아이디와 패스워드를 받아 검증 후, JWT (Access Token, Refresh Token)를 반환한다.
-     * - Refresh Token은 보통 클라이언트에서 저장하고, 이후 액세스 토큰 재발급 요청에 사용된다.
+     * - Refresh Token 은 보통 클라이언트에서 저장하고, 이후 액세스 토큰 재발급 요청에 사용된다.
      *
-     * @param loginRequestDto 로그인 요청 데이터 (username, password 포함)
-     * @return TokenResponseDto (Access Token, Refresh Token 포함)
      */
     @PostMapping("/login")
-    public ResponseEntity<TokenResponseDto> login(@Valid @RequestBody LoginRequestDto loginRequestDto) {
-        log.info("로그인 요청: {}", loginRequestDto.getUsername());
+    public ResponseEntity<Map<String, Object>> login(@RequestBody LoginRequestDto dto) {
+        try {
+            TokenResponseDto tokenResponse = authService.login(dto);
 
-        // AuthService를 이용하여 로그인 처리 및 토큰 발급
-        TokenResponseDto tokenResponseDto = authService.login(loginRequestDto);
+            // 로그인 성공 시 액세스 & 리프레시 토큰 반환
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "로그인 성공");
+            response.put("accessToken", tokenResponse.getAccessToken());
+            response.put("refreshToken", tokenResponse.getRefreshToken());
 
-        log.info("로그인 성공 - 사용자: {}", loginRequestDto.getUsername());
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            // 로그인 실패 시 아이디(username) 반환
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", e.getMessage()); // 예외 메시지 (잘못된 비밀번호, 없는 유저 등)
+            response.put("username", dto.getUsername()); // 사용자가 입력한 아이디 유지
 
-        return ResponseEntity.ok(tokenResponseDto);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
     }
 
     /**
@@ -98,20 +107,5 @@ public class AuthController {
         log.info("토큰 재발급 성공 - 새로운 액세스 토큰 발급됨");
 
         return ResponseEntity.ok(tokenResponseDto);
-    }
-
-    @PostMapping("/ban")
-    public ResponseEntity<BanResponseDto> ban(@Valid @RequestBody BanRequestDto dto) {
-
-        BanResponseDto banResponseDto = authService.banUser(dto);
-        log.info("{}을 banned = {} 로 바꿈", dto.getUsername(), dto.getBan());
-        return ResponseEntity.ok(banResponseDto);
-    }
-
-    @PostMapping("/unlock")
-    public ResponseEntity<UnlockResponseDto> unlock(@Valid @RequestBody UnlockRequestDto dto) {
-        UnlockResponseDto unlockResponseDto = authService.unlockUser(dto);
-        log.info("{}을 unlock!", dto.getUsername());
-        return ResponseEntity.ok(unlockResponseDto);
     }
 }

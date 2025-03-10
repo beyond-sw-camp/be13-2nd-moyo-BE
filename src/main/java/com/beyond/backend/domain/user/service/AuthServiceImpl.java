@@ -112,25 +112,6 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public BanResponseDto banUser(BanRequestDto dto) {
-        User user = userRepository.findByUsername(dto.getUsername())
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-
-        user.updateBan(dto.getBan());
-        userRepository.save(user);
-        return new BanResponseDto();
-    }
-
-    @Override
-    public UnlockResponseDto unlockUser(UnlockRequestDto dto) {
-        User user = userRepository.findByUsername(dto.getUsername())
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        user.updatePasswordErrorCount(0);
-        userRepository.save(user);
-        return new UnlockResponseDto();
-    }
-
-    @Override
     public CustomUserDetails getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
