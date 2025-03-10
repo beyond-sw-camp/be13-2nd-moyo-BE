@@ -1,9 +1,6 @@
 package com.beyond.backend.domain.user.service;
 
-import com.beyond.backend.domain.user.dto.PasswordUpdateRequestDto;
-import com.beyond.backend.domain.user.dto.PasswordUpdateResponseDto;
-import com.beyond.backend.domain.user.dto.UserUpdateRequestDto;
-import com.beyond.backend.domain.user.dto.UserUpdateResponseDto;
+import com.beyond.backend.domain.user.dto.*;
 import com.beyond.backend.domain.user.entity.User;
 import com.beyond.backend.domain.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -54,5 +51,24 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         userRepository.delete(user);
+    }
+
+    @Override
+    public BanResponseDto banUser(BanRequestDto dto) {
+        User user = userRepository.findByUsername(dto.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        user.updateBan(dto.getBan());
+        userRepository.save(user);
+        return new BanResponseDto();
+    }
+
+    @Override
+    public UnlockResponseDto unlockUser(UnlockRequestDto dto) {
+        User user = userRepository.findByUsername(dto.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        user.updatePasswordErrorCount(0);
+        userRepository.save(user);
+        return new UnlockResponseDto();
     }
 }

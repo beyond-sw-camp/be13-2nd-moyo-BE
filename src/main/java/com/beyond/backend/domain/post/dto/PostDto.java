@@ -38,10 +38,4 @@ public class PostDto {
 
     @NotNull(message = "게시글 상태를 지정해야 합니다.")
     private PostStatus postStatus;
-
-    private Long userNo;
-
-
-
-
 }

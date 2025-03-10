@@ -24,7 +24,7 @@ public interface MessageService {
 
     MessageResponseDto getMessage(Long userNo, Long messageNo); // 단일 조회
 
-    MessageResponseDto messageWrite(MessageDto messageDto);
+    MessageResponseDto messageWrite(Long senderNo, MessageDto messageDto);
 
     Page<MessageResponseDto> getReceivedMessageList(Long userNo, Pageable pageable);
 

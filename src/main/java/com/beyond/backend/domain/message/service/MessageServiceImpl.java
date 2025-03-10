@@ -12,8 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-
 import static com.beyond.backend.domain.message.dto.MessageResponseDto.returnMessageDto;
 
 /**
@@ -33,113 +31,59 @@ DATE              AUTHOR             NOTE
 @Service
 @RequiredArgsConstructor
 public class MessageServiceImpl implements MessageService {
-    private final MessageRepository messageRepository;
     private final UserRepository userRepository;
+    private final MessageRepository messageRepository;
 
     @Override
     public MessageResponseDto getMessage(Long userNo, Long messageNo) {
+
         Message message = messageRepository.findById(messageNo)
                 .orElseThrow(() -> new RuntimeException("메시지가 없습니다"));
-        if (!message.getReceiver().getNo().equals(userNo) &&
-                !message.getSender().getNo().equals(userNo)) {
+
+        if (!message.hasPermission(userNo)) {
             throw new RuntimeException("해당 메시지를 조회할 권한이 없습니다.");
-        } else if (message.getReceiver().getNo().equals(userNo)) {
+        }
+        if (message.getReceiver() != null && message.getReceiver().getNo().equals(userNo)) {
             message.markAsRead(); // 읽음 처리
             messageRepository.save(message);
         }
-
         return returnMessageDto(message);
     }
 
     @Override
     @Transactional
-    public MessageResponseDto messageWrite(MessageDto messageDto) {
-        Optional<User> sender = userRepository.findById(messageDto.getSenderNo());
-        Optional<User> receiver = userRepository.findById(messageDto.getReceiverNo());
-        if (sender.isPresent() && receiver.isPresent()) {
-            Message message = Message.builder()
-                    .sender(sender.get())
-                    .receiver(receiver.get())
-                    .content(messageDto.getContent())
-                    .deletedBySender(false)
-                    .deletedByReceiver(false)
-                    .build();
-            messageRepository.save(message);
+    public MessageResponseDto messageWrite(Long senderNo, MessageDto messageDto) {
+        User sender = userRepository.findById(senderNo).orElseThrow(
+                () -> new IllegalArgumentException("로그인이 필요합니다"));
+        User receiver = userRepository.findById(messageDto.getReceiverNo()).orElseThrow(
+                () -> new IllegalArgumentException("받는 회원이 존재하지 않습니다."));
 
-            return returnMessageDto(message);
-        } else {
+        Message message = Message.builder()
+                .sender(sender)
+                .receiver(receiver)
+                .content(messageDto.getContent())
+                .deletedBySender(false)
+                .deletedByReceiver(false)
+                .build();
+        messageRepository.save(message);
 
-            throw new RuntimeException("존재하지 않는 유저입니다");
-        }
+        return returnMessageDto(message);
+
     }
 
-    @Override
+    @Override // 얘도 userNo 받을 때 인증과정한다음에 하기
     public Page<MessageResponseDto> getReceivedMessageList(Long userNo, Pageable pageable) {
         Page<Message> receivedMessages = messageRepository.findAllByReceiver_No(userNo, pageable);
 
         return receivedMessages.map(message -> MessageResponseDto.returnMessageDto(message));
     }
 
-    @Override
+    @Override // 얘도 userNo 받을 때 인증과정한다음에 하기
     public Page<MessageResponseDto> getSentMessageList(Long userNo, Pageable pageable) {
         Page<Message> sentMessages = messageRepository.findAllBySender_No(userNo, pageable);
 
         return sentMessages.map(message -> MessageResponseDto.returnMessageDto(message));
     }
-
-
-
-    /* public List<MessageResponseDto> getSentMessagesByOrder(String userId) { // 시큐리티 되면 user 객체로
-        List<Message> messages = messageRepository.findAllBySender_UserIdOrderByNo(userId);
-        List<MessageResponseDto> messageResponseDto = new ArrayList<>();
-        for (Message message : messages) {
-            if (!message.isDeletedBySender()) {
-                messageResponseDto.add(returnMessageDto(message));
-            }
-        }
-
-        return messageResponseDto;
-    }
-
-    @Override
-    public List<MessageResponseDto> getReceivedMessagesByOrder(String userId) { // 시큐리티 되면 user 객체로
-        List<Message> messages = messageRepository.findAllByReceiver_UserIdOrderByNo(userId);
-        List<MessageResponseDto> messageResponseDto = new ArrayList<>();
-        for (Message message : messages) {
-            if (!message.isDeletedByReceiver()) {
-                messageResponseDto.add(returnMessageDto(message));
-            }
-        }
-        return messageResponseDto;
-    }
-
-    @Override
-    public List<MessageResponseDto> getSentMessagesByLatest(String userId) { // 시큐리티 되면 user 객체로
-        List<Message> messages = messageRepository.findAllBySender_UserIdOrderByNoDesc(userId);
-        List<MessageResponseDto> messageResponseDto = new ArrayList<>();
-        for (Message message : messages) {
-            if (!message.isDeletedBySender()) {
-                messageResponseDto.add(returnMessageDto(message));
-            }
-        }
-        return messageResponseDto;
-    }
-
-    @Override
-    public List<MessageResponseDto> getReceivedMessagesByLatest(String userId) { // 시큐리티 되면 user 객체로
-        List<Message> messages = messageRepository.findAllByReceiver_UserIdOrderByNoDesc(userId);
-        List<MessageResponseDto> messageResponseDto = new ArrayList<>();
-        for (Message message : messages) {
-            if (!message.isDeletedByReceiver()) {
-                messageResponseDto.add(returnMessageDto(message));
-            }
-        }
-        return messageResponseDto;
-    }
-
-
-     */
-
 
     @Override
     @Transactional
@@ -147,8 +91,8 @@ public class MessageServiceImpl implements MessageService {
         Message message = messageRepository.findById(messageNo).orElseThrow(()
                 -> new IllegalArgumentException("존재하지 않는 메시지입니다."));
 
-        boolean isSender = message.getSender().getNo().equals(userNo);
-        boolean isReceiver = message.getReceiver().getNo().equals(userNo);
+        boolean isSender = message.getSender() != null && message.getSender().getNo().equals(userNo);
+        boolean isReceiver = message.getReceiver() != null && message.getReceiver().getNo().equals(userNo);
 
         if (isSender || isReceiver) {
             if (isSender) {
@@ -156,6 +100,17 @@ public class MessageServiceImpl implements MessageService {
             }
             if (isReceiver) {
                 message.deleteByReceiver();
+            }
+            // sender가 null이고 receiver가 삭제되면 하드 딜리트
+            if (message.getSender() == null && message.isDeletedByReceiver()) {
+                messageRepository.delete(message);
+                return "메시지 삭제";
+            }
+
+            // receiver가 null이고 sender가 삭제되면 하드 딜리트
+            if (message.getReceiver() == null && message.isDeletedBySender()) {
+                messageRepository.delete(message);
+                return "메시지 삭제";
             }
             if (message.isDeleted()) {
                 messageRepository.delete(message);
@@ -168,7 +123,8 @@ public class MessageServiceImpl implements MessageService {
 
     }
 
-    public long getUnreadMessageCount(Long userNo) {
+    public long getUnreadMessageCount(Long userNo) { // 안읽음 개수
         return messageRepository.countByReceiverNoAndIsReadFalse(userNo);
     }
+
 }

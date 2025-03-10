@@ -7,6 +7,9 @@ import com.beyond.backend.domain.user.jwt.JwtTokenProvider;
 import com.beyond.backend.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +23,8 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthTransactionService authTransactionService; // 별도 서비스 주입
+
+
 
     @Override
     public void join(JoinRequestDto dto) {
@@ -40,7 +45,6 @@ public class AuthServiceImpl implements AuthService {
         User user = User.builder()
                 .username(username)
                 .password(encodedPassword)
-                .role(UserRoleType.USER)
                 .email(dto.getEmail())
                 .phoneNum(dto.getPhoneNum())
                 .build();
@@ -110,22 +114,24 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public BanResponseDto banUser(BanRequestDto dto) {
-        User user = userRepository.findByUsername(dto.getUsername())
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+    public CustomUserDetails getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new IllegalArgumentException("유요하지 않은 토큰입니다");
+        }
 
-        user.updateBan(dto.getBan());
-        userRepository.save(user);
-        return new BanResponseDto();
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof CustomUserDetails) {
+            return (CustomUserDetails) principal;
+        }
+        return null;
     }
 
     @Override
-    public UnlockResponseDto unlockUser(UnlockRequestDto dto) {
-        User user = userRepository.findByUsername(dto.getUsername())
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        user.updatePasswordErrorCount(0);
-        userRepository.save(user);
-        return new UnlockResponseDto();
+    public boolean isAdminFromUserDetails(CustomUserDetails userDetails) {
+        return userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch(role -> role.equals("ROLE_ADMIN"));
     }
 
     // 비밀번호 검증 로직 (login 메서드 내에서 호출)

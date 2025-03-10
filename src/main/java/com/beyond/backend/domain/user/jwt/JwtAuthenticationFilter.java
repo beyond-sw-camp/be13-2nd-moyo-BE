@@ -28,36 +28,36 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        // 1. 요청 헤더에서 "Authorization" 값을 추출하여 Optional<String>에 저장합니다.
+        // 1. 요청 헤더에서 "Authorization" 값을 추출하여 Optional<String>에 저장
         //    (예: "Bearer <token>")
         Optional<String> optionalToken = jwtTokenProvider.resolveToken(request.getHeader("Authorization"));
 
-        // 2. 토큰이 존재하면, 아래 조건들을 만족하는지 확인합니다:
+        // 2. 토큰이 존재하면, 아래 조건들을 만족하는지 확인
         //    - 토큰이 유효한지 (만료 여부, 서명 검증 등)
         //    - 토큰이 블랙리스트에 있지 않은지
         //    - 토큰에 역할(Role) 정보가 포함되어 있는지 등
         //    조건을 만족하면, jwtTokenProvider 의 getAuthentication 메서드를 사용해
-        //    Authentication 객체를 생성하고 이를 Optional<Authentication>으로 반환합니다.
+        //    Authentication 객체를 생성하고 이를 Optional<Authentication>으로 반환합
         Optional<Authentication> authOpt = optionalToken
-                .filter(this::isUsableAccessToken)  // 토큰 유효성 검사: 조건이 false 이면 Optional.empty()가 됩니다.
+                .filter(this::isUsableAccessToken)  // 토큰 유효성 검사: 조건이 false 이면 Optional.empty()
                 .map(jwtTokenProvider::getAuthentication);  // 토큰이 유효하면 Authentication 객체로 매핑
 
-        // 3. 인증 정보(Authentication 객체)가 존재하면, SecurityContextHolder 에 설정합니다.
-        //    이렇게 하면 이후 요청에서 스프링 시큐리티가 인증된 사용자로 인식하게 됩니다.
+        // 3. 인증 정보(Authentication 객체)가 존재하면, SecurityContextHolder 에 설정
+        //    이렇게 하면 이후 요청에서 스프링 시큐리티가 인증된 사용자로 인식
         authOpt.ifPresent(authentication -> {
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            // CustomUserDetails 는 사용자의 상세 정보를 담은 객체입니다.
+            // CustomUserDetails 는 사용자의 상세 정보를 담은 객체
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
             log.info("✅ 사용자 인증 완료: {}", userDetails);
         });
 
-        // 4. Optional 을 이용하여 CustomUserDetails 객체를 추출합니다.
-        //    만약 authOpt 가 empty 면, null 이 반환됩니다.
+        // 4. Optional 을 이용하여 CustomUserDetails 객체를 추출
+        //    만약 authOpt 가 empty 면, null 이 반환.
         CustomUserDetails auth = authOpt
                 .map(authentication -> (CustomUserDetails) authentication.getPrincipal())
                 .orElse(null);
 
-        // 5. 만약 인증된 사용자가 존재한다면 추가 로직(예: 차단 여부 확인)을 수
+        // 5. 만약 인증된 사용자가 존재한다면 추가 로직(예: 차단 여부 확인)
         if (auth != null) {
             System.out.println("auth = " + auth);
 

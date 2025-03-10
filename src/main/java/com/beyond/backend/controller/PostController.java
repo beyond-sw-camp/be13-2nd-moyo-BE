@@ -5,8 +5,11 @@ import com.beyond.backend.domain.post.dto.PostResponseDto;
 import com.beyond.backend.domain.post.dto.UserPostResponseDto;
 import com.beyond.backend.domain.post.entity.BoardType;
 import com.beyond.backend.domain.post.entity.PostSearchOption;
+import com.beyond.backend.domain.post.entity.PostSortOption;
 import com.beyond.backend.domain.post.entity.PostStatus;
 import com.beyond.backend.domain.post.service.PostService;
+import com.beyond.backend.domain.user.service.UserService;
+import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +19,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticatedPrincipal;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,16 +53,19 @@ import org.springframework.web.bind.annotation.RestController;
 public class PostController {
 
     private final PostService postService;
+    private final UserService userService;
     
     
-    // 게시글 검색, 조회
+    // 게시글 전체 조회
+    // 게시글 정렬 조건 ( 기본이 최신순)
 
     @Operation(summary = "게시글 전체 조회", description = "게시판 타입별로 게시글 조회")
     @GetMapping("/posts")
     public ResponseEntity<Page<PostResponseDto>> getPosts(
             @RequestParam BoardType boardType,
+            @RequestParam(required = false) PostSortOption postSortOption,
             @PageableDefault(size = 10, page= 0)Pageable pageable) {
-        Page<PostResponseDto> allPosts = postService.getPosts(boardType, pageable);
+        Page<PostResponseDto> allPosts = postService.getPosts(boardType, pageable, postSortOption);
        
       /* 
         if (allPosts.isEmpty()) {
@@ -106,14 +114,12 @@ public class PostController {
     //게시글 생성
 
     @Operation(summary = "게시글 등록", description = "게시글 등록 ")
-    @PostMapping("/posts/create")
+    @PostMapping("/posts")
     public ResponseEntity<PostResponseDto> createPost(
             @RequestParam BoardType boardType,
-            @RequestBody PostDto postDto
-    ) {
-
-        PostResponseDto postResponseDto = postService.createPost(boardType,postDto);
-
+            @RequestBody PostDto postDto,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        PostResponseDto postResponseDto = postService.createPost(boardType, postDto, userDetails.getUser().getNo());
         return ResponseEntity.ok(postResponseDto);
     }
 
@@ -124,12 +130,10 @@ public class PostController {
             @RequestParam BoardType boardType,
             @RequestParam PostStatus postStatus,
             @PathVariable Long postNo,
-            @RequestBody PostDto postDto
-
+            @RequestBody PostDto postDto,
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ){
-
-        PostResponseDto updatedPost = postService.updatePost(boardType, postStatus, postNo, postDto);
-
+        PostResponseDto updatedPost = postService.updatePost(boardType, postStatus, postNo, postDto, userDetails.getUser().getNo());
         return ResponseEntity.ok(updatedPost);
     }
     
@@ -145,8 +149,6 @@ public class PostController {
             @PathVariable Long postNo
 
     ) {
-
-
          postService.deletePost(postNo);
 
         return ResponseEntity.status(HttpStatus.OK).body("게시물이 삭제되었습니다.");
@@ -155,7 +157,7 @@ public class PostController {
 
     // 로그인한 유저가 작성한 게시글 리스트
     @Operation(summary = "유저가 작성한 게시글 전체 조회", description = "개인 페이지에서 자신의 게시글 전체 조회")
-    @GetMapping("/user-page/my-post")
+    @GetMapping("/user/post")
     public ResponseEntity<Page<UserPostResponseDto>> getMyPost(
             @RequestParam Long userNo,
             @PageableDefault(size = 10, page= 0)Pageable pageable
@@ -175,7 +177,6 @@ public class PostController {
 
 
     //---------------------------------------------------------------------------
-
     // 북마크
 
 

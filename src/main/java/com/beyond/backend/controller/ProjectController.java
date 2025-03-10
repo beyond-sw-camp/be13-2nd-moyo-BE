@@ -47,7 +47,6 @@ public class    ProjectController {
         return ResponseEntity.status(HttpStatus.OK).body(projectResponseDto);
     }
 
-
     @Operation(summary = "프로젝트 삭제 메서드", description = "프로젝트 삭제 메서드 입니다.")
     @DeleteMapping("/{projectNo}/{userNo}")
     public ResponseEntity<Void> deleteProject(  @PathVariable("userNo") Long userNo,
@@ -99,5 +98,4 @@ public class    ProjectController {
 
         return ResponseEntity.ok(searchResults);
     }
-
 }

@@ -1,16 +1,17 @@
-package com.beyond.backend.domain.reportUser.dto;
+package com.beyond.backend.domain.report.dto;
 
+import com.beyond.backend.domain.report.entity.ReportType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
  * <p>
- * <p>packageName    : com.beyond.backend.data.dto.userReportDto
- * <p>fileName       : UserReportAdminDto
+ * <p>packageName    : com.beyond.backend.controller
+ * <p>fileName       : ReportDto
  * <p>author         : mlnstone
  * <p>date           : 2025. 3. 3.
- * <p>description    : comment를 달기 위한 dto 입니다.
+ * <p>description    :
  */
 /*
 ===========================================================
@@ -18,10 +19,14 @@ DATE              AUTHOR             NOTE
 -----------------------------------------------------------
 2025. 3. 3.        mlnstone             최초 생성
 */
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReportUserAdminResDto extends ReportUserDto {
-    private Long no; // 신고 no
-    private String comment;
+public class ReportDto {
+
+    private Long reportedNo;
+    private ReportType reportType;
+    private String content;
+    private String url;
 }

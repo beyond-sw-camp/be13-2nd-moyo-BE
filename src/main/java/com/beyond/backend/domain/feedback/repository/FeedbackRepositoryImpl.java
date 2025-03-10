@@ -1,8 +1,8 @@
 package com.beyond.backend.domain.feedback.repository;
 
-import static com.beyond.backend.domain.feedback.entity.QFeedback.*;
+/*import static com.beyond.backend.domain.feedback.entity.QFeedback.*;
 import static com.beyond.backend.domain.project.entity.QProject.*;
-import static com.beyond.backend.domain.user.entity.QUser.*;
+import static com.beyond.backend.domain.user.entity.QUser.*;*/
 
 import java.util.List;
 
@@ -18,6 +18,10 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import jakarta.persistence.EntityManager;
+
+import static com.beyond.backend.domain.feedback.entity.QFeedback.feedback;
+import static com.beyond.backend.domain.project.entity.QProject.project;
+import static com.beyond.backend.domain.user.entity.QUser.user;
 
 @Repository
 public class FeedbackRepositoryImpl implements FeedbackRepositoryCustom {

@@ -1,25 +1,28 @@
 package com.beyond.backend.domain.post.repository;
 
-import static com.beyond.backend.domain.post.entity.QPost.*;
-import static com.beyond.backend.domain.user.entity.QUser.*;
+/*import static com.beyond.backend.domain.post.entity.QPost.*;
+import static com.beyond.backend.domain.user.entity.QUser.*;*/
 
-import java.util.List;
-
+import com.beyond.backend.domain.post.dto.PostResponseDto;
 import com.beyond.backend.domain.post.dto.UserPostResponseDto;
+import com.beyond.backend.domain.post.entity.BoardType;
 import com.beyond.backend.domain.post.entity.PostSearchOption;
+import com.beyond.backend.domain.post.entity.PostSortOption;
 import com.beyond.backend.domain.post.entity.PostStatus;
+import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQuery;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
-import com.beyond.backend.domain.post.dto.PostResponseDto;
-import com.beyond.backend.domain.post.entity.BoardType;
-import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.impl.JPAQuery;
-import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.util.List;
+
+import static com.beyond.backend.domain.post.entity.QPost.post;
+import static com.beyond.backend.domain.user.entity.QUser.user;
 
 
 /**
@@ -44,22 +47,25 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 	
 	 // 북마크 카운트 같이 조회해오기
 	@Override
-    public Page<PostResponseDto> getPostsByBoardType(BoardType boardType,  Pageable pageable) {
+    public Page<PostResponseDto> getPostsByBoardType(BoardType boardType, Pageable pageable, PostSortOption postSortOption) {
         List<PostResponseDto> content = queryFactory
                 .select(Projections.constructor(PostResponseDto.class,
-                 post.no,
-                 post.postTitle,
-                 post.postContent,
+				post.no,
+				post.postTitle,
+				post.postContent,
 				user.no,
-                user.username,
+				user.username,
+				post.viewCount,
 				post.bookmarkCount,
+				post.commentCount,
 				post.postStatus,
-                post.createdAt,
-                post.updatedAt
+				post.createdAt,
+				post.updatedAt
 				))
                 .from(post)
 			    .leftJoin(post.user, user)
                 .where(post.boardType.eq(boardType), post.postStatus.eq(PostStatus.ACTIVE))
+				.orderBy(post.createdAt.desc()) //
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -74,6 +80,8 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         return PageableExecutionUtils.getPage(content,pageable, totalCount::fetchOne);
     }
 
+	// 게시글 정렬
+//
 
 
 
@@ -92,7 +100,9 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 						post.postContent,
 						user.no,
 						user.username,
+						post.viewCount,
 						post.bookmarkCount,
+						post.commentCount,
 						post.postStatus,
 						post.createdAt,
 						post.updatedAt
@@ -153,8 +163,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 	
 	
 	//----------------------------
-	
-	// 미완성--------------------------------------------------------------
+
 
 	// 유저가 작성한 게시글 전체 조회 ( 활성, 비활성 상태 둘 다 가져옴 )
 	@Override
@@ -168,7 +177,9 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 						post.postContent,
 						user.no,
 						user.username,
+						post.viewCount,
 						post.bookmarkCount,
+						post.commentCount,
 						post.boardType,
 						post.postStatus,
 						post.createdAt,
@@ -192,7 +203,18 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 		
 	}
 
+	// 유저가 북마크한 게시글의 최신 상태 조회
+
+/*	@Override
+	public Optional<Post> findByIdWithFreshData(Long postId) {
+		return Optional.ofNullable(
+				queryFactory
+						.selectFrom(post)
+						.where(post.no.eq(postId))
+						.fetchOne()                  /
+		);
 
 
+	}*/
 }
 

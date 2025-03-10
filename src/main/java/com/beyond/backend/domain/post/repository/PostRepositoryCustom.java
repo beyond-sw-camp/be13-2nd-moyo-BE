@@ -5,6 +5,7 @@ import com.beyond.backend.domain.post.dto.UserPostResponseDto;
 import com.beyond.backend.domain.post.entity.BoardType;
 import com.beyond.backend.domain.post.entity.PostSearchOption;
 
+import com.beyond.backend.domain.post.entity.PostSortOption;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -23,10 +24,12 @@ import org.springframework.data.domain.Pageable;
  * -----------------------------------------------------------
  * 25. 2. 20.        hyunjo             최초 생성
  */public interface PostRepositoryCustom {
-    Page<PostResponseDto> getPostsByBoardType(BoardType boardType, Pageable pageable);
+    Page<PostResponseDto> getPostsByBoardType(BoardType boardType, Pageable pageable, PostSortOption postSortOption);
 
     Page<PostResponseDto> searchPosts(BoardType boardType, PostSearchOption option, String keyword, Pageable pageable);
 
     Page<UserPostResponseDto> getUserPosts(Long userNo, Pageable pageable);
+
+
 
 }

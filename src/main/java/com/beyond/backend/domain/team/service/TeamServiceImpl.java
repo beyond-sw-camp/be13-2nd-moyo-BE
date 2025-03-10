@@ -9,8 +9,11 @@ import com.beyond.backend.domain.team.entity.TeamJoinStatus;
 import com.beyond.backend.domain.team.repository.TeamRepository;
 import com.beyond.backend.domain.teamUser.entity.TeamUser;
 import com.beyond.backend.domain.teamUser.repository.TeamUserRepository;
+import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import com.beyond.backend.domain.user.entity.User;
 import com.beyond.backend.domain.user.repository.UserRepository;
+import com.beyond.backend.domain.user.service.AuthService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,9 +23,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
-import static com.beyond.backend.domain.user.service.AuthService.getCurrentUsername;
+
 
 /**
  * <p> 팀 서비스 상세
@@ -48,32 +50,22 @@ import static com.beyond.backend.domain.user.service.AuthService.getCurrentUsern
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class TeamServiceImpl implements TeamService {
 
     private final TeamRepository teamRepository;
     private final UserRepository userRepository;
     private final TeamUserRepository teamUserRepository;
+    private final AuthService authService;
 
-    /**
-     * TeamServiceImpl 생성자
-     *
-     * @param teamRepository     팀 Repository
-     * @param userRepository     유저 Repository
-     * @param teamUserRepository 팀-유저 중간 Repository
-     * @see TeamRepository
-     */
-    @Autowired
-    public TeamServiceImpl(TeamRepository teamRepository, UserRepository userRepository, TeamUserRepository teamUserRepository) {
-        this.teamRepository = teamRepository;
-        this.userRepository = userRepository;
-        this.teamUserRepository = teamUserRepository;
-    }
     
     // 자주 쓰는 유저 찾는 메소드 분리
     private User findUserByUsername() {
-        return userRepository.findByUsername(getCurrentUsername())
+        CustomUserDetails userDetails = authService.getCurrentUser();
+        return userRepository.findByUsername(userDetails.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("유저가 존재하지 않습니다."));
     }
+
     /* 팀 전체 페이지 페이지*/
     /* 기본적인 CRUD */
 

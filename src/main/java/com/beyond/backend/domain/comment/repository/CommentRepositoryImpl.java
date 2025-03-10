@@ -16,9 +16,13 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.beyond.backend.domain.comment.entity.QComment.*;
+import static com.beyond.backend.domain.comment.entity.QComment.comment;
+import static com.beyond.backend.domain.post.entity.QPost.post;
+import static com.beyond.backend.domain.user.entity.QUser.user;
+
+/*import static com.beyond.backend.domain.comment.entity.QComment.*;
 import static com.beyond.backend.domain.post.entity.QPost.*;
-import static com.beyond.backend.domain.user.entity.QUser.*;
+import static com.beyond.backend.domain.user.entity.QUser.*;*/
 
 /**
  * <p>
@@ -55,6 +59,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                         user.no,
                         user.username,
                         post.no,
+                        comment.likeCount,
                         comment.createdAt,
                         comment.updatedAt
                 ))
@@ -67,7 +72,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
 
         JPAQuery<Long> totalCount = queryFactory
                 .select(comment.count())
-                .from(post)
+                .from(comment)
                 .join(comment.user, user)
                 .where(user.no.eq(userNo));
 
@@ -87,6 +92,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                         user.no,
                         user.username,
                         post.no,
+                        comment.likeCount,
                         comment.createdAt,
                         comment.updatedAt
                 ))
@@ -121,6 +127,9 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                         post.postContent,
                         post.user.no,
                         post.user.username,
+                        post.viewCount,
+                        post.bookmarkCount,
+                        post.commentCount,
                         post.postStatus,
                         post.createdAt,
                         post.updatedAt

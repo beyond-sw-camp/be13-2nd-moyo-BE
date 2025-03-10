@@ -12,7 +12,11 @@ import org.springframework.data.support.PageableExecutionUtils;
 
 import java.util.List;
 
+import static com.beyond.backend.domain.user.entity.QUser.user;
+
+/*
 import static com.beyond.backend.domain.user.entity.QUser.*;
+*/
 
 @Registered
 public class UserRepositoryImpl implements UserRepositoryCustom{
