@@ -28,6 +28,11 @@ import static com.beyond.backend.domain.project.entity.QProjectTech.projectTech;
 import static com.beyond.backend.domain.team.entity.QTeam.team;
 import static com.beyond.backend.domain.teamUser.entity.QTeamUser.teamUser;
 
+/*import static com.beyond.backend.domain.project.entity.QProject.project;
+import static com.beyond.backend.domain.project.entity.QProjectTech.projectTech;
+import static com.beyond.backend.domain.team.entity.QTeam.team;
+import static com.beyond.backend.domain.teamUser.entity.QTeamUser.teamUser;*/
+
 @Slf4j
 @Repository
 public class ProjectRepositoryImpl implements ProjectRepositoryCustom {

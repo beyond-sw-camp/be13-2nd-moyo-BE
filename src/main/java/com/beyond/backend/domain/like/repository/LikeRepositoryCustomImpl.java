@@ -12,10 +12,15 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-import static com.beyond.backend.domain.comment.entity.QComment.*;
+import static com.beyond.backend.domain.comment.entity.QComment.comment;
+import static com.beyond.backend.domain.like.entity.QLike.like;
+import static com.beyond.backend.domain.post.entity.QPost.post;
+import static com.beyond.backend.domain.user.entity.QUser.user;
+
+/*import static com.beyond.backend.domain.comment.entity.QComment.*;
 import static com.beyond.backend.domain.like.entity.QLike.*;
 import static com.beyond.backend.domain.post.entity.QPost.*;
-import static com.beyond.backend.domain.user.entity.QUser.*;
+import static com.beyond.backend.domain.user.entity.QUser.*;*/
 
 /**
  * <p>
