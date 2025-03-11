@@ -8,7 +8,7 @@ public interface UserService {
 
     void deleteUser(String username);
 
-    PasswordUpdateResponseDto updatePassword(PasswordUpdateRequestDto dto);
+    PasswordUpdateResponseDto updatePassword(String username, PasswordUpdateRequestDto dto);
 
     BanResponseDto banUser(BanRequestDto dto);
 

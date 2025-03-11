@@ -1,5 +1,6 @@
 package com.beyond.backend.domain.user.service;
 
+import com.beyond.backend.domain.common.entity.UserStatus;
 import com.beyond.backend.domain.user.dto.*;
 import com.beyond.backend.domain.user.entity.User;
 import com.beyond.backend.domain.user.repository.UserRepository;
@@ -18,8 +19,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserUpdateResponseDto updateUser(Long id, UserUpdateRequestDto dto) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        User user = userRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         user.updateUser(dto.getUsername(), dto.getEmail());
 
@@ -28,29 +28,30 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public PasswordUpdateResponseDto updatePassword(PasswordUpdateRequestDto dto) {
-        User user = userRepository.findByUsername(dto.getUsername())
+    public PasswordUpdateResponseDto updatePassword(String username, PasswordUpdateRequestDto dto) {
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         if (!passwordEncoder.matches(dto.getCurrentPassword(), user.getPassword())) {
             throw new IllegalArgumentException("Wrong password");
         }
 
-
         String encodedPassword = passwordEncoder.encode(dto.getNewPassword());
         user.updatePassword(encodedPassword);
 
         userRepository.save(user);
 
-        return new PasswordUpdateResponseDto(); //비밀번호 body 에 노출 위험 -> 메시지 반환
+        return new PasswordUpdateResponseDto(); // 비밀번호 body 에 노출 위험 -> 메시지 반환
     }
 
+    //softDelete
     @Override
     public void deleteUser(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        userRepository.delete(user);
+        user.updateStatus(UserStatus.DELETED);
+        userRepository.save(user);
     }
 
     @Override

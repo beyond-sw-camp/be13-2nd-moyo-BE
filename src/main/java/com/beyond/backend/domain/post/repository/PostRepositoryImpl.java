@@ -9,6 +9,7 @@ import com.beyond.backend.domain.post.entity.BoardType;
 import com.beyond.backend.domain.post.entity.PostSearchOption;
 import com.beyond.backend.domain.post.entity.PostSortOption;
 import com.beyond.backend.domain.post.entity.PostStatus;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -16,6 +17,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
@@ -45,7 +47,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 	
-	 // 북마크 카운트 같이 조회해오기
+
 	@Override
     public Page<PostResponseDto> getPostsByBoardType(BoardType boardType, Pageable pageable, PostSortOption postSortOption) {
         List<PostResponseDto> content = queryFactory
@@ -81,7 +83,32 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     }
 
 	// 게시글 정렬
-//
+
+
+	///정렬 (Pageable Sort 활용)
+	/*private OrderSpecifier<?> getOrderSpecifier(Pageable pageable){
+
+		if (pageable.getSort().isSorted()){
+			for (Sort.Order order : pageable.getSort()){
+
+				String property = order.getProperty().toLowerCase();
+
+
+				if(property.contains("viewcnt")){ // 우리가 입력한 값이랑 동일한지 검증
+					return new OrderSpecifier<>(Order.DESC, project.viewCnt);
+				}
+
+				if (property.contains("createdat")){
+					return new OrderSpecifier<>(Order.DESC, project.createdAt);
+				}
+			}
+		}
+
+
+		// default = 최신순
+		return new OrderSpecifier<>(Order.DESC, project.createdAt);
+	}*/
+
 
 
 

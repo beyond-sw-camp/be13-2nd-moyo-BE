@@ -4,6 +4,7 @@ import com.beyond.backend.domain.comment.dto.CommentDto;
 import com.beyond.backend.domain.comment.dto.CommentResponseDto;
 import com.beyond.backend.domain.comment.service.CommentService;
 import com.beyond.backend.domain.post.dto.PostResponseDto;
+import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -46,9 +48,10 @@ public class CommentController {
     @Operation(summary = "댓글 생성", description = "댓글 등록")
     @PostMapping("/comments")
     public ResponseEntity<CommentResponseDto> createComment(
-            @RequestBody CommentDto commentDto
+            @RequestBody CommentDto commentDto,
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        return ResponseEntity.ok(commentService.createComment(commentDto));
+        return ResponseEntity.ok(commentService.createComment(commentDto, userDetails.getUser().getNo()));
     }
 
 
@@ -57,10 +60,11 @@ public class CommentController {
     @PostMapping("/comments/{commentNo}/update")
     public ResponseEntity<CommentResponseDto> updateComment(
             @PathVariable Long commentNo,
-            @RequestBody CommentDto commentDto
+            @RequestBody CommentDto commentDto,
+            @AuthenticationPrincipal CustomUserDetails userDetails
 
     ) {
-        return ResponseEntity.ok(commentService.updateComment(commentNo, commentDto));
+        return ResponseEntity.ok(commentService.updateComment(commentNo, commentDto,  userDetails.getUser().getNo()));
     }
 
 
@@ -77,8 +81,10 @@ public class CommentController {
     // 관리자와 댓글 작성자만 삭제 가능 ( 비활성 상태인 경우 안 보임, 유저가 상태가 어떻든 게시글이 활성 상태이면 볼 수 있음, 게시글이 비활성이면 못 봄 )
     @Operation(summary = "댓글 삭제", description = "댓글 삭제")
     @DeleteMapping("/comments/{commentNo}")
-    public ResponseEntity<String> deleteComment(@PathVariable Long commentNo, Long userNo) {
-        commentService.deleteComment(commentNo, userNo);
+    public ResponseEntity<String> deleteComment(
+            @PathVariable Long commentNo,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        commentService.deleteComment(commentNo,  userDetails.getUser().getNo());
 
         return ResponseEntity.status(HttpStatus.OK).body("댓글이 삭제되었습니다.");
     }
@@ -104,12 +110,12 @@ public class CommentController {
     
     // 내가 쓴 댓글 전체 조회
     @Operation(summary = "유저의 댓글 전체 조회", description = "개인 페이지에서 자신의 댓글을 전체 조회 가능")
-    @GetMapping("/{userNo}/user-page/comments")
+    @GetMapping("/user-page/comments")
     public ResponseEntity<Page<CommentResponseDto>> getUserComments(
-            @PathVariable Long userNo,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PageableDefault(size = 10, page= 0) Pageable pageable){
 
-       Page<CommentResponseDto> result = commentService.getUserComments(userNo,pageable);
+       Page<CommentResponseDto> result = commentService.getUserComments( userDetails.getUser().getNo(),pageable);
 
         return ResponseEntity.ok(result);
     }
@@ -117,12 +123,12 @@ public class CommentController {
     
     // 내가 댓글 단 게시글 전체 조회
     @Operation(summary = "유저가 댓글단 게시글 전체 조회", description = "개인 페이지에서 자신이 댓글단 게시글 전체 조회 가능")
-    @GetMapping("/users/{userNo}/comments/posts")
+    @GetMapping("/users/comments/posts")
     public ResponseEntity<Page<PostResponseDto>> getUserCommentPosts(
-            @PathVariable Long userNo,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PageableDefault(size = 10, page= 0) Pageable pageable){
 
-        Page<PostResponseDto> result = commentService.getUserCommentPosts(userNo, pageable);
+        Page<PostResponseDto> result = commentService.getUserCommentPosts(userDetails.getUser().getNo(), pageable);
 
         return ResponseEntity.ok(result);
     }
@@ -136,9 +142,9 @@ public class CommentController {
     @PostMapping("/{commentNo}/like")
     public ResponseEntity<String> likeComment(
             @PathVariable Long commentNo,
-            @RequestParam Long userNo){
+            @AuthenticationPrincipal CustomUserDetails userDetails){
 
-        String result = commentService.checkCommentLike(commentNo, userNo);
+        String result = commentService.checkCommentLike(commentNo, userDetails.getUser().getNo());
 
 
         return ResponseEntity.ok(result);
@@ -147,13 +153,13 @@ public class CommentController {
 
     // 유저가 좋아요한 댓글 전체 조회
     @Operation(summary = "유저가 좋아요한 댓글 전체 조회", description = "개인 페이지에서 자신이 좋아요한 댓글 전체 조회 가능")
-    @GetMapping("/users/{userNo}/liked-comments")
+    @GetMapping("/users/liked-comments")
     public ResponseEntity<Page<CommentResponseDto>> getUserLikedComments(
-            @PathVariable Long userNo,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PageableDefault(size = 10, page= 0) Pageable pageable){
 
 
-        Page<CommentResponseDto> result = commentService.getUserLikedComments(userNo, pageable);
+        Page<CommentResponseDto> result = commentService.getUserLikedComments(userDetails.getUser().getNo(), pageable);
 
         return ResponseEntity.ok(result);
     }

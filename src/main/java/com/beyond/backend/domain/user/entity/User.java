@@ -2,9 +2,9 @@ package com.beyond.backend.domain.user.entity;
 
 import com.beyond.backend.domain.bookMark.entity.BookMark;
 import com.beyond.backend.domain.comment.entity.Comment;
-import com.beyond.backend.domain.like.entity.Like;
 import com.beyond.backend.domain.common.BaseEntity;
-import com.beyond.backend.domain.common.entity.Status;
+import com.beyond.backend.domain.common.entity.UserStatus;
+import com.beyond.backend.domain.like.entity.Like;
 import com.beyond.backend.domain.message.entity.Message;
 import com.beyond.backend.domain.post.entity.Post;
 import com.beyond.backend.domain.report.entity.Report;
@@ -58,10 +58,8 @@ public class User extends BaseEntity {
         this.phoneNum = phoneNum;
         this.Banned = false;
         this.passwordErrorCount = 0;
-        this.status = Status.ACTIVE;
+        this.userStatus = UserStatus.ACTIVE;
     }
-
-
 
     public void updateUser(String username, String email) {
         this.username = username;
@@ -80,12 +78,16 @@ public class User extends BaseEntity {
         this.passwordErrorCount = passwordErrorCount;
     }
 
-    //Status
+    public void updateStatus(UserStatus userStatus) {
+        this.userStatus = userStatus;
+    }
+
+    // Status
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Status status; //ACTIVE, INACTIVE
+    private UserStatus userStatus; // ACTIVE, INACTIVE, DELETED
 
-    //유저 뱃지와 1:N 관계
+    // 유저 뱃지와 1:N 관계
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UserBadge> userBadges = new HashSet<>();
 

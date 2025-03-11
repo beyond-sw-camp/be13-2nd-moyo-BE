@@ -98,9 +98,15 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostResponseDto createPost(BoardType boardType, PostDto postDto, Long userNo) {
 
+        CustomUserDetails userDetails = authService.getCurrentUser();
 
+        // 관리자인 경우 공지 게시판에 게시글 작성 가능
         if(boardType == BoardType.NOTICE){
-            throw new IllegalArgumentException("공지 게시판에는 게시글을 작성할 수 없습니다.");
+
+            if (!authService.isAdminFromUserDetails(userDetails)) {
+                throw new IllegalArgumentException("공지 게시판에는 게시글을 작성할 수 없습니다.");
+            }
+
         }
         // 유저가 존재하는 지 확인
         User user = userRepository.findById(userNo).orElseThrow(
@@ -126,7 +132,7 @@ public class PostServiceImpl implements PostService {
 
 
 
-    // 게시글 수정 (오류남)
+    // 게시글 수정 
     // 게시글 번호와 게시글 데이터 받아서
     // 게시글 번호에 해당하는 게시글을 찾고
     // 업데이트된 게시글 dto 객체로 반환
@@ -148,7 +154,7 @@ public class PostServiceImpl implements PostService {
 
 
         // post의 유저와 수정하려는 유저가 같은지 확인
-        if (!user.equals(userDetails.getUser()) && authService.isAdminFromUserDetails(userDetails)) {
+        if (!user.equals(userDetails.getUser())) {
             throw new IllegalArgumentException("bad request");
         }
 
@@ -158,12 +164,20 @@ public class PostServiceImpl implements PostService {
         return new PostResponseDto(post);
     }
 
-    
-    // 나중에 댓글 만들고 댓글도 같이 삭제 시키는 것 + 상태 변화 deleted로 만들기
+    // 게시글과 댓글 연관관계 메서드 사용 생각해보기
     @Override
-    public void deletePost(Long postNo){
+    public void deletePost(Long postNo, Long userNo){
+        CustomUserDetails userDetails = authService.getCurrentUser();
 
-     postRepository.deleteById(postNo);
+        User user = userRepository.findById(userNo)
+                .orElseThrow(()-> new IllegalArgumentException("해당 유저가 존재하지 않습니다."));
+
+        // 삭제 요청을 보내는 사람과 작성한 사람이 같은지, 관리자인지 확인
+        if (!user.equals(userDetails.getUser()) && authService.isAdminFromUserDetails(userDetails)) {
+            throw new IllegalArgumentException("bad request");
+        }
+
+        postRepository.deleteById(postNo);
 
     }
 
@@ -171,6 +185,7 @@ public class PostServiceImpl implements PostService {
     // 유저가 작성한 게시글 전체 조회 가능 ( boardtype,postsatus 알려줌)
     @Override
     public Page<UserPostResponseDto> getUserPosts(Long userNo, Pageable pageable) {
+
         return postRepository.getUserPosts(userNo, pageable);
     }
 
@@ -179,12 +194,15 @@ public class PostServiceImpl implements PostService {
     @Override
     public String checkBookMark(Long postNo, Long userNo) {
 
+        CustomUserDetails userDetails = authService.getCurrentUser();
+
         BookMarkNo bookMarkNo = new BookMarkNo(postNo, userNo);
 
         // 게시글 비활성화 상태이면 북마크 추가 불가능 ( 비활성 상태인 게시글은 전체 게시글에서 보이지 않음 )
         // 활성화 상태이던 게시글이 비활성화된 경우 내 북마크 리스트에서는 보이지만 게시글에 들어갈 수는 없고
         // 북마크 취소만 가능
         // 내가 북마크한 게시글 리스트 조회 시 비활성화된 게시글이 보임 상세 조회가 안됨
+
 
         // 게시글이 북마크된 게시글인지 찾고 있으면 삭제
         // 게시글 비활성화 상태이면 북마크 추가 불가능
@@ -209,6 +227,10 @@ public class PostServiceImpl implements PostService {
 
         User user = userRepository.findById(userNo)
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저가 존재하지 않습니다."));
+
+        if (!user.equals(userDetails.getUser())) {
+            throw new IllegalArgumentException("bad request");
+        }
 
         // 새 북마크 생성 및 저장
         BookMark newBookMark = new BookMark(bookMarkNo, post, user);
