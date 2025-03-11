@@ -1,18 +1,22 @@
 package com.beyond.backend.domain.user.service;
 
-import com.beyond.backend.domain.user.dto.*;
-import com.beyond.backend.domain.user.entity.User;
-import com.beyond.backend.domain.user.entity.UserRoleType;
-import com.beyond.backend.domain.user.jwt.JwtTokenProvider;
-import com.beyond.backend.domain.user.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.beyond.backend.domain.user.dto.CustomUserDetails;
+import com.beyond.backend.domain.user.dto.JoinRequestDto;
+import com.beyond.backend.domain.user.dto.LoginRequestDto;
+import com.beyond.backend.domain.user.dto.TokenResponseDto;
+import com.beyond.backend.domain.user.entity.User;
+import com.beyond.backend.domain.user.jwt.JwtTokenProvider;
+import com.beyond.backend.domain.user.repository.UserRepository;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -24,9 +28,8 @@ public class AuthServiceImpl implements AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthTransactionService authTransactionService; // 별도 서비스 주입
 
-
-
     @Override
+    @Transactional
     public void join(JoinRequestDto dto) {
         String username = dto.getUsername();
         String password = dto.getPassword();
@@ -42,12 +45,8 @@ public class AuthServiceImpl implements AuthService {
 
         String encodedPassword = passwordEncoder.encode(password);
 
-        User user = User.builder()
-                .username(username)
-                .password(encodedPassword)
-                .email(dto.getEmail())
-                .phoneNum(dto.getPhoneNum())
-                .build();
+        User user = User.builder().username(username).password(encodedPassword).email(dto.getEmail())
+                .phoneNum(dto.getPhoneNum()).build();
 
         userRepository.save(user);
     }
@@ -66,8 +65,7 @@ public class AuthServiceImpl implements AuthService {
         // 비밀번호가 일치한 경우 나머지 로그인 로직 실행
         TokenResponseDto tokenResponseDto = new TokenResponseDto(
                 jwtTokenProvider.createAccessToken(user.getUsername(), user.getRole().toString()),
-                jwtTokenProvider.createRefreshToken(user.getUsername())
-        );
+                jwtTokenProvider.createRefreshToken(user.getUsername()));
 
         // 추가 유효성 검사...
         CustomUserDetails customUserDetails = (CustomUserDetails) jwtTokenProvider
@@ -84,6 +82,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public void logout(String bearerToken) {
         String accessToken = jwtTokenProvider.resolveToken(bearerToken)
                 .orElseThrow(() -> new IllegalArgumentException("Token is null"));
@@ -97,6 +96,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public TokenResponseDto refresh(String bearerToken) {
         String refreshToken = jwtTokenProvider.resolveToken(bearerToken)
                 .orElseThrow(() -> new IllegalArgumentException("Token is null"));
@@ -107,13 +107,12 @@ public class AuthServiceImpl implements AuthService {
 
         User user = userRepository.findByUsername(jwtTokenProvider.getUserName(refreshToken)).get();
 
-        return new TokenResponseDto(
-                jwtTokenProvider.createAccessToken(user.getUsername(), user.getRole().toString()),
-                refreshToken
-        );
+        return new TokenResponseDto(jwtTokenProvider.createAccessToken(user.getUsername(), user.getRole().toString()),
+                refreshToken);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public CustomUserDetails getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -128,9 +127,9 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean isAdminFromUserDetails(CustomUserDetails userDetails) {
-        return userDetails.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
+        return userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority)
                 .anyMatch(role -> role.equals("ROLE_ADMIN"));
     }
 
@@ -141,6 +140,7 @@ public class AuthServiceImpl implements AuthService {
             authTransactionService.increasePasswordErrorCount(user);
             log.info("Username : {}, PasswordErrorCount : {}", user.getUsername(), user.getPasswordErrorCount());
             throw new IllegalArgumentException("패스워드가 일치하지 않습니다");
+
         }
     }
 }

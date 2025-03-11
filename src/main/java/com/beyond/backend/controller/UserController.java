@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,10 +36,11 @@ public class UserController {
     }
 
     @PostMapping("/updatePassword")
-    public ResponseEntity<PasswordUpdateResponseDto> updatePassword(
-            @Valid @RequestBody PasswordUpdateRequestDto dto) {
+    public ResponseEntity<PasswordUpdateResponseDto> updatePassword(@Valid @RequestBody PasswordUpdateRequestDto dto,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        PasswordUpdateResponseDto response = userService.updatePassword(dto);
+        String username = userDetails.getUsername();
+        PasswordUpdateResponseDto response = userService.updatePassword(username, dto);
         return ResponseEntity.ok(response);
     }
 
