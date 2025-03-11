@@ -21,9 +21,9 @@ DATE              AUTHOR             NOTE
 */
 
 public interface MessageRepository extends JpaRepository<Message, Long> {
-    Page<Message> findAllBySender_No(Long userNo, Pageable pageable);
+    Page<Message> findAllBySender_NoAndDeletedBySenderFalse(Long userNo, Pageable pageable);
 
-    Page<Message> findAllByReceiver_No(Long userNo, Pageable pageable);
+    Page<Message> findAllByReceiver_NoAndDeletedByReceiverFalse(Long userNo, Pageable pageable);
 
     long countByReceiverNoAndIsReadFalse(Long userNo);
 }

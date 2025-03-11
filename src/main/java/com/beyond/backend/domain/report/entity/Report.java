@@ -3,6 +3,8 @@ package com.beyond.backend.domain.report.entity;
 import com.beyond.backend.domain.common.BaseEntity;
 import com.beyond.backend.domain.user.entity.User;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -37,14 +39,15 @@ public class Report extends BaseEntity {
     private Long no;
 
     // N+1
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reporter_no")
+    @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.SET_NULL)
     private User reporter;
 
+
+    @JoinColumn(name = "reported_no")
     @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.SET_NULL)
-    @JoinColumn(name = "reported_no")
     private User reported;
 
     @Column
@@ -60,6 +63,8 @@ public class Report extends BaseEntity {
 
     @Lob
     @Column
+    @NotEmpty(message = "내용을 작성해 주세요.")
+    @NotNull(message = "내용은 null 이 될 수 없습니다.")
     private String comment;
 
     @Column(name = "is_completed")
