@@ -17,6 +17,6 @@ package com.beyond.backend.domain.comment.entity;
  */public enum CommentSortOption {
 
      NEW,  // 새댓글순(기본)
-     LIKE, // 좋아요순
+     LIKE // 좋아요순
 
 }

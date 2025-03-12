@@ -58,9 +58,10 @@ public class BookMarkRepositoryImpl implements BookMarkRepositoryCustom {
                         post.postTitle,
                         post.postContent,
                         user.no,
-                        user.username,
+                        user.username, // 현재는 북마크한 유저 넘버가 같이 나옴
                         post.viewCount,
                         post.bookmarkCount,
+                        post.commentCount,
                         post.boardType,
                         post.postStatus,
                         post.createdAt,
