@@ -4,6 +4,7 @@ package com.beyond.backend.domain.project.repository;
 
 import com.beyond.backend.domain.project.dto.ProjectResponseDto;
 import com.beyond.backend.domain.project.entity.ProjectSearchOption;
+import com.beyond.backend.domain.project.entity.ProjectSortOption;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
@@ -46,7 +47,7 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
 
 	///  모든 프로젝트 조회 - 최신순, 조회순
 	@Override
-	public Page<ProjectResponseDto> getProjects(Pageable pageable) {
+	public Page<ProjectResponseDto> getProjects(Pageable pageable, ProjectSortOption projectSortOption) {
 
 		// 1. 모든 프로젝트 기본 정보 조회
 		List<ProjectResponseDto> allProjects = queryFactory
@@ -60,7 +61,7 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
 			))
 			.from(project)
 			.join(project.team, team)
-			.orderBy(getOrderSpecifier(pageable)) // 최신순, 조회순
+			.orderBy(getOrderSpecifier(projectSortOption)) // 최신순, 조회순
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
 			.fetch();
@@ -80,27 +81,23 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
 
 
 	/// 정렬 (Pageable Sort 활용)
-	private OrderSpecifier<?> getOrderSpecifier(Pageable pageable){
-
-		if (pageable.getSort().isSorted()){
-			for (Sort.Order order : pageable.getSort()){
-
-				String property = order.getProperty().toLowerCase();
+	private OrderSpecifier<?> getOrderSpecifier(ProjectSortOption projectSortOption){
 
 
-				if(property.contains("viewcnt")){ // 우리가 입력한 값이랑 동일한지 검증
-					return new OrderSpecifier<>(Order.DESC, project.viewCnt);
-				}
-
-				if (property.contains("createdat")){
-					return new OrderSpecifier<>(Order.DESC, project.createdAt);
-				}
-			}
+		if(projectSortOption == null){
+			return project.createdAt.desc();
 		}
 
+		switch (projectSortOption){
+			case LATEST :
+				return project.createdAt.desc();
+			case VIEW:
+				return project.viewCnt.desc();
+			// default = 최신순
+			default:
+				return project.createdAt.desc();
+		}
 
-		// default = 최신순
-		return new OrderSpecifier<>(Order.DESC, project.createdAt);
 	}
 
 

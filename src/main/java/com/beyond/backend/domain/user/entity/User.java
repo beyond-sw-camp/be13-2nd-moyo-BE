@@ -70,7 +70,7 @@ public class User extends BaseEntity {
         this.password = password;
     }
 
-    public void updateBan(boolean Banned) {
+    public void updateBan(boolean banned) {
         this.banned = banned;
     }
 
