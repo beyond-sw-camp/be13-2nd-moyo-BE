@@ -3,6 +3,8 @@ package com.beyond.backend.domain.message.entity;
 import com.beyond.backend.domain.common.BaseEntity;
 import com.beyond.backend.domain.user.entity.User;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,15 +26,17 @@ public class Message extends BaseEntity {
 
     @Lob
     @Column(nullable = false)
+    @NotEmpty(message = "내용을 작성해 주세요.")
+    @NotNull(message = "내용은 null 이 될 수 없습니다.")
     private String content;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_no") // NULL 허용
+    @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.SET_NULL) //
     private User sender;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "receiver_no") // NULL 허용
+    @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.SET_NULL) // 삭제 시 NULL로 변경
     private User receiver; //직관적 네이밍
 
@@ -51,6 +55,7 @@ public class Message extends BaseEntity {
 
     public void deleteByReceiver() {
         this.deletedByReceiver = true;
+        markAsRead(); // 삭제했으니 읽음으로
     }
 
     public boolean isDeleted() {

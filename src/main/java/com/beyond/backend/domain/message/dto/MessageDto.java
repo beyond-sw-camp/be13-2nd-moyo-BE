@@ -23,7 +23,7 @@ DATE              AUTHOR             NOTE
 @NoArgsConstructor
 @AllArgsConstructor
 public class MessageDto {
-    private Long receiverNo;
+    private String receiverId;
 
     private String content;
 }

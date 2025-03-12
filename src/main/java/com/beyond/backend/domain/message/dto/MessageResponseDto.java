@@ -27,11 +27,10 @@ DATE              AUTHOR             NOTE
 @AllArgsConstructor
 public class MessageResponseDto {
 
+    private Long no;
     private String content;
 
-    private String senderName;
     private String senderId; //username
-    private String receiverName;
     private String receiverId;
 
     private boolean deletedBySender;
@@ -49,10 +48,9 @@ public class MessageResponseDto {
         String receiverId = (message.getReceiver() != null) ? message.getReceiver().getUsername() : "탈퇴한 회원입니다";
 
         return new MessageResponseDto(
+                message.getNo(),
                 message.getContent(),
-                null,
                 senderId,
-                null,
                 receiverId,
                 message.isDeletedBySender(),
                 message.isDeletedByReceiver(),

@@ -25,7 +25,7 @@ DATE              AUTHOR             NOTE
 @AllArgsConstructor
 public class ReportDto {
 
-    private Long reportedNo;
+    private String reportId;
     private ReportType reportType;
     private String content;
     private String url;
