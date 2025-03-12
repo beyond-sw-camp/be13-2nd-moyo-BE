@@ -1,38 +1,31 @@
 package com.beyond.backend.domain.comment.service;
 
-import com.beyond.backend.domain.bookMark.entity.BookMark;
-import com.beyond.backend.domain.bookMark.entity.BookMarkNo;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.beyond.backend.domain.comment.dto.CommentDto;
 import com.beyond.backend.domain.comment.dto.CommentResponseDto;
+import com.beyond.backend.domain.comment.entity.Comment;
+import com.beyond.backend.domain.comment.repository.CommentRepository;
+import com.beyond.backend.domain.common.dto.RequestNotificationDto;
+import com.beyond.backend.domain.common.entity.NotificationType;
+import com.beyond.backend.domain.common.entity.UserStatus;
+import com.beyond.backend.domain.common.service.NotificationService;
 import com.beyond.backend.domain.like.entity.Like;
 import com.beyond.backend.domain.like.repository.LikeRepository;
 import com.beyond.backend.domain.post.dto.PostResponseDto;
-import com.beyond.backend.domain.post.dto.UserPostResponseDto;
-import com.beyond.backend.domain.common.CustomTransactionSynchronization;
-import com.beyond.backend.domain.common.dto.RequestNotificationDto;
-import com.beyond.backend.domain.common.entity.Notification;
-import com.beyond.backend.domain.common.entity.NotificationType;
-import com.beyond.backend.domain.common.entity.Status;
-import com.beyond.backend.domain.common.service.NotificationService;
 import com.beyond.backend.domain.post.entity.BoardType;
-import com.beyond.backend.domain.comment.entity.Comment;
 import com.beyond.backend.domain.post.entity.Post;
 import com.beyond.backend.domain.post.entity.PostStatus;
-import com.beyond.backend.domain.comment.repository.CommentRepository;
 import com.beyond.backend.domain.post.repository.PostRepository;
 import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import com.beyond.backend.domain.user.entity.User;
 import com.beyond.backend.domain.user.repository.UserRepository;
 import com.beyond.backend.domain.user.service.AuthService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronizationAdapter;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 
 /**
  * <p>
@@ -89,7 +82,7 @@ public class CommentServiceImpl implements CommentService {
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
 
-        if (sender.getStatus() != Status.ACTIVE) {
+        if (sender.getUserStatus() != UserStatus.ACTIVE) {
             throw new IllegalArgumentException("비활성화 상태거나 삭제된 회원은 댓글을 달 수 없습니다.");
         }
 
