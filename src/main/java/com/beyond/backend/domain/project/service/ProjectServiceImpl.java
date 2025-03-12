@@ -5,6 +5,7 @@ import com.beyond.backend.domain.project.dto.ProjectResponseDto;
 import com.beyond.backend.domain.project.dto.ProjectUpdateRequestDto;
 import com.beyond.backend.domain.project.entity.Project;
 import com.beyond.backend.domain.project.entity.ProjectSearchOption;
+import com.beyond.backend.domain.project.entity.ProjectSortOption;
 import com.beyond.backend.domain.project.entity.ProjectStatus;
 import com.beyond.backend.domain.project.entity.ProjectTech;
 import com.beyond.backend.domain.project.repository.ProjectRepository;
@@ -164,8 +165,8 @@ public class ProjectServiceImpl implements ProjectService {
 
 	//  모든 프로젝트 조회
 	@Override
-	public Page<ProjectResponseDto> getAllProjects(Pageable pageable) {
-		return projectRepository.getProjects(pageable);
+	public Page<ProjectResponseDto> getAllProjects(Pageable pageable, ProjectSortOption projectSortOption) {
+		return projectRepository.getProjects(pageable, projectSortOption);
 	}
 
 

@@ -1,17 +1,14 @@
 package com.beyond.backend.domain.project.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import com.beyond.backend.domain.project.dto.ProjectRequestDto;
 import com.beyond.backend.domain.project.dto.ProjectResponseDto;
 import com.beyond.backend.domain.project.dto.ProjectUpdateRequestDto;
-import com.beyond.backend.domain.project.entity.Project;
 import com.beyond.backend.domain.project.entity.ProjectSearchOption;
-
+import com.beyond.backend.domain.project.entity.ProjectSortOption;
 import com.beyond.backend.domain.project.entity.ProjectStatus;
-import com.beyond.backend.domain.team.entity.Team;
-import com.beyond.backend.domain.user.entity.User;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * <p>
@@ -36,7 +33,7 @@ public interface ProjectService {
 
 
     // 프로젝트 전체 보기
-    Page<ProjectResponseDto> getAllProjects(Pageable pageable);
+    Page<ProjectResponseDto> getAllProjects(Pageable pageable, ProjectSortOption projectSortOption);
 
     // 프로젝트 단건 조회
     ProjectResponseDto getProjectByProjectNo(Long projectNo);

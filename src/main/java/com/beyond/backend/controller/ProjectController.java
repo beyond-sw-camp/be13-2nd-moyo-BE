@@ -4,8 +4,10 @@ import com.beyond.backend.domain.project.dto.ProjectRequestDto;
 import com.beyond.backend.domain.project.dto.ProjectResponseDto;
 import com.beyond.backend.domain.project.dto.ProjectUpdateRequestDto;
 import com.beyond.backend.domain.project.entity.ProjectSearchOption;
+import com.beyond.backend.domain.project.entity.ProjectSortOption;
 import com.beyond.backend.domain.project.entity.ProjectStatus;
 import com.beyond.backend.domain.project.service.ProjectService;
+import com.beyond.backend.domain.teamUser.repository.TeamUserRepository;
 import com.beyond.backend.domain.user.dto.CustomUserDetails;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 public class    ProjectController {
 
     private final ProjectService projectService;
+    private final TeamUserRepository teamUserRepository;
 
 
     @Operation(summary = "프로젝트 등록 메서드", description = "프로젝트 등록 메서드입니다.")
@@ -63,9 +66,10 @@ public class    ProjectController {
 
     @Operation(summary = "프로젝트 전체 조회")
     @GetMapping
-    public ResponseEntity<Page<ProjectResponseDto>> getProjects( @PageableDefault(size = 10, page = 0 ) Pageable pageable ){
+    public ResponseEntity<Page<ProjectResponseDto>> getProjects( @PageableDefault(size = 10, page = 0 ) Pageable pageable ,
+                                                                @RequestParam(required = false) ProjectSortOption projectSortOption){
 
-        Page<ProjectResponseDto> allProjects = projectService.getAllProjects(pageable);
+        Page<ProjectResponseDto> allProjects = projectService.getAllProjects(pageable, projectSortOption);
 
         if (allProjects.isEmpty())
             System.out.println("프로젝트가 비어있습니다.");
