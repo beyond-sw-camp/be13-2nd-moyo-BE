@@ -102,10 +102,9 @@ public class CommentServiceImpl implements CommentService {
         int latestCommentCount = postRepository.getLatestCommentCount(post.getNo());
 
 
-        // 📌 올바른 방식으로 게시글 작성자 가져오기
-        User receiver = post.getUser(); // post.getNo()가 아니라 post.getUser() 사용
+        User receiver = post.getUser();
 
-        // 🚀 트랜잭션 종료 후가 아니라, 바로 알림 전송
+        // 트랜잭션 종료 후가 아니라, 바로 알림 전송
         notificationService.sendNotification(
                 new RequestNotificationDto(
                         sender.getUsername(),
@@ -287,6 +286,19 @@ public class CommentServiceImpl implements CommentService {
         // 4. 좋아요 추가
         Like newLike = new Like( comment, user);
         likeRepository.save(newLike);
+
+        //좋아요 알림///////////////////////////
+        User receiver = comment.getUser();
+
+        // 트랜잭션 종료 후가 아니라, 바로 알림 전송
+        notificationService.sendNotification(
+                new RequestNotificationDto(
+                        user.getUsername(),
+                        receiver.getUsername(),
+                        NotificationType.COMMENT,
+                        user.getUsername() + "가 님의 게시글에 좋아요 누름")
+        );
+
 
         // 좋아요 개수 +1
         int updatedCount = commentRepository.increaseLikeCount(commentNo);
