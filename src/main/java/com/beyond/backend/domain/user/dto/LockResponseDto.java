@@ -1,5 +1,7 @@
 package com.beyond.backend.domain.user.dto;
 
+import lombok.Data;
+
 @Data
 public class LockResponseDto {
 
@@ -8,5 +10,4 @@ public class LockResponseDto {
     public LockResponseDto() {
         this.message = "user Locked";
     }
-
 }

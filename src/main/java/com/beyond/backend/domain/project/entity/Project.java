@@ -1,9 +1,7 @@
 package com.beyond.backend.domain.project.entity;
 
 import com.beyond.backend.domain.common.BaseEntity;
-import com.beyond.backend.domain.common.entity.Status;
 import com.beyond.backend.domain.feedback.entity.Feedback;
-import com.beyond.backend.domain.project.dto.ProjectRequestDto;
 import com.beyond.backend.domain.project.dto.ProjectUpdateRequestDto;
 import com.beyond.backend.domain.team.entity.Team;
 import jakarta.persistence.*;
