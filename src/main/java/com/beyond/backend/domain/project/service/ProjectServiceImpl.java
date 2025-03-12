@@ -255,4 +255,11 @@ public class ProjectServiceImpl implements ProjectService {
 		// 5. 프로젝트 삭제
 		projectRepository.deleteById(projectNo);
 	}
+
+	/**
+	 * 프로젝트를 끝내는 로직ㅠ
+	 * 1. 프로젝트 상태 변경
+	 * 2. 유저 평가 설문 날아감
+	 * 3. 각각의 유저에게 설문 반영됨
+	 */
 }

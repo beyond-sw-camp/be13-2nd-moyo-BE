@@ -1,0 +1,77 @@
+package com.beyond.backend.controller;
+
+import com.beyond.backend.domain.project.dto.ScheduleRequestDto;
+import com.beyond.backend.domain.project.dto.ScheduleResponseDto;
+import com.beyond.backend.domain.project.service.ScheduleService;
+import com.beyond.backend.domain.user.dto.CustomUserDetails;
+import com.beyond.backend.domain.user.service.AuthService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/schedules")
+@RequiredArgsConstructor
+public class ScheduleController {
+
+    private final ScheduleService scheduleService;
+    private final AuthService authService;
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<ScheduleResponseDto> createSchedule(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody ScheduleRequestDto requestDto
+    ) {
+        Long userNo = userDetails.getUser().getNo();
+        ScheduleResponseDto responseDto = scheduleService.createSchedule(userNo, requestDto);
+        return ResponseEntity.ok(responseDto);
+    }
+
+    @PutMapping("/{scheduleId}")
+    public ResponseEntity<ScheduleResponseDto> updateSchedule(
+            @PathVariable Long scheduleId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody ScheduleRequestDto dto
+    ) {
+        Long userNo = userDetails.getUser().getNo();
+        ScheduleResponseDto responseDto = scheduleService.updateSchedule(scheduleId, userNo, dto);
+        return ResponseEntity.ok(responseDto);
+    }
+
+    @DeleteMapping("/{scheduleId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public ResponseEntity<Void> deleteSchedule(
+            @PathVariable Long scheduleId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        Long userNo = userDetails.getUser().getNo();
+        scheduleService.deleteSchedule(scheduleId, userNo);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{scheduleId}")
+    public ResponseEntity<ScheduleResponseDto> getSchedule(
+            @PathVariable Long scheduleId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        Long userNo = userDetails.getUser().getNo();
+        ScheduleResponseDto responseDto = scheduleService.getSchedule(scheduleId, userNo);
+        return ResponseEntity.ok(responseDto);
+    }
+
+    @GetMapping("/project/{projectId}")
+    public ResponseEntity<List<ScheduleResponseDto>> getSchedulesByProject(
+            @PathVariable Long projectId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        Long userNo = userDetails.getUser().getNo();
+        List<ScheduleResponseDto> schedules = scheduleService.getSchedulesByProject(projectId, userNo);
+        return ResponseEntity.ok(schedules);
+    }
+}
