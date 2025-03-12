@@ -87,9 +87,6 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private UserStatus userStatus; // ACTIVE, INACTIVE, DELETED
 
-    // 유저 뱃지와 1:N 관계
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<UserBadge> userBadges = new HashSet<>();
 
     // 보낸 쪽지 리스트 (1:N 관계)
     @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = false)

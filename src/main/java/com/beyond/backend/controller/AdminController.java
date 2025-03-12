@@ -39,9 +39,8 @@ public class AdminController {
     public ResponseEntity<DeleteUserByAdminResponseDto> deleteUserByAdmin(@RequestBody DeleteUserByAdminRequestDto dto,
                                                                           @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        CustomUserDetails currentUser = authService.getCurrentUser();
         System.out.println(dto.getUserNo()+" us dsfs`````````````````````````");
-        if (authService.isAdminFromUserDetails(currentUser)) {
+        if (authService.isAdminFromUserDetails(userDetails)) {
             adminService.deleteUserByAdmin(dto);
             DeleteUserByAdminResponseDto response = new DeleteUserByAdminResponseDto("User deleted successfully.");
             return ResponseEntity.ok(response);
@@ -55,9 +54,8 @@ public class AdminController {
     public ResponseEntity<Page<AllUserResponseDto>> getUsersByAdmin(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                                     @PageableDefault Pageable pageable ){
 
-        CustomUserDetails currentUser = authService.getCurrentUser();
 
-        if(authService.isAdminFromUserDetails(currentUser)){
+        if(authService.isAdminFromUserDetails(userDetails)){
             Page<AllUserResponseDto> users = adminService.getUsers(pageable);
             return ResponseEntity.ok(users);
         }
@@ -69,9 +67,7 @@ public class AdminController {
     public ResponseEntity<OneUserResponseDto> getOneUserByAdmin(@PathVariable Long userNo,
                                                                 @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        CustomUserDetails currentUser = authService.getCurrentUser();
-
-        if (authService.isAdminFromUserDetails(currentUser)) {
+        if (authService.isAdminFromUserDetails(userDetails)) {
             OneUserResponseDto userResponse = adminService.getOneUser(userNo);
             return ResponseEntity.ok(userResponse);
         }
@@ -85,9 +81,8 @@ public class AdminController {
                                                                 @PageableDefault(size = 10, page= 0) Pageable pageable,
                                                                 @PathVariable Long userNo ) {
 
-        CustomUserDetails currentUser = authService.getCurrentUser();
 
-        if (authService.isAdminFromUserDetails(currentUser)) {
+        if (authService.isAdminFromUserDetails(userDetails)) {
             Page<UserPostResponseDto> userPosts = postService.getUserPosts(userNo, pageable);
             return ResponseEntity.ok(userPosts);
         }
@@ -102,9 +97,8 @@ public class AdminController {
                                                                     @PageableDefault(size = 10, page= 0) Pageable pageable,
                                                                     @PathVariable Long userNo){
 
-        CustomUserDetails currentUser = authService.getCurrentUser();
 
-        if (authService.isAdminFromUserDetails(currentUser)) {
+        if (authService.isAdminFromUserDetails(userDetails)) {
             Page<CommentResponseDto> commentList = commentService.getUserComments(userNo,pageable);
             return ResponseEntity.ok(commentList);
         }
@@ -119,13 +113,16 @@ public class AdminController {
                                                                 @PageableDefault(size = 10, page= 0) Pageable pageable,
                                                                 @PathVariable Long userNo ){
 
-        CustomUserDetails currentUser = authService.getCurrentUser();
-
-        if (authService.isAdminFromUserDetails(currentUser)) {
+        if (authService.isAdminFromUserDetails(userDetails)) {
             Page<ProjectResponseDto> projectList = projectService.getProjectsByUserNo(userNo, pageable);
             return ResponseEntity.ok(projectList);
         }
 
         return ResponseEntity.status(403).body(null);
     }
+
+    //신고목록 조회
+
+    //신고 처리
+
 }
