@@ -5,6 +5,8 @@ import com.beyond.backend.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Getter
@@ -24,7 +26,8 @@ public class Like {
     private Comment comment;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_no", nullable = false)
+    @JoinColumn(name = "user_no")
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     private User user;
 
     protected Like(){

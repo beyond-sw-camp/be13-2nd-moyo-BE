@@ -1,9 +1,9 @@
 package com.beyond.backend.domain.comment.repository;
 
 import com.beyond.backend.domain.comment.dto.CommentResponseDto;
-import com.beyond.backend.domain.comment.repository.CommentRepositoryCustom;
+import com.beyond.backend.domain.comment.entity.CommentSortOption;
 import com.beyond.backend.domain.post.dto.PostResponseDto;
-import com.beyond.backend.domain.post.dto.UserPostResponseDto;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -13,7 +13,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.beyond.backend.domain.comment.entity.QComment.comment;
@@ -83,8 +82,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
 
     // 게시글의 댓글 전체 조회
     @Override
-    public Page<CommentResponseDto> getPostComments(Long postNo, Pageable pageable) {
-
+    public Page<CommentResponseDto> getPostComments(Long postNo, CommentSortOption commentSortOption, Pageable pageable) {
         List<CommentResponseDto> content = queryFactory
                 .select(Projections.constructor(CommentResponseDto.class,
                         comment.no,
@@ -100,6 +98,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                 .join(comment.post, post)
                 .join(comment.user, user)
                 .where(post.no.eq(postNo))
+                .orderBy(getOrderSpecifier(commentSortOption))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -111,8 +110,19 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                 .join(comment.user, user)
                 .where(comment.post.no.eq(postNo));
 
+        return PageableExecutionUtils.getPage(content, pageable, totalCount::fetchOne);
+    }
 
-        return PageableExecutionUtils.getPage(content,pageable, totalCount::fetchOne);
+    private OrderSpecifier<?> getOrderSpecifier(CommentSortOption commentSortOption) {
+        if (commentSortOption == null || commentSortOption == CommentSortOption.NEW) {
+            return comment.createdAt.desc();  // 기본값: 최신순
+        }
+        switch (commentSortOption) {
+            case LIKE:
+                return comment.likeCount.desc();
+            default:
+                return comment.createdAt.desc(); // 안전장치: 기본값 최신순
+        }
     }
 
     

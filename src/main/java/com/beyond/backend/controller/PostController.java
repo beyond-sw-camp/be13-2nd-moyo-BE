@@ -1,32 +1,30 @@
 package com.beyond.backend.controller;
 
+import com.beyond.backend.domain.comment.entity.CommentSortOption;
 import com.beyond.backend.domain.post.dto.PostDto;
 import com.beyond.backend.domain.post.dto.PostResponseDto;
+import com.beyond.backend.domain.post.dto.PostWithCommentsResponseDto;
 import com.beyond.backend.domain.post.dto.UserPostResponseDto;
 import com.beyond.backend.domain.post.entity.BoardType;
 import com.beyond.backend.domain.post.entity.PostSearchOption;
 import com.beyond.backend.domain.post.entity.PostSortOption;
 import com.beyond.backend.domain.post.entity.PostStatus;
 import com.beyond.backend.domain.post.service.PostService;
-import com.beyond.backend.domain.user.service.UserService;
 import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -77,14 +75,24 @@ public class PostController {
 
 
     // 게시글 단 건 조회 
-    @Operation(summary = "게시글 단건 조회", description = "활성화된 게시글 상세 조회")
+/*    @Operation(summary = "게시글 단건 조회", description = "활성화된 게시글 상세 조회")
     @GetMapping("/posts/{postNo}")
-    public ResponseEntity<?> getPostById(@PathVariable Long postNo) {
+    public ResponseEntity<PostResponseDto> getPostById(@PathVariable Long postNo) {
         PostResponseDto post = postService.getPostById(postNo);
-        if (post == null) {
-            return ResponseEntity.ok("해당 게시글이 존재하지 않습니다.");
-        }
+
         return ResponseEntity.ok(post);
+    }*/
+
+    @Operation(summary = "게시글 단건 및 댓글 조회", description = "활성화된 게시글 상세 조회 및 댓글 목록 조회")
+    @GetMapping("/posts/{postNo}/with-comments")
+    public ResponseEntity<PostWithCommentsResponseDto> getPostWithCommentsById(
+            @PathVariable Long postNo,
+            @RequestParam(required = false) CommentSortOption commentSortOption,
+            @PageableDefault(size = 10, page = 0) Pageable pageable) {
+
+        PostWithCommentsResponseDto postWithComments = postService.getPostWithCommentsById(postNo, commentSortOption, pageable);
+
+        return ResponseEntity.ok(postWithComments);
     }
 
 
@@ -92,19 +100,17 @@ public class PostController {
     @GetMapping("/posts/search")
     public ResponseEntity<?> searchPosts(
             @RequestParam BoardType boardType,
+            @RequestParam(required = false) PostSortOption postSortOption,
             @RequestParam(required = false) PostSearchOption option,
             @RequestParam String keyword,
             @PageableDefault(size = 10, page= 0)Pageable pageable) {
 
-        if (keyword == null || keyword.trim().isEmpty()) {
-            return ResponseEntity.badRequest().body("검색어가 없습니다.");
-        }
+//        if (keyword == null || keyword.trim().isEmpty()) {
+//            return ResponseEntity.badRequest().body("검색어가 없습니다.");
+//        }
 
-        Page<PostResponseDto> searchPosts = postService.searchPosts(boardType, option, keyword, pageable);
+        Page<PostResponseDto> searchPosts = postService.searchPosts(boardType, option, postSortOption, keyword, pageable);
 
-        if (searchPosts.isEmpty()) {
-            return ResponseEntity.ok("게시글이 존재하지 않습니다.");
-        }
         return ResponseEntity.ok(searchPosts);
     }
     
@@ -131,10 +137,10 @@ public class PostController {
             @RequestParam PostStatus postStatus,
             @PathVariable Long postNo,
             @RequestBody PostDto postDto,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ){
-        PostResponseDto updatedPost = postService.updatePost(boardType, postStatus, postNo, postDto, userDetails.getUser().getNo());
-        return ResponseEntity.ok(updatedPost);
+            @AuthenticationPrincipal CustomUserDetails userDetails){
+
+        PostResponseDto updatePost = postService.updatePost(boardType, postStatus, postNo, postDto, userDetails.getUser().getNo());
+        return ResponseEntity.ok(updatePost);
     }
     
 

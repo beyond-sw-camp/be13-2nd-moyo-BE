@@ -1,7 +1,9 @@
 package com.beyond.backend.domain.post.service;
 
+import com.beyond.backend.domain.comment.entity.CommentSortOption;
 import com.beyond.backend.domain.post.dto.PostDto;
 import com.beyond.backend.domain.post.dto.PostResponseDto;
+import com.beyond.backend.domain.post.dto.PostWithCommentsResponseDto;
 import com.beyond.backend.domain.post.dto.UserPostResponseDto;
 import com.beyond.backend.domain.post.entity.BoardType;
 import com.beyond.backend.domain.post.entity.PostSearchOption;
@@ -33,10 +35,11 @@ import org.springframework.data.domain.Pageable;
     Page<PostResponseDto> getPosts(BoardType boardType, Pageable pageable, PostSortOption postSortOption);
 
     // 게시글 검색
-    Page<PostResponseDto> searchPosts(BoardType boardType, PostSearchOption option, String keyword, Pageable pageable);
+    Page<PostResponseDto> searchPosts(BoardType boardType, PostSearchOption option, PostSortOption postSortOption, String keyword, Pageable pageable);
 
-    // 게시글 단 건 조횐
-    PostResponseDto getPostById(Long postNo);
+    // 게시글 단 건 조회
+    //PostResponseDto getPostById(Long postNo);
+    PostWithCommentsResponseDto getPostWithCommentsById(Long postNo, CommentSortOption commentSortOption, Pageable pageable);
 
 
     // 게시글 생성
@@ -59,6 +62,8 @@ import org.springframework.data.domain.Pageable;
     String checkBookMark(Long postNo, Long userNo);
 
     Page<UserPostResponseDto> getBookmarkedPosts(Long userNo, BoardType boardType, Pageable pageable);
+
+
 
 
     //----
