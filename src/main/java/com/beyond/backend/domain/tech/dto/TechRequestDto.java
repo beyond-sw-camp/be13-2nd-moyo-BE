@@ -6,7 +6,6 @@ import lombok.Data;
 @Data
 public class TechRequestDto {
 
-
 	@NotBlank
 	private String techName;
 }

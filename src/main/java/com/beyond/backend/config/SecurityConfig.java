@@ -66,7 +66,16 @@ public class SecurityConfig {
                                 "/swagger-ui.html",
                                 "/delete",
                                 "/updatePassword",
-                                "/swagger-resources/**").permitAll()
+                                "/swagger-resources/**",
+                                // 아래 경로들을 추가
+                                "/posts",                    // 게시글 전체 조회
+                                "/posts/{postNo}/**",        // 게시글 상세 조회
+                                "/posts/search",             // 게시글 검색
+                                "/project",                  // 프로젝트 전체 조회
+                                "/project/{projectNo}",      // 프로젝트 상세 조회
+                                "/project/search"            // 프로젝트 검색
+
+                        ).permitAll()
                         .anyRequest().authenticated()
                 );
         return http.build();
