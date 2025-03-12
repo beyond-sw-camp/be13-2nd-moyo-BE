@@ -59,7 +59,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByUsername(dto.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        user.updateBan(dto.getBan());
+        user.   updateBan(dto.getBan());
         userRepository.save(user);
         return new BanResponseDto();
     }

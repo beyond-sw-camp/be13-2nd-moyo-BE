@@ -66,21 +66,10 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
 			.fetch();
 
 
-		// 2. 프로젝트 ID 리스트 추출
-		List<Long> projectIds = allProjects.stream()
-			.map(ProjectResponseDto::getNo)
-			.toList();
-
-		// 3. 프로젝트 기술 스택 조회 후 매핑
-		Map<Long, List<String>> projectTechMap = getProjectTechs(projectIds);
-
-		// 4. 각 프로젝트에 기술 스택 리스트 추가
-		allProjects.forEach(proj ->
-			proj.setProjectTeches(projectTechMap.getOrDefault(proj.getNo(), List.of()))
-		);
+		getMatchProjectAndTech(allProjects);
 
 
-		// 5. 전체 프로젝트 개수 조회
+		// 전체 프로젝트 개수 조회
 		JPAQuery<Long> totalCount = queryFactory
 			.select(project.count())
 			.from(project);
@@ -135,18 +124,7 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
 			.limit(pageable.getPageSize())
 			.fetch();
 
-		// 2. 프로젝트 ID 리스트 추출
-		List<Long> projectIds = searchList.stream()
-			.map(ProjectResponseDto::getNo)
-			.toList();
-
-		// 3. 프로젝트 기술 스택 조회 후 매핑
-		Map<Long, List<String>> projectTechMap = getProjectTechs(projectIds);
-
-		searchList.forEach( proj->
-			proj.setProjectTeches(projectTechMap.getOrDefault(proj.getNo(), List.of()))
-		);
-
+		getMatchProjectAndTech(searchList);
 
 		JPAQuery<Long> totalCount = queryFactory
 			.select( project.count() )
@@ -157,6 +135,7 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
 	}
 
 
+	/// 프로젝트 Id 로 프로젝트 Tech 가져오기
 	public Map<Long, List<String>> getProjectTechs(List<Long> projectIds) {
 		if (projectIds == null || projectIds.isEmpty()) {
 			return new HashMap<>(); // 프로젝트가 없으면 빈 맵 반환
@@ -194,8 +173,6 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
 
 
 
-
-	/// TODO 로직 확인
 	private BooleanExpression projectExistsInTech(String keyword) {
 
 		return JPAExpressions.selectOne()
@@ -209,7 +186,6 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
 
 
 	/// 유저가 참여한 모든 프로젝트 조회
-
 	public Page<ProjectResponseDto> findProjectsByUserId(Long userNo, Pageable pageable) {
 
 		List<ProjectResponseDto> projectList = queryFactory
@@ -230,21 +206,7 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
 			.fetch();
 
 
-		// 2. 프로젝트 ID 리스트 추출
-		List<Long> projectNoList = projectList.stream()
-			.map(ProjectResponseDto::getNo)
-			.toList();
-
-		// 3. 프로젝트 기술 스택 조회 후 매핑
-		Map<Long, List<String>> techList = getProjectTechs(projectNoList);
-
-		// 4. 각 프로젝트에 기술 스택 리스트 추가
-
-		projectList.forEach(proj ->
-			proj.setProjectTeches(techList.getOrDefault(proj.getNo(), List.of()))
-		);
-
-
+		getMatchProjectAndTech(projectList);
 
 		// 한 유저가 참여한 프로젝트 개수
 		JPAQuery<Long> totalCount = queryFactory
@@ -255,6 +217,24 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
 			.where(teamUser.user.no.eq(userNo));
 
 		return PageableExecutionUtils.getPage(projectList, pageable, totalCount::fetchOne);
+	}
+
+
+	private void getMatchProjectAndTech(List<ProjectResponseDto> projectList){
+
+		// 1. 프로젝트 ID 리스트 추출
+		List<Long> projectNoList = projectList.stream()
+			.map(ProjectResponseDto::getNo)
+			.toList();
+
+		// 2. 프로젝트 기술 스택 조회 후 매핑
+		Map<Long, List<String>> techList = getProjectTechs(projectNoList);
+
+		// 3. 각 프로젝트에 기술 스택 리스트 추가
+		projectList.forEach(proj ->
+			proj.setProjectTeches(techList.getOrDefault(proj.getNo(), List.of()))
+		);
+
 	}
 
 

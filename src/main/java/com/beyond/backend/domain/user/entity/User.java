@@ -26,28 +26,28 @@ public class User extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long no;
+    private Long no;
 
     @Column(nullable = false)
-    String username;
+    private String username;
 
     @Column(nullable = false)
-    String password;
+    private String password;
 
     @Enumerated(EnumType.STRING)
     private UserRoleType role;
 
     @Column(nullable = false)
-    String email;
+    private String email;
 
     @Column(nullable = false)
     private String phoneNum;
 
     @Column(nullable = false)
-    private Boolean Banned;
+    private Boolean banned;
 
     @Column(nullable = false)
-    private Integer passwordErrorCount;
+    private int passwordErrorCount;
 
     @Builder
     public User(String username, String password, String email, String phoneNum) {
@@ -56,7 +56,7 @@ public class User extends BaseEntity {
         this.role = UserRoleType.USER;
         this.email = email;
         this.phoneNum = phoneNum;
-        this.Banned = false;
+        this.banned = false;
         this.passwordErrorCount = 0;
         this.userStatus = UserStatus.ACTIVE;
     }
@@ -71,7 +71,7 @@ public class User extends BaseEntity {
     }
 
     public void updateBan(boolean Banned) {
-        this.Banned = Banned;
+        this.banned = banned;
     }
 
     public void updatePasswordErrorCount(int passwordErrorCount) {
@@ -110,8 +110,8 @@ public class User extends BaseEntity {
 
     @OneToMany(mappedBy = "user",  cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = false)
     private List<Like> likes = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = false)
+    
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BookMark> bookmarks = new ArrayList<>();
 
     // 신고

@@ -2,19 +2,19 @@ package com.beyond.backend.domain.comment.service;
 
 import com.beyond.backend.domain.comment.dto.CommentDto;
 import com.beyond.backend.domain.comment.dto.CommentResponseDto;
+import com.beyond.backend.domain.comment.entity.Comment;
 import com.beyond.backend.domain.comment.entity.CommentSortOption;
+import com.beyond.backend.domain.comment.repository.CommentRepository;
+import com.beyond.backend.domain.common.dto.RequestNotificationDto;
+import com.beyond.backend.domain.common.entity.NotificationType;
 import com.beyond.backend.domain.common.entity.UserStatus;
+import com.beyond.backend.domain.common.service.NotificationService;
 import com.beyond.backend.domain.like.entity.Like;
 import com.beyond.backend.domain.like.repository.LikeRepository;
 import com.beyond.backend.domain.post.dto.PostResponseDto;
-import com.beyond.backend.domain.common.dto.RequestNotificationDto;
-import com.beyond.backend.domain.common.entity.NotificationType;
-import com.beyond.backend.domain.common.service.NotificationService;
 import com.beyond.backend.domain.post.entity.BoardType;
-import com.beyond.backend.domain.comment.entity.Comment;
 import com.beyond.backend.domain.post.entity.Post;
 import com.beyond.backend.domain.post.entity.PostStatus;
-import com.beyond.backend.domain.comment.repository.CommentRepository;
 import com.beyond.backend.domain.post.repository.PostRepository;
 import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import com.beyond.backend.domain.user.entity.User;
@@ -131,7 +131,7 @@ public class CommentServiceImpl implements CommentService {
                 .orElseThrow(()-> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
 
         // 댓글이 존재하는 지 확인
-         Comment comment  = commentRepository.findById(commentNo)
+        Comment comment  = commentRepository.findById(commentNo)
                 .orElseThrow(()-> new IllegalArgumentException("해당 댓글을 찾을 수 없습니다."));
 
 
@@ -231,14 +231,14 @@ public class CommentServiceImpl implements CommentService {
 
 
         Page<PostResponseDto> commentPost = commentRepository.getUserCommentPosts(userNo, pageable);
-        
+
         if (commentPost.isEmpty()) {
             throw new IllegalArgumentException("게시글이 존재하지 않습니다.");
         }
         return commentPost;
     }
 
-    
+
 
 
     //-----------------------------------------------------------
