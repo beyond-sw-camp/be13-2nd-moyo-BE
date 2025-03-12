@@ -1,13 +1,9 @@
 package com.beyond.backend.domain.comment.service;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.beyond.backend.domain.comment.dto.CommentDto;
 import com.beyond.backend.domain.comment.dto.CommentResponseDto;
 import com.beyond.backend.domain.comment.entity.Comment;
+import com.beyond.backend.domain.comment.entity.CommentSortOption;
 import com.beyond.backend.domain.comment.repository.CommentRepository;
 import com.beyond.backend.domain.common.dto.RequestNotificationDto;
 import com.beyond.backend.domain.common.entity.NotificationType;
@@ -24,8 +20,11 @@ import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import com.beyond.backend.domain.user.entity.User;
 import com.beyond.backend.domain.user.repository.UserRepository;
 import com.beyond.backend.domain.user.service.AuthService;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * <p>
@@ -43,7 +42,7 @@ import lombok.RequiredArgsConstructor;
  * 25. 3. 4.        hyunjo             최초 생성
  */
 @Service
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
 
@@ -57,8 +56,10 @@ public class CommentServiceImpl implements CommentService {
     private final AuthService authService;
 
     @Override
+    @Transactional
     public CommentResponseDto createComment(CommentDto commentDto, Long userNo) {
 
+        CustomUserDetails userDetails = authService.getCurrentUser();
         // 게시글이 존재하는지 확인
         Post post = postRepository.findById(commentDto.getPostNo())
                 .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
@@ -86,6 +87,11 @@ public class CommentServiceImpl implements CommentService {
             throw new IllegalArgumentException("비활성화 상태거나 삭제된 회원은 댓글을 달 수 없습니다.");
         }
 
+        if (!sender.getNo().equals(userDetails.getUser().getNo())) {
+            throw new IllegalArgumentException("bad request");
+        }
+
+
         // 댓글 저장
         Comment comment = new Comment(commentDto.getContent(), post, sender);
         commentRepository.save(comment);
@@ -94,9 +100,6 @@ public class CommentServiceImpl implements CommentService {
         int updatedCount = postRepository.increaseCommentCount(post.getNo());
 
         int latestCommentCount = postRepository.getLatestCommentCount(post.getNo());
-
-
-
 
 
         // 📌 올바른 방식으로 게시글 작성자 가져오기
@@ -118,6 +121,7 @@ public class CommentServiceImpl implements CommentService {
 
     // 댓글 수정
     @Override
+    @Transactional
     public CommentResponseDto updateComment(Long commentNo, CommentDto commentDto, Long userNo) {
 
         CustomUserDetails userDetails = authService.getCurrentUser();
@@ -127,17 +131,17 @@ public class CommentServiceImpl implements CommentService {
                 .orElseThrow(()-> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
 
         // 댓글이 존재하는 지 확인
-         Comment comment  = commentRepository.findById(commentNo)
+        Comment comment  = commentRepository.findById(commentNo)
                 .orElseThrow(()-> new IllegalArgumentException("해당 댓글을 찾을 수 없습니다."));
 
 
 
-        User user = userRepository.findById(userNo)
+        User user = userRepository.findById(comment.getUser().getNo())
                 .orElseThrow(()-> new IllegalArgumentException("해당하는 유저가 없습니다."));
 
         // 댓글 작성자가 로그인한 회원과 같은지 비교 userNo로
         // 댓글을 수정하려는 유저가 댓글을 작성한 유저인지 확인
-        if (!user.equals(userDetails.getUser())) {
+        if (!user.getNo().equals(userDetails.getUser().getNo())) {
             throw new IllegalArgumentException("bad request");
         }
 
@@ -148,7 +152,9 @@ public class CommentServiceImpl implements CommentService {
         return new CommentResponseDto(comment);
     }
 
+    // 댓글 삭제
     @Override
+    @Transactional
     public void deleteComment(Long commentNo, Long userNo) {
         // 게시글이 지워지면 댓글도 같이 지워지는 것 생각
         CustomUserDetails userDetails = authService.getCurrentUser();
@@ -158,11 +164,11 @@ public class CommentServiceImpl implements CommentService {
                 .orElseThrow(()-> new IllegalArgumentException("해당 댓글을 찾을 수 없습니다."));
 
         // 유저가 존재라는 지 검증
-        User user = userRepository.findById(userNo)
+        User user = userRepository.findById(comment.getUser().getNo())
                 .orElseThrow(()-> new IllegalArgumentException("해당하는 유저가 없습니다."));
 
         //작성자와 로그인한 유저가 같은지 확인
-        if (!user.equals(userDetails.getUser()) && authService.isAdminFromUserDetails(userDetails)) {
+        if (!user.getNo().equals(userDetails.getUser().getNo()) && !authService.isAdminFromUserDetails(userDetails)) {
             throw new IllegalArgumentException("bad request");
         }
 
@@ -186,13 +192,20 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public Page<CommentResponseDto> getUserComments(Long userNo, Pageable pageable) {
 
-        return commentRepository.getUserComments(userNo, pageable);
+        Page<CommentResponseDto> userComments = commentRepository.getUserComments(userNo, pageable);
+
+        if( userComments.isEmpty()){
+            throw new IllegalArgumentException("댓글이 존재하지 않습니다.");
+        }
+
+
+        return userComments;
     }
 
 
     // 게시글의 댓글 전체 조회
     @Override
-    public Page<CommentResponseDto> getPostComments(Long postNo, Pageable pageable) {
+    public Page<CommentResponseDto> getPostComments(Long postNo, CommentSortOption commentSortOption, Pageable pageable) {
 
         // 게시글 조회
         Post post = postRepository.findById(postNo)
@@ -203,24 +216,39 @@ public class CommentServiceImpl implements CommentService {
             throw new IllegalArgumentException("해당 게시판에서는 댓글을 조회할 수 없습니다.");
         }
 
-        return commentRepository.getPostComments(postNo, pageable);
+        Page<CommentResponseDto> postComment = commentRepository.getPostComments(postNo, commentSortOption, pageable);
+
+        if( postComment.isEmpty()){
+            throw new IllegalArgumentException("댓글이 존재하지 않습니다.");
+        }
+
+        return postComment;
     }
 
     // 유저가 작성한 댓글이 있는 게시글 전체 조회
     @Override
     public Page<PostResponseDto> getUserCommentPosts(Long userNo, Pageable pageable) {
-        return commentRepository.getUserCommentPosts(userNo, pageable);
+
+
+        Page<PostResponseDto> commentPost = commentRepository.getUserCommentPosts(userNo, pageable);
+
+        if (commentPost.isEmpty()) {
+            throw new IllegalArgumentException("게시글이 존재하지 않습니다.");
+        }
+        return commentPost;
     }
 
-    
+
 
 
     //-----------------------------------------------------------
 
     // 댓글 좋아요
     @Override
+    @Transactional
     public String checkCommentLike(Long commentNo, Long userNo) {
 
+        CustomUserDetails userDetails = authService.getCurrentUser();
         // 댓글이 존재하는지 확인
         Comment comment = commentRepository.findById(commentNo).orElseThrow(
                 ()-> new IllegalArgumentException("댓글이 존재하지 않습니다."));
@@ -229,6 +257,10 @@ public class CommentServiceImpl implements CommentService {
         User user = userRepository.findById(userNo).orElseThrow(
                 ()-> new IllegalArgumentException("해당 유저가 존재하지 않습니다."));
 
+        // 로그인한 유저만 좋아요 가능
+        if (!user.getNo().equals(userDetails.getUser().getNo())) {
+            throw new IllegalArgumentException("bad request");
+        }
 
 
         // 좋아요가 되어있는지 확인
@@ -273,7 +305,15 @@ public class CommentServiceImpl implements CommentService {
     // 유저가 좋아요한 댓글 전체 조회
     @Override
     public Page<CommentResponseDto> getUserLikedComments(Long userNo, Pageable pageable) {
-        return likeRepository.getUserLikedComments(userNo,pageable);
+
+        Page<CommentResponseDto> likedComment = likeRepository.getUserLikedComments(userNo,pageable);
+
+
+        if (likedComment.isEmpty()) {
+            throw new IllegalArgumentException("댓글이 존재하지 않습니다.");
+        }
+
+        return likedComment;
     }
 
 

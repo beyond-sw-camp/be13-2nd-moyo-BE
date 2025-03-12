@@ -10,5 +10,4 @@ public class LockResponseDto {
     public LockResponseDto() {
         this.message = "user Locked";
     }
-
 }

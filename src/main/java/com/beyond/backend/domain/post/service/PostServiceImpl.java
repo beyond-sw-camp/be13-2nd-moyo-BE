@@ -1,7 +1,11 @@
 package com.beyond.backend.domain.post.service;
 
+import com.beyond.backend.domain.comment.dto.CommentResponseDto;
+import com.beyond.backend.domain.comment.entity.CommentSortOption;
+import com.beyond.backend.domain.comment.repository.CommentRepository;
 import com.beyond.backend.domain.post.dto.PostDto;
 import com.beyond.backend.domain.post.dto.PostResponseDto;
+import com.beyond.backend.domain.post.dto.PostWithCommentsResponseDto;
 import com.beyond.backend.domain.post.dto.UserPostResponseDto;
 import com.beyond.backend.domain.post.entity.BoardType;
 import com.beyond.backend.domain.bookMark.entity.BookMark;
@@ -16,12 +20,15 @@ import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import com.beyond.backend.domain.user.entity.User;
 import com.beyond.backend.domain.user.repository.UserRepository;
 import com.beyond.backend.domain.user.service.AuthService;
+import jakarta.persistence.NoResultException;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * <p>
@@ -42,29 +49,48 @@ import org.springframework.transaction.annotation.Transactional;
  */
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
     private final BookMarkRepository bookMarkRepository;
     private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
     private final AuthService authService;
 
 
 
     @Override
     public Page<PostResponseDto> getPosts(BoardType boardType, Pageable pageable, PostSortOption postSortOption) {
-        return postRepository.getPostsByBoardType(boardType, pageable, postSortOption);
+
+        Page<PostResponseDto> allPosts = postRepository.getPostsByBoardType(boardType, pageable, postSortOption);
+
+        if (allPosts.isEmpty()) {
+            throw new IllegalArgumentException("게시글이 존재하지 않습니다.");
+        }
+
+        return allPosts;
     }
 
     @Override
-    public Page<PostResponseDto> searchPosts(BoardType boardType, PostSearchOption option, String keyword, Pageable pageable) {
-        return postRepository.searchPosts(boardType, option, keyword, pageable);
+    public Page<PostResponseDto> searchPosts(BoardType boardType, PostSearchOption option, PostSortOption postSortOption, String keyword, Pageable pageable) {
+
+        if (keyword == null || keyword.trim().isEmpty()) {
+            throw new IllegalArgumentException("검색어가 없습니다.");
+        }
+
+        Page<PostResponseDto> searchResults = postRepository.searchPosts(boardType, option, keyword, pageable, postSortOption);
+
+        if (searchResults.isEmpty()) {
+            throw new IllegalArgumentException("게시글이 존재하지 않습니다.");
+        }
+
+        return searchResults;
     }
 
     // 게시글 단 건 조회
-    @Override
+   /* @Override
     public PostResponseDto getPostById(Long postNo) {
         Post prePost = postRepository.findById(postNo)
                 .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 존재하지 않습니다."));
@@ -87,15 +113,44 @@ public class PostServiceImpl implements PostService {
         }
 
         // 최신 댓글 개수 조회 (정합성 보장)
- /*       int latestCommentCount = postRepository.getLatestCommentCount(postNo);*/
+ *//*       int latestCommentCount = postRepository.getLatestCommentCount(postNo);*//*
 
         // 게시글 단 건 조회 중간에 댓글이 삭제된 경우 최신 댓글 개수가 조회될 필요가 있나?
 
-        return new PostResponseDto(post/*, latestCommentCount*/);
+        return new PostResponseDto(post*//*, latestCommentCount*//*);
     }
+*/
+    // 게시글 단 건 조회와 댓글 가져오기
+    @Override
+    public PostWithCommentsResponseDto getPostWithCommentsById(Long postNo, CommentSortOption commentSortOption, Pageable pageable) {
 
+
+        Post post = postRepository.findByIdWithUser(postNo);  // Lazy Loading 문제 해결
+
+
+
+        // 비활성화된 게시글인 경우 예외 처리
+        if (post.getPostStatus() == PostStatus.INACTIVE) {
+            throw new IllegalArgumentException("해당 게시글은 비활성화된 게시글로 볼 수 없습니다.");
+        }
+
+        // 조회수 증가
+        postRepository.increaseViewCount(postNo);
+
+        // 최신 게시글 데이터 재조회
+        PostResponseDto postResponseDto = new PostResponseDto(post);
+
+        // 댓글 조회
+        Page<CommentResponseDto> commentsPage = commentRepository.getPostComments(postNo, commentSortOption, pageable);
+
+        // 댓글 리스트 변환
+        List<CommentResponseDto> comments = commentsPage.getContent();
+
+        return new PostWithCommentsResponseDto(postResponseDto, comments);
+    }
     // 게시글 생성
     @Override
+    @Transactional
     public PostResponseDto createPost(BoardType boardType, PostDto postDto, Long userNo) {
 
         CustomUserDetails userDetails = authService.getCurrentUser();
@@ -137,6 +192,7 @@ public class PostServiceImpl implements PostService {
     // 게시글 번호에 해당하는 게시글을 찾고
     // 업데이트된 게시글 dto 객체로 반환
     @Override
+    @Transactional
     public PostResponseDto updatePost(BoardType boardType, PostStatus postStatus, Long postNo, PostDto postDto, Long userNo) {
         CustomUserDetails userDetails = authService.getCurrentUser();
 
@@ -149,12 +205,12 @@ public class PostServiceImpl implements PostService {
                 .orElseThrow(()-> new IllegalArgumentException("해당 게시글은 존재하지 않습니다."));
 
         // 수정하려는 유저 찾기
-        User user = userRepository.findById(userNo)
+        User user = userRepository.findById(post.getUser().getNo())
                 .orElseThrow(()-> new IllegalArgumentException("해당 유저가 존재하지 않습니다."));
 
 
-        // post의 유저와 수정하려는 유저가 같은지 확인
-        if (!user.equals(userDetails.getUser())) {
+         //post의 유저와 수정하려는 유저가 같은지 확인
+        if (!user.getNo().equals(userDetails.getUser().getNo())) {
             throw new IllegalArgumentException("bad request");
         }
 
@@ -166,14 +222,19 @@ public class PostServiceImpl implements PostService {
 
     // 게시글과 댓글 연관관계 메서드 사용 생각해보기
     @Override
+    @Transactional
     public void deletePost(Long postNo, Long userNo){
         CustomUserDetails userDetails = authService.getCurrentUser();
 
-        User user = userRepository.findById(userNo)
+        Post post = postRepository.findById(postNo)
+                .orElseThrow(() -> new IllegalArgumentException("해당 게시글은 존재하지 않습니다."));
+
+
+        User user = userRepository.findById(post.getUser().getNo())
                 .orElseThrow(()-> new IllegalArgumentException("해당 유저가 존재하지 않습니다."));
 
         // 삭제 요청을 보내는 사람과 작성한 사람이 같은지, 관리자인지 확인
-        if (!user.equals(userDetails.getUser()) && authService.isAdminFromUserDetails(userDetails)) {
+        if (!user.getNo().equals(userDetails.getUser().getNo()) && !authService.isAdminFromUserDetails(userDetails)) {
             throw new IllegalArgumentException("bad request");
         }
 
@@ -186,12 +247,20 @@ public class PostServiceImpl implements PostService {
     @Override
     public Page<UserPostResponseDto> getUserPosts(Long userNo, Pageable pageable) {
 
-        return postRepository.getUserPosts(userNo, pageable);
+
+        Page<UserPostResponseDto> userPosts = postRepository.getUserPosts(userNo, pageable);
+
+        if( userPosts.isEmpty()){
+            throw new IllegalArgumentException("게시글이 존재하지 않습니다.");
+        }
+
+        return userPosts;
     }
 
 
     // 게시글 북마크
     @Override
+    @Transactional
     public String checkBookMark(Long postNo, Long userNo) {
 
         CustomUserDetails userDetails = authService.getCurrentUser();
@@ -226,9 +295,10 @@ public class PostServiceImpl implements PostService {
                 .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
 
         User user = userRepository.findById(userNo)
-                .orElseThrow(() -> new IllegalArgumentException("해당 유저가 존재하지 않습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("유저가 존재하지 않습니다."));
 
-        if (!user.equals(userDetails.getUser())) {
+        // 로그인한 유저만 북마크 가능
+        if (!user.getNo().equals(userDetails.getUser().getNo())) {
             throw new IllegalArgumentException("bad request");
         }
 
@@ -252,6 +322,16 @@ public class PostServiceImpl implements PostService {
     // 북마크된 게시글 전체 조회
     @Override
     public Page<UserPostResponseDto> getBookmarkedPosts(Long userNo, BoardType boardType, Pageable pageable) {
-        return bookMarkRepository.getBookmarkedPosts(userNo, boardType, pageable);
+
+        User user = userRepository.findById(userNo)
+                .orElseThrow(() -> new IllegalArgumentException("유저가 존재하지 않습니다."));
+
+        Page<UserPostResponseDto> bookmarkedPosts = bookMarkRepository.getBookmarkedPosts(userNo, boardType, pageable);
+
+        if( bookmarkedPosts.isEmpty()){
+            throw new IllegalArgumentException("게시글이 존재하지 않습니다.");
+        }
+
+        return bookmarkedPosts;
     }
 }
