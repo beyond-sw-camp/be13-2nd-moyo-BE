@@ -3,12 +3,12 @@ package com.beyond.backend.domain.comment.service;
 import com.beyond.backend.domain.comment.dto.CommentDto;
 import com.beyond.backend.domain.comment.dto.CommentResponseDto;
 import com.beyond.backend.domain.comment.entity.CommentSortOption;
+import com.beyond.backend.domain.common.entity.UserStatus;
 import com.beyond.backend.domain.like.entity.Like;
 import com.beyond.backend.domain.like.repository.LikeRepository;
 import com.beyond.backend.domain.post.dto.PostResponseDto;
 import com.beyond.backend.domain.common.dto.RequestNotificationDto;
 import com.beyond.backend.domain.common.entity.NotificationType;
-import com.beyond.backend.domain.common.entity.Status;
 import com.beyond.backend.domain.common.service.NotificationService;
 import com.beyond.backend.domain.post.entity.BoardType;
 import com.beyond.backend.domain.comment.entity.Comment;
@@ -83,7 +83,7 @@ public class CommentServiceImpl implements CommentService {
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
 
-        if (sender.getStatus() != Status.ACTIVE) {
+        if (sender.getUserStatus() != UserStatus.ACTIVE) {
             throw new IllegalArgumentException("비활성화 상태거나 삭제된 회원은 댓글을 달 수 없습니다.");
         }
 

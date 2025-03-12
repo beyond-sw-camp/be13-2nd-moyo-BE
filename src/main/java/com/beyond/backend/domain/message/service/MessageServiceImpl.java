@@ -1,6 +1,6 @@
 package com.beyond.backend.domain.message.service;
 
-import com.beyond.backend.domain.common.entity.Status;
+import com.beyond.backend.domain.common.entity.UserStatus;
 import com.beyond.backend.domain.message.dto.MessageDto;
 import com.beyond.backend.domain.message.dto.MessageResponseDto;
 import com.beyond.backend.domain.message.entity.Message;
@@ -61,9 +61,9 @@ public class MessageServiceImpl implements MessageService {
     public MessageResponseDto messageWrite(User sender, MessageDto messageDto) {
 
         User receiver = userRepository.findByUsername(messageDto.getReceiverId())
-                .filter(user -> user.getStatus() != Status.INACTIVE)
+                .filter(user -> user.getUserStatus() != UserStatus.INACTIVE)
                 .orElseThrow(() -> new IllegalArgumentException("받는 회원이 존재하지 않거나 비활성화된 회원입니다."));
-        System.out.println(receiver.getStatus() + "ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ");
+        System.out.println(receiver.getUserStatus() + "ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ");
 
         Message message = Message.builder()
                 .sender(sender)
