@@ -1,5 +1,8 @@
 package com.beyond.backend.domain.team.service;
 
+import com.beyond.backend.domain.common.dto.RequestNotificationDto;
+import com.beyond.backend.domain.common.entity.NotificationType;
+import com.beyond.backend.domain.common.service.NotificationService;
 import com.beyond.backend.domain.project.entity.ProjectStatus;
 import com.beyond.backend.domain.team.dto.TeamDto;
 import com.beyond.backend.domain.team.dto.TeamMemberListDto;
@@ -15,7 +18,6 @@ import com.beyond.backend.domain.user.repository.UserRepository;
 import com.beyond.backend.domain.user.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -57,6 +59,7 @@ public class TeamServiceImpl implements TeamService {
     private final UserRepository userRepository;
     private final TeamUserRepository teamUserRepository;
     private final AuthService authService;
+    private final NotificationService notificationService;
 
     
     // 자주 쓰는 유저 찾는 메소드 분리
@@ -208,20 +211,40 @@ public class TeamServiceImpl implements TeamService {
     @Override
     public void teamJoinRequest(Long teamNo) throws Exception {
         User user = findUserByUsername();
-        Team Team = teamRepository.findById(teamNo)
+        Team team = teamRepository.findById(teamNo)
                 .orElseThrow(() -> new IllegalArgumentException("팀이 존재하지 않습니다."));
 
         if (teamUserRepository.findByUserNoEquals(teamNo, user.getNo())) {
             throw new IllegalArgumentException("이미 등록되었거나 요청한 팀 입니다!!");
         }
 
-        if (Team.getProjectStatus() != ProjectStatus.OPEN) {
+        if (team.getProjectStatus() != ProjectStatus.OPEN) {
             throw new IllegalArgumentException("모집중이 아닙니다!");
         }
 
+        User receiver = new User();
+        //좋아요 알림///////////////////////////
+        List<TeamUser> teamUserList = team.getTeamUsers();
+        for (TeamUser teamUser : teamUserList) {
+            if (teamUser.isLeader()) {
+                receiver = teamUser.getUser();
+                break;
+            }
+        }
+
+
+        // 트랜잭션 종료 후가 아니라, 바로 알림 전송
+        notificationService.sendNotification(
+                new RequestNotificationDto(
+                        user.getUsername(),
+                        receiver.getUsername(),
+                        NotificationType.TEAM,
+                        user.getUsername() + "님의 팀 가입 신청도착")
+        );
+
         TeamUser teamUser = TeamUser.builder()
                 .user(user)
-                .team(Team)
+                .team(team)
                 .status(TeamJoinStatus.Pending)
                 .isLeader(false)
                 .build();
@@ -285,6 +308,9 @@ public class TeamServiceImpl implements TeamService {
     public void teamAccept(Long teamNo, Long userNo) throws Exception {
         Long teamUserNo = teamUserRepository.findByUserNoForTeamUserNo(teamNo, userNo);
 
+        Team team = teamRepository.findById(teamNo)
+                .orElseThrow(() -> new IllegalArgumentException("team not found!"));
+
         TeamUser teamUser = teamUserRepository.findById(teamUserNo)
                 .orElseThrow(() -> new IllegalArgumentException("신청한 유저가 없습니다!"));
 
@@ -292,7 +318,22 @@ public class TeamServiceImpl implements TeamService {
         if (status == TeamJoinStatus.Approved) {
             throw new IllegalArgumentException("이미 가입된 유저입니다!");
         }else {
+
+            User sender = userRepository.findById(userNo)
+                    .orElseThrow(() -> new IllegalArgumentException("user not found"));
+
+            User receiver = teamUser.getUser();
+
+            // 트랜잭션 종료 후가 아니라, 바로 알림 전송
+            notificationService.sendNotification(
+                    new RequestNotificationDto(
+                            sender.getUsername(),
+                            receiver.getUsername(),
+                            NotificationType.TEAM,
+                            team.getTeamName() + "팀 가입됨")
+            );
             teamUser.setStatus(TeamJoinStatus.Approved);
+
             teamUserRepository.save(teamUser);
         }
     }

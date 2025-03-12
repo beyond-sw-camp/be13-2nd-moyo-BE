@@ -1,6 +1,9 @@
 package com.beyond.backend.domain.message.service;
 
+import com.beyond.backend.domain.common.dto.RequestNotificationDto;
+import com.beyond.backend.domain.common.entity.NotificationType;
 import com.beyond.backend.domain.common.entity.UserStatus;
+import com.beyond.backend.domain.common.service.NotificationService;
 import com.beyond.backend.domain.message.dto.MessageDto;
 import com.beyond.backend.domain.message.dto.MessageResponseDto;
 import com.beyond.backend.domain.message.entity.Message;
@@ -34,6 +37,7 @@ DATE              AUTHOR             NOTE
 public class MessageServiceImpl implements MessageService {
     private final UserRepository userRepository;
     private final MessageRepository messageRepository;
+    private final NotificationService notificationService;
 
     @Override
     @Transactional //안읽음때메 붙임
@@ -72,6 +76,17 @@ public class MessageServiceImpl implements MessageService {
                 .deletedBySender(false)
                 .deletedByReceiver(false)
                 .build();
+
+
+        // 트랜잭션 종료 후가 아니라, 바로 알림 전송
+        notificationService.sendNotification(
+                new RequestNotificationDto(
+                        sender.getUsername(),
+                        receiver.getUsername(),
+                        NotificationType.MESSAGE,
+                        sender.getUsername() + "님의 쪽지가 도착됨" + message.getContent())
+        );
+
         messageRepository.save(message);
 
         return returnMessageDto(message);

@@ -4,5 +4,6 @@ public enum NotificationType {
     COMMENT,
     LIKE,
     REPORT,
-    MESSAGE
+    MESSAGE,
+    TEAM
 }
