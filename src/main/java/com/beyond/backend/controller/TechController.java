@@ -30,15 +30,16 @@ public class TechController {
 	 * @param dto 생성할 기술 정보
 	 * @return 생성된 기술 정보
 	 */
-	@PostMapping
-	public ResponseEntity<TechResponseDto> createTech(HttpServletRequest request, @RequestBody TechRequestDto dto) {
+	@PostMapping("/create")
+	public ResponseEntity<TechResponseDto> createTech(HttpServletRequest request,
+													  @RequestBody TechRequestDto dto) {
 
 		TechResponseDto response = techService.createTech(request, dto);
 
 		return ResponseEntity.ok(response);
 	}
 
-	@GetMapping
+	@GetMapping("/get")
 	public ResponseEntity<List<TechResponseDto>> getAllTechs() {
 		List<TechResponseDto> techList = techService.findAllTech();
 		return ResponseEntity.ok(techList);
