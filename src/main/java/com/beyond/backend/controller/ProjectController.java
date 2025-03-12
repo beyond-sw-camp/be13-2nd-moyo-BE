@@ -6,6 +6,8 @@ import com.beyond.backend.domain.project.dto.ProjectUpdateRequestDto;
 import com.beyond.backend.domain.project.entity.ProjectSearchOption;
 import com.beyond.backend.domain.project.entity.ProjectStatus;
 import com.beyond.backend.domain.project.service.ProjectService;
+import com.beyond.backend.domain.user.dto.CustomUserDetails;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "프로젝트 API", description = "프로젝트 API")
@@ -27,32 +30,33 @@ public class    ProjectController {
 
 
     @Operation(summary = "프로젝트 등록 메서드", description = "프로젝트 등록 메서드입니다.")
-    @PostMapping("/create")
-    public ResponseEntity<ProjectResponseDto> createProject(@RequestBody ProjectRequestDto projectRequestDto) {
+    @PostMapping()
+    public ResponseEntity<ProjectResponseDto> createProject(@RequestBody ProjectRequestDto projectRequestDto,
+                                                            @AuthenticationPrincipal CustomUserDetails userDetails ) {
 
-        ProjectResponseDto projectResponseDto = projectService.createProject(projectRequestDto);
+        ProjectResponseDto projectResponseDto = projectService.createProject(projectRequestDto, userDetails.getUser().getNo());
 
         return ResponseEntity.ok(projectResponseDto);
     }
 
     @Operation(summary = "프로젝트 수정 메서드", description = "프로젝트 수정 메서드입니다.")
-    @PostMapping("/update/{projectNo}")
-    public ResponseEntity<ProjectResponseDto> updateProject(
-                                                            @RequestParam ProjectStatus projectStatus,
+    @PostMapping("/{projectNo}")
+    public ResponseEntity<ProjectResponseDto> updateProject(@RequestParam ProjectStatus projectStatus,
                                                             @PathVariable("projectNo") Long projectNo,
-                                                            @RequestBody ProjectUpdateRequestDto projectRequestDto) {
+                                                            @RequestBody ProjectUpdateRequestDto projectRequestDto,
+                                                            @AuthenticationPrincipal CustomUserDetails userDetails ) {
 
-        ProjectResponseDto projectResponseDto = projectService.updateProject(projectNo, projectStatus, projectRequestDto);
+        ProjectResponseDto projectResponseDto = projectService.updateProject(projectNo, projectStatus, projectRequestDto, userDetails.getUser().getNo() );
 
         return ResponseEntity.status(HttpStatus.OK).body(projectResponseDto);
     }
 
     @Operation(summary = "프로젝트 삭제 메서드", description = "프로젝트 삭제 메서드 입니다.")
-    @DeleteMapping("/{projectNo}/{userNo}")
-    public ResponseEntity<Void> deleteProject(  @PathVariable("userNo") Long userNo,
+    @DeleteMapping("/{projectNo}")
+    public ResponseEntity<Void> deleteProject(  @AuthenticationPrincipal CustomUserDetails userDetails ,
                                                 @PathVariable("projectNo") Long projectNo ) throws Exception {
 
-        projectService.deleteProject(userNo, projectNo);
+        projectService.deleteProject(userDetails.getUser().getNo(), projectNo);
 
         return ResponseEntity.noContent().build();
     }
@@ -80,11 +84,11 @@ public class    ProjectController {
 
 
     @Operation(summary = "사용자의 모든 프로젝트 조회")
-    @GetMapping("/projects/users/{userNo}")
-    public ResponseEntity<Page<ProjectResponseDto>> getProject(@PathVariable("userNo") Long userNo,
+    @GetMapping("/user")
+    public ResponseEntity<Page<ProjectResponseDto>> getProject( @AuthenticationPrincipal CustomUserDetails userDetails ,
                                                                 @PageableDefault(size = 10, page = 0) Pageable pageable ){
 
-        Page<ProjectResponseDto> projectsByUserNo = projectService.getProjectsByUserNo(userNo, pageable);
+        Page<ProjectResponseDto> projectsByUserNo = projectService.getProjectsByUserNo(userDetails.getUser().getNo(), pageable);
 
         return ResponseEntity.ok(projectsByUserNo);
     }

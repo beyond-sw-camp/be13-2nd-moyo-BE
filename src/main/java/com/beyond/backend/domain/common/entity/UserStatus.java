@@ -1,5 +1,5 @@
 package com.beyond.backend.domain.common.entity;
 
-public enum Status {
+public enum UserStatus {
     ACTIVE, INACTIVE, DELETED
 }
