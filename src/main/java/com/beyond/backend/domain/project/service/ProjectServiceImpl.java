@@ -81,13 +81,13 @@ public class ProjectServiceImpl implements ProjectService {
 		List<ProjectTech> projectTechList = projectRequestDto.getTechsNos().stream()
 			.map( techNo -> {
 				// 각 techNo로 Tech 엔티티 조회
-				Tech tech = techRepository.findById(techNo)
-					.orElseThrow(() -> new IllegalArgumentException("해당 기술이 존재하지 않습니다."));
+				Tech tech = techRepository.findById(techNo).orElseThrow(() -> new IllegalArgumentException("해당 기술이 존재하지 않습니다."));
+
 				// ProjectTech 엔티티 생성: project.getNo()를 사용하여 project_no를 할당
 				return ProjectTech.builder()
-					.tech(tech)
-					.project(project)
-					.build();
+									.tech(tech)
+									.project(project)
+									.build();
 			})
 			.collect(Collectors.toList());
 
@@ -135,10 +135,7 @@ public class ProjectServiceImpl implements ProjectService {
 		List<ProjectTech> newProjectTechList = projectRequestDto.getTechsNos().stream()
 			.distinct() // 중복 제거
 			.map(techNo -> {
-				Tech tech = techRepository.findById(techNo)
-											.orElseThrow(
-												() -> new IllegalArgumentException("해당 기술이 존재하지 않습니다. techNo=" + techNo)
-											);
+				Tech tech = techRepository.findById(techNo).orElseThrow(() -> new IllegalArgumentException("해당 기술이 존재하지 않습니다."));
 
 
 				return ProjectTech.builder()

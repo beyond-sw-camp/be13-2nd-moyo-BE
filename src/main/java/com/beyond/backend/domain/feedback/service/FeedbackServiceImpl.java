@@ -111,7 +111,7 @@ public class FeedbackServiceImpl implements FeedbackService {
 		// 로그인한 정보 가져오기
 		CustomUserDetails userDetails = authService.getCurrentUser();
 
-		// 본인의 피드백인지
+		// 본인의 피드백인지 DB 에서
 		User user = userRepository.findById(userNo).orElseThrow(
 			() -> new IllegalArgumentException("존재하지 않는 사용자입니다")
 		);
@@ -120,8 +120,15 @@ public class FeedbackServiceImpl implements FeedbackService {
 				() -> new IllegalArgumentException("피드백이 존재하지 않습니다.")
 		);
 
+		// DB에 있는 객체와 로그인한 객체 정보가 같은지 검증
+		if(!user.getNo().equals(userDetails.getUser().getNo())){
+			throw new IllegalArgumentException("삭제할 권한이 없습니다.");
+		}
+
+
 		// 관리자가 아니고 && 본인이 작성한 피드백이 아니고 && 팀장이 아니면 삭제 불가능
-		if (!authService.isAdminFromUserDetails(userDetails) && !feedback.getUser().getNo().equals(userNo) && !teamUserRepository.isLeader(feedback.getProject().getTeam().getNo(),userNo)) {
+		if (!authService.isAdminFromUserDetails(userDetails) && !feedback.getUser().getNo().equals(userNo)
+			&& !teamUserRepository.isLeader(feedback.getProject().getTeam().getNo(),userNo)) {
 			throw new IllegalArgumentException("삭제할 권한이 없습니다.");
 		}
 
