@@ -34,14 +34,14 @@ public class Schedule extends Base {
     private boolean isAlertSent;
 
     @Builder
-    public Schedule(String title, LocalDateTime startDate, LocalDateTime endDate, String description, Team team) {
+    public Schedule(String title, LocalDateTime startDate, LocalDateTime endDate, String description, Team team, ScheduleStatus status, Boolean isAlertSent) {
         this.team = team;
         this.title = title;
         this.startDate = startDate;
         this.endDate = endDate;
         this.description = description;
-        this.status = ScheduleStatus.PENDING;
-        this.isAlertSent = false;
+        this.status = status;
+        this.isAlertSent = isAlertSent;
     }
 
     public void updateStatus(ScheduleStatus status){

@@ -9,10 +9,8 @@ import java.time.LocalDateTime;
 
 public class ScheduleResponseDto {
 
-    @NotBlank
     private String title;
 
-    @NotBlank
     private LocalDateTime startDate;
 
     private LocalDateTime endDate;

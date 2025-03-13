@@ -9,12 +9,10 @@ import java.time.LocalDateTime;
 @Data
 public class ScheduleRequestDto {
 
-    Long teamNo;
+    private Long teamNo;
 
-    @NotBlank
     private String title;
 
-    @NotBlank
     private LocalDateTime startDate;
 
     private LocalDateTime endDate;
