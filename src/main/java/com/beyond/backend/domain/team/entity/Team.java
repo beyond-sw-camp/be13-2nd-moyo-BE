@@ -1,6 +1,7 @@
 package com.beyond.backend.domain.team.entity;
 
 import com.beyond.backend.domain.common.BaseEntity;
+import com.beyond.backend.domain.project.entity.Schedule;
 import com.beyond.backend.domain.teamUser.entity.TeamUser;
 import com.beyond.backend.domain.project.entity.Project;
 import com.beyond.backend.domain.project.entity.ProjectStatus;
@@ -40,12 +41,15 @@ public class Team {
     private List<TeamUser> teamUsers = new ArrayList<>();
 
     // [홍도현] 25-02-26 팀-프로젝트 관계 수정
+    @OneToOne(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Project project;
+
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Project> projects = new ArrayList<>();
+    private List<Schedule> schedules = new ArrayList<>();
 
     // [홍도현] 25-03-02 연관관계 편의 메서드
-    public void addProject(Project project){
-        this.projects.add(project);
+    public void setProject(Project project){
+        this.project = project;
         project.setTeam(this);
     }
 
@@ -53,6 +57,9 @@ public class Team {
         this.teamName = teamName;
         this.teamIntroduce = teamIntroduce;
         this.projectStatus = projectStatus;
+    }
 
+    public void addSchedule(Schedule schedule) {
+        this.schedules.add(schedule);
     }
 }

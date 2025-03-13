@@ -145,7 +145,7 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
 			.fetch()
 			.stream()
 			.collect(Collectors.groupingBy(
-				tuple -> tuple.get(projectTech.project.no), // projectId 기준으로 그룹화
+				tuple -> tuple.get(projectTech.project.no), // teamNo 기준으로 그룹화
 				Collectors.mapping(tuple -> tuple.get(projectTech.tech.techName), Collectors.toList()) // techName 리스트 매핑
 			));
 	}
@@ -196,7 +196,7 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
 			))
 			.from(teamUser)
 			.join(teamUser.team, team) // 팀user <-> team 조인
-			.join(team.projects, project) // team <-> project 조인
+			.join(team.project, project) // team <-> project 조인
 			.where(teamUser.user.no.eq(userNo))
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())

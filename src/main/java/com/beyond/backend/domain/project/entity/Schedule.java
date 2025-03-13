@@ -1,6 +1,7 @@
 package com.beyond.backend.domain.project.entity;
 
 import com.beyond.backend.domain.common.Base;
+import com.beyond.backend.domain.team.entity.Team;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,14 +29,14 @@ public class Schedule extends Base {
     private ScheduleStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_id")
-    private Project project;
+    @JoinColumn(name = "team_no")
+    private Team team;
 
     private boolean isAlertSent;
 
     @Builder
-    public Schedule(String title, LocalDateTime startDate, LocalDateTime endDate, String description, Project project) {
-        this.project = project;
+    public Schedule(String title, LocalDateTime startDate, LocalDateTime endDate, String description, Team team) {
+        this.team = team;
         this.title = title;
         this.startDate = startDate;
         this.endDate = endDate;

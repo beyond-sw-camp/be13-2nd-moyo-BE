@@ -1,9 +1,7 @@
-package com.beyond.backend.domain.project.service;
+package com.beyond.backend.domain.team.service;
 
 import com.beyond.backend.domain.project.dto.ScheduleRequestDto;
 import com.beyond.backend.domain.project.dto.ScheduleResponseDto;
-import com.beyond.backend.domain.project.entity.Schedule;
-import jakarta.persistence.EntityNotFoundException;
 
 import java.util.List;
 
@@ -17,7 +15,7 @@ public interface ScheduleService {
 
     ScheduleResponseDto getSchedule(Long scheduleId, Long userNo);
 
-    List<ScheduleResponseDto> getSchedulesByProject(Long scheduleId, Long userNo);
+    List<ScheduleResponseDto> getSchedulesByTeam(Long scheduleId, Long userNo);
 
     void sendAlert();
 
