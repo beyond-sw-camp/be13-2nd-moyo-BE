@@ -7,6 +7,8 @@ import com.beyond.backend.domain.team.dto.AlertResponseDto;
 import com.beyond.backend.domain.team.dto.ScheduleRequestDto;
 import com.beyond.backend.domain.team.dto.ScheduleResponseDto;
 import com.beyond.backend.domain.team.entity.Schedule;
+import com.beyond.backend.domain.team.entity.ScheduleSortOption;
+import com.beyond.backend.domain.team.entity.ScheduleStatus;
 import com.beyond.backend.domain.team.entity.Team;
 import com.beyond.backend.domain.team.repository.ScheduleRepository;
 import com.beyond.backend.domain.team.repository.TeamRepository;
@@ -15,6 +17,9 @@ import com.beyond.backend.domain.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -42,6 +47,8 @@ public class ScheduleServiceImpl implements ScheduleService {
                 .startDate(dto.getStartDate())
                 .endDate(dto.getEndDate())
                 .team(team)
+                .status(ScheduleStatus.PENDING)
+                .isAlertSent(false)
                 .build();
 
         team.addSchedule(schedule);
@@ -83,12 +90,22 @@ public class ScheduleServiceImpl implements ScheduleService {
         return new ScheduleResponseDto(schedule);
     }
 
-    public List<ScheduleResponseDto> getSchedulesByTeam(Long scheduleId, Long userNo){
-        Schedule schedule = scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new EntityNotFoundException("Schedule not found with id: " + scheduleId));
-        validateUserAccessToTeam(userNo, schedule.getTeam());
+    @Override
+    public Page<ScheduleResponseDto> getSchedulesByTeam(Long teamNo, Long userNo, Pageable pageable, ScheduleSortOption scheduleSortOption) {
 
-        return null;
+        // 팀 존재 여부
+        Team team = teamRepository.findById(teamNo).orElseThrow(
+            () -> new IllegalArgumentException("해당하는 팀이 없습니다.")
+        );
+
+        // 회원이 팀에 속하는지
+        validateUserAccessToTeam(userNo, team);
+
+        //
+        Page<ScheduleResponseDto> schedules = scheduleRepository.getSchedulesByTeam(teamNo, userNo, pageable,
+            scheduleSortOption);
+
+        return schedules;
     }
 
 

@@ -1,12 +1,18 @@
 package com.beyond.backend.controller;
 
+import com.beyond.backend.domain.project.entity.ProjectSortOption;
 import com.beyond.backend.domain.team.dto.ScheduleRequestDto;
 import com.beyond.backend.domain.team.dto.ScheduleResponseDto;
+import com.beyond.backend.domain.team.entity.ScheduleSortOption;
 import com.beyond.backend.domain.team.service.ScheduleService;
 import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import com.beyond.backend.domain.user.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -66,12 +72,15 @@ public class ScheduleController {
     }
 
     @GetMapping("/team/{teamNo}")
-    public ResponseEntity<List<ScheduleResponseDto>> getSchedulesByTeam(
-            @PathVariable Long teamNo,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
+    public ResponseEntity<Page<ScheduleResponseDto>> getSchedulesByTeam( @PathVariable Long teamNo,
+                                                                        @AuthenticationPrincipal CustomUserDetails userDetails,
+                                                                        @PageableDefault(size = 10, page = 0 ) Pageable pageable ,
+                                                                        @RequestParam(required = false) ScheduleSortOption scheduleSortOption) {
         Long userNo = userDetails.getUser().getNo();
-        List<ScheduleResponseDto> schedules = scheduleService.getSchedulesByTeam(teamNo, userNo);
-        return ResponseEntity.ok(schedules);
+
+        Page<ScheduleResponseDto> schedulesByTeam = scheduleService.getSchedulesByTeam(teamNo, userNo, pageable,
+            scheduleSortOption);
+
+        return ResponseEntity.ok(schedulesByTeam);
     }
 }
