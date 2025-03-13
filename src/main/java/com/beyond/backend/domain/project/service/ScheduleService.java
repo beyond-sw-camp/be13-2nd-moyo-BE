@@ -18,4 +18,7 @@ public interface ScheduleService {
     ScheduleResponseDto getSchedule(Long scheduleId, Long userNo);
 
     List<ScheduleResponseDto> getSchedulesByProject(Long scheduleId, Long userNo);
+
+    void sendAlert();
+
 }

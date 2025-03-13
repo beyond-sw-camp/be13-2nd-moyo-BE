@@ -195,6 +195,7 @@ public class ProjectServiceImpl implements ProjectService {
 
 	// 유저가 참여한 모든 프로젝트 표시
 	@Override
+	@Transactional(readOnly = true)
 	public Page<ProjectResponseDto> getProjectsByUserNo(Long userNo, Pageable pageable) {
 
 		// 1. 해당하는 유저
@@ -210,6 +211,7 @@ public class ProjectServiceImpl implements ProjectService {
 
 	// 검색 결과 페이징 조회
 	@Override
+	@Transactional(readOnly = true)
 	public Page<ProjectResponseDto> searchProject(String keyword, ProjectSearchOption searchOption, Pageable pageable) {
 
 		// 검증할 게 없음. 바로 검색결과 리턴해주기
