@@ -164,10 +164,11 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 	private BooleanExpression searchOptions(String keyword, PostSearchOption option) {
 
 		// 옵션 값이 없으면 전체 조회
-		if(option == null){
+		if(option == null || keyword == null) {
 
 			return null;
 		}
+		
 
 		if (option == PostSearchOption.CONTENT) {
 

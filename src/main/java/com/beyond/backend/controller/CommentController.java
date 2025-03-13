@@ -8,6 +8,7 @@ import com.beyond.backend.domain.post.dto.PostResponseDto;
 import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -50,7 +51,7 @@ public class CommentController {
     @PostMapping("/comments")
     public ResponseEntity<CommentResponseDto> createComment(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestBody CommentDto commentDto) {
+            @Valid @RequestBody CommentDto commentDto) {
 
         CommentResponseDto commentResponseDto = commentService.createComment(commentDto, userDetails.getUser().getNo());
         return ResponseEntity.ok(commentResponseDto);
@@ -62,7 +63,7 @@ public class CommentController {
     @PostMapping("/comments/{commentNo}/update")
     public ResponseEntity<CommentResponseDto> updateComment(
             @PathVariable Long commentNo,
-            @RequestBody CommentDto commentDto,
+            @Valid @RequestBody CommentDto commentDto,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         CommentResponseDto updateComment = commentService.updateComment(commentNo, commentDto,  userDetails.getUser().getNo());
