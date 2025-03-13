@@ -1,5 +1,6 @@
 package com.beyond.backend.domain.message.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,5 +26,6 @@ DATE              AUTHOR             NOTE
 public class MessageDto {
     private String receiverId;
 
+    @NotBlank(message="메시지 내용은 필수 입력 항목입니다.")
     private String content;
 }

@@ -12,6 +12,7 @@ import com.beyond.backend.domain.user.dto.CustomUserDetails;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
@@ -34,7 +35,7 @@ public class    ProjectController {
 
     @Operation(summary = "프로젝트 등록 메서드", description = "프로젝트 등록 메서드입니다.")
     @PostMapping()
-    public ResponseEntity<ProjectResponseDto> createProject(@RequestBody ProjectRequestDto projectRequestDto,
+    public ResponseEntity<ProjectResponseDto> createProject(@Valid @RequestBody ProjectRequestDto projectRequestDto,
                                                             @AuthenticationPrincipal CustomUserDetails userDetails ) {
 
         ProjectResponseDto projectResponseDto = projectService.createProject(projectRequestDto, userDetails.getUser().getNo());
@@ -46,7 +47,7 @@ public class    ProjectController {
     @PostMapping("/{projectNo}")
     public ResponseEntity<ProjectResponseDto> updateProject(@RequestParam ProjectStatus projectStatus,
                                                             @PathVariable("projectNo") Long projectNo,
-                                                            @RequestBody ProjectUpdateRequestDto projectRequestDto,
+                                                            @Valid @RequestBody ProjectUpdateRequestDto projectRequestDto,
                                                             @AuthenticationPrincipal CustomUserDetails userDetails ) {
 
         ProjectResponseDto projectResponseDto = projectService.updateProject(projectNo, projectStatus, projectRequestDto, userDetails.getUser().getNo() );

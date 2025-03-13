@@ -1,6 +1,7 @@
 package com.beyond.backend.domain.team.dto;
 
 import com.beyond.backend.domain.project.entity.ProjectStatus;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,7 +27,8 @@ import lombok.Data;
 @Builder
 @AllArgsConstructor
 public class TeamDto {
-    
+
+    @NotBlank(message= "팀 이름은 필수 입력 항목입니다.")
     private String teamName;
 
     private String teamIntroduce;
