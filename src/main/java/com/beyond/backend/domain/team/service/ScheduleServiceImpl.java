@@ -1,5 +1,11 @@
 package com.beyond.backend.domain.team.service;
 
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
 import com.beyond.backend.domain.common.dto.RequestNotificationDto;
 import com.beyond.backend.domain.common.entity.NotificationType;
 import com.beyond.backend.domain.common.service.NotificationService;
@@ -7,17 +13,17 @@ import com.beyond.backend.domain.project.dto.AlertResponseDto;
 import com.beyond.backend.domain.project.dto.ScheduleRequestDto;
 import com.beyond.backend.domain.project.dto.ScheduleResponseDto;
 import com.beyond.backend.domain.project.entity.Schedule;
+import com.beyond.backend.domain.project.entity.ScheduleStatus;
+import com.beyond.backend.domain.team.entity.ScheduleSortOption;
 import com.beyond.backend.domain.team.entity.Team;
 import com.beyond.backend.domain.team.repository.ScheduleRepository;
 import com.beyond.backend.domain.team.repository.TeamRepository;
 import com.beyond.backend.domain.user.entity.User;
 import com.beyond.backend.domain.user.repository.UserRepository;
+
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -37,12 +43,14 @@ public class ScheduleServiceImpl implements ScheduleService {
                 .orElseThrow(() -> new IllegalArgumentException("team not found"));
 
         Schedule schedule = Schedule.builder()
-                .title(dto.getTitle())
-                .description(dto.getDescription())
-                .startDate(dto.getStartDate())
-                .endDate(dto.getEndDate())
-                .team(team)
-                .build();
+                                    .team(team)
+                                    .title(dto.getTitle())
+                                    .startDate(dto.getStartDate())
+                                    .endDate(dto.getEndDate())
+                                    .description(dto.getDescription())
+                                    .status(ScheduleStatus.PENDING)
+                                    .isAlertSent(false)
+                                    .build();
 
         team.addSchedule(schedule);
         scheduleRepository.save(schedule);
@@ -71,24 +79,39 @@ public class ScheduleServiceImpl implements ScheduleService {
                 dto.getEndDate()
         );
 
+        schedule.updateStatus(dto.getStatus());
+
         return new ScheduleResponseDto(schedule);
     }
 
     public ScheduleResponseDto getSchedule(Long scheduleId, Long userNo){
-        Schedule schedule = scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new EntityNotFoundException("Schedule not found with id: " + scheduleId));
+        Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(
+            () -> new EntityNotFoundException("Schedule not found with id: " + scheduleId));
+
+
         validateUserAccessToTeam(userNo, schedule.getTeam());
 
         return new ScheduleResponseDto(schedule);
     }
 
-    public List<ScheduleResponseDto> getSchedulesByTeam(Long scheduleId, Long userNo){
-        Schedule schedule = scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new EntityNotFoundException("Schedule not found with id: " + scheduleId));
-        validateUserAccessToTeam(userNo, schedule.getTeam());
+    @Override
+    public Page<ScheduleResponseDto> getSchedulesByTeam(Long teamNo, Long userNo, Pageable pageable, ScheduleSortOption scheduleSortOption) {
 
-        return null;
+        // 팀 존재 여부
+        Team team = teamRepository.findById(teamNo).orElseThrow(
+            () -> new IllegalArgumentException("해당하는 팀이 없습니다.")
+        );
+
+        // 회원이 팀에 속하는지
+        validateUserAccessToTeam(userNo, team);
+
+        //
+        Page<ScheduleResponseDto> schedules = scheduleRepository.getSchedulesByTeam(teamNo, userNo, pageable,
+            scheduleSortOption);
+
+        return schedules;
     }
+
 
 
     @Transactional

@@ -5,19 +5,22 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
+import com.beyond.backend.domain.project.entity.ScheduleStatus;
+
 @Data
 public class ScheduleRequestDto {
 
     Long teamNo;
 
-    @NotBlank
     private String title;
 
-    @NotBlank
     private LocalDateTime startDate;
 
     private LocalDateTime endDate;
 
     private String description;
+
+    private ScheduleStatus status;
+
 
 }

@@ -1,9 +1,11 @@
 package com.beyond.backend.domain.team.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import com.beyond.backend.domain.project.dto.ScheduleRequestDto;
 import com.beyond.backend.domain.project.dto.ScheduleResponseDto;
-
-import java.util.List;
+import com.beyond.backend.domain.team.entity.ScheduleSortOption;
 
 public interface ScheduleService {
 
@@ -15,7 +17,7 @@ public interface ScheduleService {
 
     ScheduleResponseDto getSchedule(Long scheduleId, Long userNo);
 
-    List<ScheduleResponseDto> getSchedulesByTeam(Long scheduleId, Long userNo);
+    Page<ScheduleResponseDto> getSchedulesByTeam(Long scheduleId, Long userNo, Pageable pageable, ScheduleSortOption scheduleSortOption );
 
     void sendAlert();
 
