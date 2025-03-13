@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Data
 public class ScheduleRequestDto {
 
-    Long projectId;
+    Long teamNo;
 
     @NotBlank
     private String title;

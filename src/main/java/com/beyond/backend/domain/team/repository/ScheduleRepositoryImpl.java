@@ -1,4 +1,4 @@
-package com.beyond.backend.domain.project.repository;
+package com.beyond.backend.domain.team.repository;
 
 import com.beyond.backend.domain.project.dto.AlertResponseDto;
 import com.querydsl.core.types.Projections;
@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.beyond.backend.domain.project.entity.QProject.project;
 import static com.beyond.backend.domain.project.entity.QSchedule.schedule;
 import static com.beyond.backend.domain.team.entity.QTeam.team;
 import static com.beyond.backend.domain.teamUser.entity.QTeamUser.teamUser;
@@ -35,8 +34,7 @@ public class ScheduleRepositoryImpl implements ScheduleRepositoryCustom{
                 .from(schedule)
                 .where(schedule.endDate.between(now, nowPlus24),
                         schedule.isAlertSent.isFalse())
-                .join(schedule.project, project)
-                .join(project.team, team)
+                .join(schedule.team, team)
                 .join(team.teamUsers, teamUser)
                 .join(teamUser.user, user)
                 .fetch();

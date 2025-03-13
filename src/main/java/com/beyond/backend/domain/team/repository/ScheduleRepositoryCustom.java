@@ -1,4 +1,4 @@
-package com.beyond.backend.domain.project.repository;
+package com.beyond.backend.domain.team.repository;
 
 import com.beyond.backend.domain.project.dto.AlertResponseDto;
 

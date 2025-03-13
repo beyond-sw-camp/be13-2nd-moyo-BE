@@ -2,7 +2,7 @@ package com.beyond.backend.controller;
 
 import com.beyond.backend.domain.project.dto.ScheduleRequestDto;
 import com.beyond.backend.domain.project.dto.ScheduleResponseDto;
-import com.beyond.backend.domain.project.service.ScheduleService;
+import com.beyond.backend.domain.team.service.ScheduleService;
 import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import com.beyond.backend.domain.user.service.AuthService;
 import jakarta.validation.Valid;
@@ -65,13 +65,13 @@ public class ScheduleController {
         return ResponseEntity.ok(responseDto);
     }
 
-    @GetMapping("/project/{projectId}")
-    public ResponseEntity<List<ScheduleResponseDto>> getSchedulesByProject(
-            @PathVariable Long projectId,
+    @GetMapping("/team/{teamNo}")
+    public ResponseEntity<List<ScheduleResponseDto>> getSchedulesByTeam(
+            @PathVariable Long teamNo,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Long userNo = userDetails.getUser().getNo();
-        List<ScheduleResponseDto> schedules = scheduleService.getSchedulesByProject(projectId, userNo);
+        List<ScheduleResponseDto> schedules = scheduleService.getSchedulesByTeam(teamNo, userNo);
         return ResponseEntity.ok(schedules);
     }
 }

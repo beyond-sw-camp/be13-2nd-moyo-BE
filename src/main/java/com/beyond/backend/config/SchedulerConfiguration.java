@@ -1,6 +1,6 @@
 package com.beyond.backend.config;
 
-import com.beyond.backend.domain.project.service.ScheduleService;
+import com.beyond.backend.domain.team.service.ScheduleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;

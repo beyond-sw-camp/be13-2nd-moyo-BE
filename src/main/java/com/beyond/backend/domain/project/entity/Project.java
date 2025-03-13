@@ -8,28 +8,11 @@ import com.beyond.backend.domain.feedback.entity.Feedback;
 import com.beyond.backend.domain.project.dto.ProjectUpdateRequestDto;
 import com.beyond.backend.domain.team.entity.Team;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
 @Getter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "project")
@@ -45,10 +28,10 @@ public class Project extends BaseEntity {
     // 프로젝트 내용/설명
     private String content;
 
-    @Column(nullable = false)
-    private int viewCnt;
+    private int viewCnt = 0;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @Setter
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_no")
     private Team team;
 
@@ -61,24 +44,13 @@ public class Project extends BaseEntity {
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjectTech> projectTeches = new ArrayList<>();
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Schedule> schedules = new ArrayList<>();
 
-    //기본 초기화
-    @PrePersist
-    public void prePersist() {
-        if (projectStatus == null) {
-            projectStatus = ProjectStatus.OPEN;
-        }
-    }
-
-
-    //== 연관관계 편의 메서드 ==//
-    public void setTeam(Team team){
-        this.team = team; // 프로젝트의 팀을 설정
-        if (!team.getProjects().contains(this)){
-            team.getProjects().add(this);
-        }
+    @Builder
+    public Project(String name, String content, Team team) {
+        this.name = name;
+        this.content = content;
+        this.team = team;
+        this.projectStatus = ProjectStatus.OPEN;
     }
 
 

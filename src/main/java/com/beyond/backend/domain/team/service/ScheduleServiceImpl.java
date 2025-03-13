@@ -1,4 +1,4 @@
-package com.beyond.backend.domain.project.service;
+package com.beyond.backend.domain.team.service;
 
 import com.beyond.backend.domain.common.dto.RequestNotificationDto;
 import com.beyond.backend.domain.common.entity.NotificationType;
@@ -6,11 +6,10 @@ import com.beyond.backend.domain.common.service.NotificationService;
 import com.beyond.backend.domain.project.dto.AlertResponseDto;
 import com.beyond.backend.domain.project.dto.ScheduleRequestDto;
 import com.beyond.backend.domain.project.dto.ScheduleResponseDto;
-import com.beyond.backend.domain.project.entity.Project;
 import com.beyond.backend.domain.project.entity.Schedule;
-import com.beyond.backend.domain.project.repository.ProjectRepository;
-import com.beyond.backend.domain.project.repository.ScheduleRepository;
-import com.beyond.backend.domain.teamUser.entity.TeamUser;
+import com.beyond.backend.domain.team.entity.Team;
+import com.beyond.backend.domain.team.repository.ScheduleRepository;
+import com.beyond.backend.domain.team.repository.TeamRepository;
 import com.beyond.backend.domain.user.entity.User;
 import com.beyond.backend.domain.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -25,29 +24,29 @@ import java.util.List;
 public class ScheduleServiceImpl implements ScheduleService {
 
     private final ScheduleRepository scheduleRepository;
-    private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final NotificationService notificationService;
-
+    private final TeamRepository teamRepository;
 
     @Transactional
     public ScheduleResponseDto createSchedule(Long userNo, ScheduleRequestDto dto) {
 
         validateScheduleRequest(dto);
 
-        Project project = projectRepository.findById(dto.getProjectId())
-                .orElseThrow(() -> new IllegalArgumentException("project not found"));
+        Team team = teamRepository.findById(dto.getTeamNo())
+                .orElseThrow(() -> new IllegalArgumentException("team not found"));
 
         Schedule schedule = Schedule.builder()
                 .title(dto.getTitle())
                 .description(dto.getDescription())
                 .startDate(dto.getStartDate())
                 .endDate(dto.getEndDate())
+                .team(team)
                 .build();
 
-        project.getSchedules().add(schedule);
-
+        team.addSchedule(schedule);
         scheduleRepository.save(schedule);
+
         return new ScheduleResponseDto(schedule);
     }
 
@@ -61,8 +60,8 @@ public class ScheduleServiceImpl implements ScheduleService {
                 .orElseThrow(() -> new EntityNotFoundException("Schedule not found with id: " + scheduleId));
 
         // 프로젝트 접근 권한 확인 (선택적)
-        Project project = schedule.getProject();
-        validateUserAccessToProject(userNo, project);
+        Team team = schedule.getTeam();
+        validateUserAccessToTeam(userNo, team);
 
         // 일정 업데이트
         schedule.update(
@@ -78,15 +77,15 @@ public class ScheduleServiceImpl implements ScheduleService {
     public ScheduleResponseDto getSchedule(Long scheduleId, Long userNo){
         Schedule schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new EntityNotFoundException("Schedule not found with id: " + scheduleId));
-        validateUserAccessToProject(userNo, schedule.getProject());
+        validateUserAccessToTeam(userNo, schedule.getTeam());
 
         return new ScheduleResponseDto(schedule);
     }
 
-    public List<ScheduleResponseDto> getSchedulesByProject(Long scheduleId, Long userNo){
+    public List<ScheduleResponseDto> getSchedulesByTeam(Long scheduleId, Long userNo){
         Schedule schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new EntityNotFoundException("Schedule not found with id: " + scheduleId));
-        validateUserAccessToProject(userNo, schedule.getProject());
+        validateUserAccessToTeam(userNo, schedule.getTeam());
 
         return null;
     }
@@ -96,7 +95,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     public void deleteSchedule(Long scheduleId, Long userNo) {
         Schedule schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new EntityNotFoundException("Schedule not found with id: " + scheduleId));
-        validateUserAccessToProject(userNo, schedule.getProject());
+        validateUserAccessToTeam(userNo, schedule.getTeam());
         scheduleRepository.delete(schedule);
     }
 
@@ -135,12 +134,12 @@ public class ScheduleServiceImpl implements ScheduleService {
         }
     }
 
-    private void validateUserAccessToProject(Long userNo, Project project) {
+    private void validateUserAccessToTeam(Long userNo, Team team) {
         User user = userRepository.findById(userNo)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userNo));
 
         // 프로젝트 팀 멤버인지 확인하는 로직
-        boolean isMember = project.getTeam().getTeamUsers().stream()
+        boolean isMember = team.getTeamUsers().stream()
                 .anyMatch(teamUser -> teamUser.getUser().equals(user));
 
         if (!isMember) {
