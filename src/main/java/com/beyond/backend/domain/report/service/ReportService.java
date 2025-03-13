@@ -30,5 +30,7 @@ public interface ReportService {
 
     Page<ReportResponseDto> getUserReportedList(CustomUserDetails userDetails, String userId, Pageable pageable);
 
-    Page<ReportResponseDto> getReportList(CustomUserDetails userDetails, Pageable pageable);
+    Page<ReportResponseDto> getAllReports(CustomUserDetails userDetails, Pageable pageable);
+
+    ReportResponseDto getReport(CustomUserDetails userDetails, Long reportNo);
 }

@@ -42,7 +42,7 @@ public class ReportResponseDto {
     private LocalDateTime reportTime;
     private LocalDateTime commentTime;
 
-    public static ReportResponseDto from(Report report) {
+    public static ReportResponseDto reportFrom(Report report) {
         String reporterId = (report.getReporter() != null) ? report.getReporter().getUsername() : "탈퇴한 회원입니다";
         String receiverId = (report.getReported() != null) ? report.getReported().getUsername() : "탈퇴한 회원입니다";
 

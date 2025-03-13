@@ -67,7 +67,6 @@ public class MessageServiceImpl implements MessageService {
         User receiver = userRepository.findByUsername(messageDto.getReceiverId())
                 .filter(user -> user.getUserStatus() != UserStatus.INACTIVE)
                 .orElseThrow(() -> new IllegalArgumentException("받는 회원이 존재하지 않거나 비활성화된 회원입니다."));
-        System.out.println(receiver.getUserStatus() + "ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ");
 
         Message message = Message.builder()
                 .sender(sender)

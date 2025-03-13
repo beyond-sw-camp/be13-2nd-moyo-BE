@@ -19,6 +19,8 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.beyond.backend.domain.report.dto.ReportResponseDto.reportFrom;
+
 /**
  * <p>
  * <p>packageName    : com.beyond.backend.service.impl
@@ -47,26 +49,29 @@ public class ReportServiceImpl implements ReportService {
 
     @Override // role(ADMIN) 추가 예정!
     public Page<ReportResponseDto> getUserReportedList(CustomUserDetails userDetails, String userId, Pageable pageable) {
-        if (!authService.isAdminFromUserDetails(userDetails))
-            throw new AccessDeniedException("권한이 없습니다.");
+        checkAdminAuthority(userDetails);
 
         User user = userRepository.findByUsername(userId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다"));
         Page<Report> reported = reportRepository.findAllByReported_No(user.getNo(), pageable);
 
-        return reported.map(ReportResponseDto::from);
+        return reported.map(ReportResponseDto::reportFrom);
 
 
     }
 
     @Override
-    public Page<ReportResponseDto> getReportList(CustomUserDetails userDetails, Pageable pageable) {
-        if (!authService.isAdminFromUserDetails(userDetails)) {
-            // 권한이 없는 경우 예외 발생
-            System.out.println(userDetails.getUser().getUsername());
-            throw new AccessDeniedException("권한이 없습니다.");
-        }
+    public Page<ReportResponseDto> getAllReports(CustomUserDetails userDetails, Pageable pageable) {
+        checkAdminAuthority(userDetails);
+
         Page<Report> reports = reportRepository.findAll(pageable);
-        return reports.map(ReportResponseDto::from);
+        return reports.map(ReportResponseDto::reportFrom);
+    }
+
+    @Override
+    public ReportResponseDto getReport(CustomUserDetails userDetails, Long reportNo) {
+        checkAdminAuthority(userDetails);
+        Report report = reportRepository.findById(reportNo).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 신고입니다"));
+        return reportFrom(report);
     }
 
     @Override
@@ -89,23 +94,22 @@ public class ReportServiceImpl implements ReportService {
 
         reportRepository.save(report);
 
-        return ReportResponseDto.from(report);
+        return reportFrom(report);
     }
 
     @Override     // role(ADMIN) 추가 예정!
     @Transactional
     public ReportResponseDto processReport(CustomUserDetails userDetails, Long reportNo, ReportAdminResDto reportAdminResDto) {
+        checkAdminAuthority(userDetails);
         Report report = reportRepository.findById(reportNo)
                 .orElseThrow(() -> new IllegalArgumentException("해당 신고가 없습니다"));
-        if (authService.isAdminFromUserDetails(userDetails)) {
 
-            report.updateComment(reportAdminResDto.getComment()); //생성자
-            updateReportStatus(report, reportAdminResDto.getStatus());
 
-            reportRepository.save(report);
-            return ReportResponseDto.from(report);
-        }
-        throw new AccessDeniedException("권한이 없습니다.");
+        report.updateComment(reportAdminResDto.getComment()); //생성자
+        updateReportStatus(report, reportAdminResDto.getStatus());
+
+        reportRepository.save(report);
+        return reportFrom(report);
     }
 
     // 신고 처리 로직
@@ -132,5 +136,13 @@ public class ReportServiceImpl implements ReportService {
     public void deleteUserComments(User reported) { // BANNED
         // 해당 사용자가 작성한 모든 댓글 삭제
         commentRepository.deleteByUserNo(reported.getNo());
+    }
+
+    public void checkAdminAuthority(CustomUserDetails userDetails) {
+        System.out.println(userDetails.getUsername());
+        System.out.println(userDetails.getUser().getRole());
+        if (!authService.isAdminFromUserDetails(userDetails)) {
+            throw new AccessDeniedException("권한이 없습니다.");
+        }
     }
 }
