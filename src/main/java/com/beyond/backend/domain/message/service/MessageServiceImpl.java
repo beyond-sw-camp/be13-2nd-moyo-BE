@@ -92,7 +92,7 @@ public class MessageServiceImpl implements MessageService {
 
     }
 
-    @Override // 얘도 userNo 받을 때 인증과정한다음에 하기
+    @Override // 얘도 userNo 받을 때 인증과정한다음에  하기
     public Page<MessageResponseDto> getReceivedMessageList(Long userNo, Pageable pageable) {
         Page<Message> receivedMessages = messageRepository.findAllByReceiver_NoAndDeletedByReceiverFalse(userNo, pageable);
 

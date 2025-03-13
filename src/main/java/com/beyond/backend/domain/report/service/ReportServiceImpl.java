@@ -139,8 +139,6 @@ public class ReportServiceImpl implements ReportService {
     }
 
     public void checkAdminAuthority(CustomUserDetails userDetails) {
-        System.out.println(userDetails.getUsername());
-        System.out.println(userDetails.getUser().getRole());
         if (!authService.isAdminFromUserDetails(userDetails)) {
             throw new AccessDeniedException("권한이 없습니다.");
         }

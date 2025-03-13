@@ -24,6 +24,7 @@ DATE              AUTHOR             NOTE
 */
 
 public interface ReportService {
+
     ReportResponseDto createReport(User reporter, ReportDto reportDto);
 
     ReportResponseDto processReport(CustomUserDetails userDetails, Long reportNo, ReportAdminResDto reportAdminResDto);
