@@ -27,5 +27,4 @@ public class Base {
 
     @CreatedBy
     private String createdBy;
-
 }

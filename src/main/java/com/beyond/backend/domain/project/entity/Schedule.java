@@ -15,7 +15,7 @@ public class Schedule extends Base {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long no;
 
     private String title;
 
@@ -31,13 +31,17 @@ public class Schedule extends Base {
     @JoinColumn(name = "project_id")
     private Project project;
 
+    private boolean isAlertSent;
+
     @Builder
-    public Schedule(String title, LocalDateTime startDate, LocalDateTime endDate, String description) {
+    public Schedule(String title, LocalDateTime startDate, LocalDateTime endDate, String description, Project project) {
+        this.project = project;
         this.title = title;
         this.startDate = startDate;
         this.endDate = endDate;
         this.description = description;
         this.status = ScheduleStatus.PENDING;
+        this.isAlertSent = false;
     }
 
     public void updateStatus(ScheduleStatus status){
@@ -49,6 +53,10 @@ public class Schedule extends Base {
         this.description = description;
         this.startDate = startDate;
         this.endDate = endDate;
+    }
+
+    public void updateAlertSent(boolean isAlertSent) {
+        this.isAlertSent = isAlertSent;
     }
 
 }
