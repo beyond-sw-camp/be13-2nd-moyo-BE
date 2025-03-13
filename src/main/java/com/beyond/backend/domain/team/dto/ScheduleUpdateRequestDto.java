@@ -1,4 +1,4 @@
-package com.beyond.backend.domain.project.dto;
+package com.beyond.backend.domain.team.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;

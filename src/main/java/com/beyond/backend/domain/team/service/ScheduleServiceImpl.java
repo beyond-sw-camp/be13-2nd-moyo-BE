@@ -3,10 +3,10 @@ package com.beyond.backend.domain.team.service;
 import com.beyond.backend.domain.common.dto.RequestNotificationDto;
 import com.beyond.backend.domain.common.entity.NotificationType;
 import com.beyond.backend.domain.common.service.NotificationService;
-import com.beyond.backend.domain.project.dto.AlertResponseDto;
-import com.beyond.backend.domain.project.dto.ScheduleRequestDto;
-import com.beyond.backend.domain.project.dto.ScheduleResponseDto;
-import com.beyond.backend.domain.project.entity.Schedule;
+import com.beyond.backend.domain.team.dto.AlertResponseDto;
+import com.beyond.backend.domain.team.dto.ScheduleRequestDto;
+import com.beyond.backend.domain.team.dto.ScheduleResponseDto;
+import com.beyond.backend.domain.team.entity.Schedule;
 import com.beyond.backend.domain.team.entity.Team;
 import com.beyond.backend.domain.team.repository.ScheduleRepository;
 import com.beyond.backend.domain.team.repository.TeamRepository;
@@ -68,7 +68,8 @@ public class ScheduleServiceImpl implements ScheduleService {
                 dto.getTitle(),
                 dto.getDescription(),
                 dto.getStartDate(),
-                dto.getEndDate()
+                dto.getEndDate(),
+                dto.getStatus()
         );
 
         return new ScheduleResponseDto(schedule);
@@ -116,17 +117,9 @@ public class ScheduleServiceImpl implements ScheduleService {
                             receiver.getUsername(),
                             NotificationType.SYSTEM,
                             schedule.getTitle() + "일정 D-1"));
+            schedule.updateAlertSent(true);
         }
     }
-
-    /**
-     * 스케줄(*) -> (1)프로젝트(1) -> 팀(1) -> (*)팀 유저(*) -> (1)유저
-     * 유저1 스케줄1
-     * 유저1 스케줄2
-     * 유저2 스케줄2
-     * 유저3 스케줄1
-     */
-
 
     private void validateScheduleRequest(ScheduleRequestDto dto) {
         if (dto.getEndDate() != null && dto.getStartDate().isAfter(dto.getEndDate())) {

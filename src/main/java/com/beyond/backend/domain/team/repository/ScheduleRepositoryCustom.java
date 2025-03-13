@@ -1,6 +1,6 @@
 package com.beyond.backend.domain.team.repository;
 
-import com.beyond.backend.domain.project.dto.AlertResponseDto;
+import com.beyond.backend.domain.team.dto.AlertResponseDto;
 
 import java.util.List;
 

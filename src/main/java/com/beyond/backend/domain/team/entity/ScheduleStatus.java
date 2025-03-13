@@ -1,4 +1,4 @@
-package com.beyond.backend.domain.project.entity;
+package com.beyond.backend.domain.team.entity;
 
 public enum ScheduleStatus {
     PENDING,

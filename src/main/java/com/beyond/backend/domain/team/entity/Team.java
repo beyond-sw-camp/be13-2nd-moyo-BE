@@ -1,7 +1,5 @@
 package com.beyond.backend.domain.team.entity;
 
-import com.beyond.backend.domain.common.BaseEntity;
-import com.beyond.backend.domain.project.entity.Schedule;
 import com.beyond.backend.domain.teamUser.entity.TeamUser;
 import com.beyond.backend.domain.project.entity.Project;
 import com.beyond.backend.domain.project.entity.ProjectStatus;

@@ -1,7 +1,7 @@
 package com.beyond.backend.domain.team.service;
 
-import com.beyond.backend.domain.project.dto.ScheduleRequestDto;
-import com.beyond.backend.domain.project.dto.ScheduleResponseDto;
+import com.beyond.backend.domain.team.dto.ScheduleRequestDto;
+import com.beyond.backend.domain.team.dto.ScheduleResponseDto;
 
 import java.util.List;
 

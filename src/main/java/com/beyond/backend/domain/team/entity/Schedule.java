@@ -1,7 +1,6 @@
-package com.beyond.backend.domain.project.entity;
+package com.beyond.backend.domain.team.entity;
 
 import com.beyond.backend.domain.common.Base;
-import com.beyond.backend.domain.team.entity.Team;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -49,11 +48,12 @@ public class Schedule extends Base {
         this.status = status;
     }
 
-    public void update(String title, String description, LocalDateTime startDate, LocalDateTime endDate) {
+    public void update(String title, String description, LocalDateTime startDate, LocalDateTime endDate, ScheduleStatus status) {
         this.title = title;
         this.description = description;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.status = status;
     }
 
     public void updateAlertSent(boolean isAlertSent) {
