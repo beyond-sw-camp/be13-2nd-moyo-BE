@@ -44,6 +44,7 @@ public class Message extends BaseEntity {
     @Column(nullable = false)
     private boolean deletedByReceiver;
 
+    @Builder.Default
     @Column(name = "is_read", nullable = false)
     private boolean isRead = false;
 
