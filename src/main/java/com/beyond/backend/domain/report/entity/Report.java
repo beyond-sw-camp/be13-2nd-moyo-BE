@@ -4,7 +4,6 @@ import com.beyond.backend.domain.common.BaseEntity;
 import com.beyond.backend.domain.user.entity.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -54,28 +53,27 @@ public class Report extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ReportType reportType;
 
+    @Column(name = "report_status")
+    @Enumerated(EnumType.STRING)
+    private ReportStatus reportStatus;
+
     @Column
     private String url;
 
     @Lob
     @Column
+    @NotEmpty(message = "내용을 작성해 주세요.")
     private String content;
 
     @Lob
     @Column
-    @NotEmpty(message = "내용을 작성해 주세요.")
-    @NotNull(message = "내용은 null 이 될 수 없습니다.")
     private String comment;
-
-    @Column(name = "is_completed")
-    private boolean isCompleted;
-
-    public void markAsCompleted() {
-        this.isCompleted = true;
-    }
 
     public void updateComment(String comment) {
         this.comment = comment;
     }
 
+    public void updateReportStatus(ReportStatus status) {
+        this.reportStatus = status;
+    }
 }

@@ -36,4 +36,6 @@ import org.springframework.transaction.annotation.Transactional;
 
     @Query("SELECT c.likeCount FROM Comment c WHERE c.no = :commentNo")
     int getLatestLikeCount(@Param("commentNo") Long commentNo);
+
+    void deleteByUserNo(Long userNo);
 }

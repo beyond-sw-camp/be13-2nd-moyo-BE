@@ -38,7 +38,7 @@ public class ReportController {
     private final ReportService reportService;
     private final UserRepository userRepository;
 
-    @Operation(summary = "유저 신고 리스트")
+    @Operation(summary = "유저 받은 신고 전체 조회")
     @PreAuthorize("hasRole('ADMIN')") // role(ADMIN) 추가 예정!
     @GetMapping("/user-reports/{userId}")
     public ResponseEntity<Page<ReportResponseDto>> getUserReports(
@@ -46,7 +46,19 @@ public class ReportController {
             @PathVariable String userId,
             @PageableDefault(size = 10, page = 0, sort = "no") Pageable pageable) {
 
-        Page<ReportResponseDto> reportResponseDto = reportService.getReportList(userDetails, userId, pageable);
+        Page<ReportResponseDto> reportResponseDto = reportService.getUserReportedList(userDetails, userId, pageable);
+
+        return ResponseEntity.ok(reportResponseDto);
+    }
+
+    @Operation(summary = "신고 전체 조회")
+    @PreAuthorize("hasRole('ADMIN')") // role(ADMIN) 추가 예정!
+    @GetMapping("/user-reports")
+    public ResponseEntity<Page<ReportResponseDto>> getUserReports(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PageableDefault(size = 10, page = 0, sort = "no") Pageable pageable) {
+
+        Page<ReportResponseDto> reportResponseDto = reportService.getReportList(userDetails, pageable);
 
         return ResponseEntity.ok(reportResponseDto);
     }
@@ -63,14 +75,18 @@ public class ReportController {
         return ResponseEntity.ok(reportResponseDto);
     }
 
-    @Operation(summary = "comment 작성", description = "어드민이 comment를 작성합니다")
+    @Operation(summary = "신고 처리", description =
+            "어드민이 신고를 처리합니다 <br>" +
+                    " PENDING,      // 처리 중<br>" +
+                    "    ONLY_BANNED,   // 사용자 밴 (게시글 유지)<br>" +
+                    "    BANNED       // 사용자 밴 + 모든 작성한 글(게시글+댓글) 삭제")
     @PutMapping("/user-reports/{reportNo}")
     @PreAuthorize("hasRole('ADMIN')") // role(ADMIN) 추가 예정!
     public ResponseEntity<ReportResponseDto> updateReport(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long reportNo,
             @Parameter(description = "no는 신고번호입니다") @RequestBody ReportAdminResDto reportAdminResDto) {
-        ReportResponseDto reportResponseDto = reportService.addComment(userDetails, reportNo, reportAdminResDto);
+        ReportResponseDto reportResponseDto = reportService.processReport(userDetails, reportNo, reportAdminResDto);
 
         return ResponseEntity.ok(reportResponseDto);
 

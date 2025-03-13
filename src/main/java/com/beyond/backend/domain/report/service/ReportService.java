@@ -26,7 +26,9 @@ DATE              AUTHOR             NOTE
 public interface ReportService {
     ReportResponseDto createReport(User reporter, ReportDto reportDto);
 
-    ReportResponseDto addComment(CustomUserDetails userDetails, Long reportNo, ReportAdminResDto reportAdminResDto);
+    ReportResponseDto processReport(CustomUserDetails userDetails, Long reportNo, ReportAdminResDto reportAdminResDto);
 
-    Page<ReportResponseDto> getReportList(CustomUserDetails userDetails, String userId, Pageable pageable);
+    Page<ReportResponseDto> getUserReportedList(CustomUserDetails userDetails, String userId, Pageable pageable);
+
+    Page<ReportResponseDto> getReportList(CustomUserDetails userDetails, Pageable pageable);
 }
