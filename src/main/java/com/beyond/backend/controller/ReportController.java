@@ -8,6 +8,7 @@ import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import com.beyond.backend.domain.user.repository.UserRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -69,7 +70,7 @@ public class ReportController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ReportResponseDto> createReport(
             @Parameter(name = "reporterNo", description = "신고하는사람 no") @AuthenticationPrincipal CustomUserDetails reporterNo,
-            @RequestBody ReportDto reportDto) {
+            @Valid @RequestBody ReportDto reportDto) {
         ReportResponseDto reportResponseDto = reportService.createReport(reporterNo.getUser(), reportDto);
 
         return ResponseEntity.ok(reportResponseDto);
@@ -81,7 +82,6 @@ public class ReportController {
                     "    ONLY_BANNED,   // 사용자 밴 (게시글 유지)<br>" +
                     "    BANNED       // 사용자 밴 + 모든 작성한 글(게시글+댓글) 삭제")
     @PutMapping("/user-reports/{reportNo}")
-    @PreAuthorize("hasRole('ADMIN')") // role(ADMIN) 추가 예정!
     public ResponseEntity<ReportResponseDto> updateReport(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long reportNo,

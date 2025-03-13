@@ -76,8 +76,8 @@ public class PostServiceImpl implements PostService {
     @Override
     public Page<PostResponseDto> searchPosts(BoardType boardType, PostSearchOption option, PostSortOption postSortOption, String keyword, Pageable pageable) {
 
-        if (keyword == null || keyword.trim().isEmpty()) {
-            throw new IllegalArgumentException("검색어가 없습니다.");
+        if (keyword != null && option == null) {
+            throw new IllegalArgumentException("검색 옵션을 선택해주십시오.");
         }
 
         Page<PostResponseDto> searchResults = postRepository.searchPosts(boardType, option, keyword, pageable, postSortOption);
@@ -127,9 +127,7 @@ public class PostServiceImpl implements PostService {
 
         Post post = postRepository.findByIdWithUser(postNo);  // Lazy Loading 문제 해결
 
-
-
-        // 비활성화된 게시글인 경우 예외 처리
+        // 비활성화된 게시글인 경우 댓글만 볼 수 있음
         if (post.getPostStatus() == PostStatus.INACTIVE) {
             throw new IllegalArgumentException("해당 게시글은 비활성화된 게시글로 볼 수 없습니다.");
         }
@@ -137,13 +135,13 @@ public class PostServiceImpl implements PostService {
         // 조회수 증가
         postRepository.increaseViewCount(postNo);
 
-        // 최신 게시글 데이터 재조회
+        // 최신 게시글 재조회
         PostResponseDto postResponseDto = new PostResponseDto(post);
 
         // 댓글 조회
         Page<CommentResponseDto> commentsPage = commentRepository.getPostComments(postNo, commentSortOption, pageable);
 
-        // 댓글 리스트 변환
+        // 댓글 리스트
         List<CommentResponseDto> comments = commentsPage.getContent();
 
         return new PostWithCommentsResponseDto(postResponseDto, comments);

@@ -3,12 +3,19 @@ package com.beyond.backend.domain.team.service;
 import com.beyond.backend.domain.common.dto.RequestNotificationDto;
 import com.beyond.backend.domain.common.entity.NotificationType;
 import com.beyond.backend.domain.common.service.NotificationService;
+<<<<<<< HEAD
 import com.beyond.backend.domain.team.dto.AlertResponseDto;
 import com.beyond.backend.domain.team.dto.ScheduleRequestDto;
 import com.beyond.backend.domain.team.dto.ScheduleResponseDto;
 import com.beyond.backend.domain.team.entity.Schedule;
+=======
+import com.beyond.backend.domain.project.dto.AlertResponseDto;
+import com.beyond.backend.domain.project.dto.ScheduleRequestDto;
+import com.beyond.backend.domain.project.dto.ScheduleResponseDto;
+import com.beyond.backend.domain.project.entity.Schedule;
+import com.beyond.backend.domain.project.repository.ScheduleRepository;
+>>>>>>> feature-exception-post
 import com.beyond.backend.domain.team.entity.Team;
-import com.beyond.backend.domain.team.repository.ScheduleRepository;
 import com.beyond.backend.domain.team.repository.TeamRepository;
 import com.beyond.backend.domain.user.entity.User;
 import com.beyond.backend.domain.user.repository.UserRepository;
