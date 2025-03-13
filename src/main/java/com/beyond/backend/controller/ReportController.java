@@ -55,7 +55,7 @@ public class ReportController {
     @Operation(summary = "신고 전체 조회")
     @PreAuthorize("hasRole('ADMIN')") // role(ADMIN) 추가 예정!
     @GetMapping("/user-reports")
-    public ResponseEntity<Page<ReportResponseDto>> getUserReports(
+    public ResponseEntity<Page<ReportResponseDto>> getReports(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PageableDefault(size = 10, page = 0, sort = "no") Pageable pageable) {
 
