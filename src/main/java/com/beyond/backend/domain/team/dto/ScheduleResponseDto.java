@@ -1,7 +1,7 @@
-package com.beyond.backend.domain.project.dto;
+package com.beyond.backend.domain.team.dto;
 
-import com.beyond.backend.domain.project.entity.Schedule;
-import com.beyond.backend.domain.project.entity.ScheduleStatus;
+import com.beyond.backend.domain.team.entity.Schedule;
+import com.beyond.backend.domain.team.entity.ScheduleStatus;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 

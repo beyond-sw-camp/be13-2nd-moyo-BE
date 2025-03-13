@@ -1,5 +1,6 @@
-package com.beyond.backend.domain.project.dto;
+package com.beyond.backend.domain.team.dto;
 
+import com.beyond.backend.domain.team.entity.ScheduleStatus;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
@@ -19,5 +20,7 @@ public class ScheduleRequestDto {
     private LocalDateTime endDate;
 
     private String description;
+
+    private ScheduleStatus status;
 
 }

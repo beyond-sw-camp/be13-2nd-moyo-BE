@@ -1,6 +1,6 @@
 package com.beyond.backend.domain.team.repository;
 
-import com.beyond.backend.domain.project.dto.AlertResponseDto;
+import com.beyond.backend.domain.team.dto.AlertResponseDto;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.stereotype.Repository;
@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.beyond.backend.domain.project.entity.QSchedule.schedule;
+import static com.beyond.backend.domain.team.entity.QSchedule.schedule;
 import static com.beyond.backend.domain.team.entity.QTeam.team;
 import static com.beyond.backend.domain.teamUser.entity.QTeamUser.teamUser;
 import static com.beyond.backend.domain.user.entity.QUser.user;
