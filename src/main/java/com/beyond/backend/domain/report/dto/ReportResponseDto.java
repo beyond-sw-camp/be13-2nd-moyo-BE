@@ -1,6 +1,7 @@
 package com.beyond.backend.domain.report.dto;
 
 import com.beyond.backend.domain.report.entity.Report;
+import com.beyond.backend.domain.report.entity.ReportStatus;
 import com.beyond.backend.domain.report.entity.ReportType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -32,12 +33,11 @@ public class ReportResponseDto {
     private String reportedId;
 
     private ReportType reportType;
+    private ReportStatus status;
     private String url;
     private String content;
 
     private String comment;
-
-    private boolean isCompleted;
 
     private LocalDateTime reportTime;
     private LocalDateTime commentTime;
@@ -51,10 +51,10 @@ public class ReportResponseDto {
                 reporterId,
                 receiverId,
                 report.getReportType(),
+                ReportStatus.PENDING,
                 report.getUrl(),
                 report.getContent(),
                 report.getComment(),
-                report.isCompleted(),
                 report.getCreatedAt(),
                 report.getUpdatedAt()
         );

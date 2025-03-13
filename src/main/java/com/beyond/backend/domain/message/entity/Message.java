@@ -4,7 +4,6 @@ import com.beyond.backend.domain.common.BaseEntity;
 import com.beyond.backend.domain.user.entity.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,7 +26,6 @@ public class Message extends BaseEntity {
     @Lob
     @Column(nullable = false)
     @NotEmpty(message = "내용을 작성해 주세요.")
-    @NotNull(message = "내용은 null 이 될 수 없습니다.")
     private String content;
 
     @JoinColumn(name = "sender_no") // NULL 허용

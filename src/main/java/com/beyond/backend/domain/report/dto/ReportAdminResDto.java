@@ -1,5 +1,6 @@
 package com.beyond.backend.domain.report.dto;
 
+import com.beyond.backend.domain.report.entity.ReportStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,4 +24,6 @@ DATE              AUTHOR             NOTE
 @AllArgsConstructor
 public class ReportAdminResDto {
     private String comment;
+
+    private ReportStatus status;
 }
