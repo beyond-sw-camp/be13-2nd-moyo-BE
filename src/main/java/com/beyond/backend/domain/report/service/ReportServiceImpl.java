@@ -1,6 +1,9 @@
 package com.beyond.backend.domain.report.service;
 
 import com.beyond.backend.domain.comment.repository.CommentRepository;
+import com.beyond.backend.domain.common.exception.ReportException;
+import com.beyond.backend.domain.common.exception.UserException;
+import com.beyond.backend.domain.common.exception.message.ExceptionMessage;
 import com.beyond.backend.domain.post.repository.PostRepository;
 import com.beyond.backend.domain.report.dto.ReportAdminResDto;
 import com.beyond.backend.domain.report.dto.ReportDto;
@@ -50,7 +53,7 @@ public class ReportServiceImpl implements ReportService {
         if (!authService.isAdminFromUserDetails(userDetails))
             throw new AccessDeniedException("권한이 없습니다.");
 
-        User user = userRepository.findByUsername(userId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다"));
+        User user = userRepository.findByUsername(userId).orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND));
         Page<Report> reported = reportRepository.findAllByReported_No(user.getNo(), pageable);
 
         return reported.map(ReportResponseDto::from);
@@ -73,7 +76,7 @@ public class ReportServiceImpl implements ReportService {
     @Transactional
     public ReportResponseDto createReport(User reporter, ReportDto reportDto) {
         User reported = userRepository.findByUsername(reportDto.getReportId())
-                .orElseThrow(() -> new IllegalStateException("존재하지 않는 유저입니다"));
+                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND));
         if (reported.getNo().equals(reporter.getNo())) {
             throw new IllegalArgumentException("자신에게 신고를 할 수 없습니다.");
         }
@@ -96,7 +99,7 @@ public class ReportServiceImpl implements ReportService {
     @Transactional
     public ReportResponseDto processReport(CustomUserDetails userDetails, Long reportNo, ReportAdminResDto reportAdminResDto) {
         Report report = reportRepository.findById(reportNo)
-                .orElseThrow(() -> new IllegalArgumentException("해당 신고가 없습니다"));
+                .orElseThrow(() -> new ReportException(ExceptionMessage.REPORT_NOT_FOUND));
         if (authService.isAdminFromUserDetails(userDetails)) {
 
             report.updateComment(reportAdminResDto.getComment()); //생성자

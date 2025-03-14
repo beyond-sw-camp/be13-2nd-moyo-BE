@@ -1,5 +1,7 @@
 package com.beyond.backend.domain.common.exception.handler;
 
+import com.beyond.backend.domain.common.exception.BaseException;
+import com.beyond.backend.domain.common.exception.PostException;
 import com.beyond.backend.domain.common.exception.dto.ApiErrorResponseDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -58,6 +60,28 @@ public class GlobalExceptionHandler {
         );
     }
 
+
+    /**
+     * 사용자 정의 예외 처리 (BaseException)
+     * - `PostException`, `UserException` 등 사용자 정의 예외 처리
+     *
+     * @param e BaseException 예외 객체
+     * @return ResponseEntity<ApiErrorResponseDto> JSON 응답
+     */
+    @ExceptionHandler(BaseException.class)
+    public ResponseEntity<ApiErrorResponseDto> handleBaseException(BaseException e) {
+        log.error("🚨 사용자 정의 예외 발생: {}", e.getMessage());
+
+        return ResponseEntity
+                .status(e.getStatus())
+                .body(new ApiErrorResponseDto(
+                        e.getStatus().value(),
+                        e.getStatus().name(),
+                        e.getMessage()
+                ));
+    }
+
+
     /**
      * 최상위 예외 처리 (Exception)
      * - 위에서 처리하지 못한 모든 예외를 최종적으로 처리하는 메서드
@@ -71,16 +95,21 @@ public class GlobalExceptionHandler {
 
         // 예외 메시지를 로그로 기록
         log.error("🔥 전역 예외(Global Exception) 발생: {}", e.getMessage());
+        // log.error("🔥 [서버 오류] {}", e.getMessage(), e);
 
         return new ResponseEntity<>(
                 new ApiErrorResponseDto(
                         HttpStatus.INTERNAL_SERVER_ERROR.value(),  // HTTP 상태 코드 (500)
                         HttpStatus.INTERNAL_SERVER_ERROR.name(),   // 상태 이름 ("INTERNAL_SERVER_ERROR")
                         e.getMessage()  // 예외 메시지 (보안상 필요하면 변경 가능)
+
                 ),
                 HttpStatus.INTERNAL_SERVER_ERROR  // ResponseEntity 의 상태 코드 설정
         );
     }
+
+
+
 }
 /*
 

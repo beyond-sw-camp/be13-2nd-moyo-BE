@@ -4,7 +4,7 @@ import com.beyond.backend.domain.user.dto.*;
 
 public interface UserService {
 
-    UserUpdateResponseDto updateUser(Long id, UserUpdateRequestDto dto);
+    UserUpdateResponseDto updateUser(Long userNo, UserUpdateRequestDto dto);
 
     void deleteUser(String username);
 

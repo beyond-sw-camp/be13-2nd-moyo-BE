@@ -1,5 +1,7 @@
 package com.beyond.backend.domain.tech.service;
 
+import com.beyond.backend.domain.common.exception.ProjectException;
+import com.beyond.backend.domain.common.exception.message.ExceptionMessage;
 import com.beyond.backend.domain.tech.dto.TechRequestDto;
 import com.beyond.backend.domain.tech.dto.TechResponseDto;
 import com.beyond.backend.domain.tech.entity.Tech;
@@ -55,7 +57,7 @@ public class TechServiceImpl implements TechService {
 		validationAdmin(request);
 
 		techRepository.findById(no)
-						.orElseThrow(() -> new IllegalArgumentException("해당하는 기술이 없습니다"));
+						.orElseThrow(() -> new ProjectException(ExceptionMessage.TECH_NOT_FOUND));
 
 		techRepository.deleteById(no);
 	}

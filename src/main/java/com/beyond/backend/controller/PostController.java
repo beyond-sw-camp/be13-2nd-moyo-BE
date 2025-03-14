@@ -101,7 +101,7 @@ public class PostController {
     }
 
 
-    @Operation(summary = "게시글 검색", description = "제목, 내용, 작성자에서 검색어가 포함된 게시글 조회(검색이 아닌 경우 전체 조회)")
+    @Operation(summary = "게시글 검색 및 전체 조회", description = "제목, 내용, 작성자에서 검색어가 포함된 게시글 조회(검색이 아닌 경우 전체 조회)")
     @GetMapping("/posts/search")
     public ResponseEntity<?> searchPosts(
             @RequestParam BoardType boardType,
@@ -152,8 +152,7 @@ public class PostController {
     // 게시글 삭제 시 댓글 이 있는 경우 고려해야 함 ( 연관관계 메서드 생성)
     // 게시글 삭제 (작성자,관리자)
     
-    // bordtype이랑 userNo 도 받아야 하고 comment required false로 받기
-    // boardType은 애초에 관리자만 글을 생성할 수 있음 ( 일반유저는 글을 못 써서 회원 번호만 맞으면 지울 수 있게 하자 )
+
     @Operation(summary = "게시글 삭제", description = "게시글 삭제")
     @DeleteMapping( "/posts/{postNo}")
     public ResponseEntity<String> deletePost(

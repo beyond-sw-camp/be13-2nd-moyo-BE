@@ -1,5 +1,9 @@
 package com.beyond.backend.domain.feedback.service;
 
+import com.beyond.backend.domain.common.exception.PostException;
+import com.beyond.backend.domain.common.exception.ProjectException;
+import com.beyond.backend.domain.common.exception.UserException;
+import com.beyond.backend.domain.common.exception.message.ExceptionMessage;
 import com.beyond.backend.domain.feedback.entity.FeedbackType;
 import com.beyond.backend.domain.teamUser.repository.TeamUserRepository;
 import com.beyond.backend.domain.user.dto.CustomUserDetails;
@@ -44,12 +48,12 @@ public class FeedbackServiceImpl implements FeedbackService {
 
 		// 1. 프로젝트가 존재하는지
 		Project project = projectRepository.findById(projectNo).orElseThrow(
-			() -> new IllegalArgumentException("해당하는 프로젝트가 없습니다.")
+			() -> new ProjectException(ExceptionMessage.PROJECT_NOT_FOUND)
 		);
 
 		// 2. user가 존재하는지
 		User user = userRepository.findById(userNo).orElseThrow(
-			() -> new IllegalArgumentException("해당하는 사용자가 없습니다.")
+			() ->  new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userNo)
 		);
 
 		// 3. user 가 팀에 속하는지
@@ -75,12 +79,12 @@ public class FeedbackServiceImpl implements FeedbackService {
 
 		// 1. user 존재 여부
 		User user = userRepository.findById(userNo).orElseThrow(
-			() -> new IllegalArgumentException("해당하는 사용자가 없습니다.")
+			() -> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userNo)
 		);
 
 		// 2. 프로젝트 존재 여부
 		Project project = projectRepository.findById(projectNo).orElseThrow(
-			() -> new IllegalArgumentException("해당하는 프로젝트가 없습니다.")
+			() -> new ProjectException(ExceptionMessage.PROJECT_NOT_FOUND)
 		);
 
 		// 3. user 가 팀에 속하는지
@@ -90,7 +94,7 @@ public class FeedbackServiceImpl implements FeedbackService {
 
 		// 4. 피드백 존재 여부
 		Feedback feedback = feedbackRepository.findById(feedbackNo).orElseThrow(
-			() -> new IllegalArgumentException("피드백이 존재하지 않습니다.")
+			() -> new PostException(ExceptionMessage.FEEDBACK_NOT_FOUND)
 		);
 
 		// 5. 본인의 피드백인지 검증
@@ -113,11 +117,11 @@ public class FeedbackServiceImpl implements FeedbackService {
 
 		// 본인의 피드백인지 DB 에서
 		User user = userRepository.findById(userNo).orElseThrow(
-			() -> new IllegalArgumentException("존재하지 않는 사용자입니다")
+			() -> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userNo)
 		);
 
 		Feedback feedback = feedbackRepository.findById(feedbackNo).orElseThrow(
-				() -> new IllegalArgumentException("피드백이 존재하지 않습니다.")
+				() ->  new PostException(ExceptionMessage.FEEDBACK_NOT_FOUND)
 		);
 
 		// DB에 있는 객체와 로그인한 객체 정보가 같은지 검증
@@ -141,7 +145,7 @@ public class FeedbackServiceImpl implements FeedbackService {
 
 		// 1. user가 존재하는지
 		User user = userRepository.findById(userNo).orElseThrow(
-			() -> new IllegalArgumentException("해당하는 사용자가 없습니다.")
+			() -> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userNo)
 		);
 
 		// 2. user의 feedback 가져오기
@@ -156,7 +160,7 @@ public class FeedbackServiceImpl implements FeedbackService {
 
 		// 1. 프로젝트가 존재하는지
 		Project project = projectRepository.findById(projectNo).orElseThrow(
-			() -> new IllegalArgumentException("해당하는 프로젝트가 없습니다.")
+			() -> new ProjectException(ExceptionMessage.PROJECT_NOT_FOUND)
 		);
 
 		// 2. user 가 팀에 속하는지

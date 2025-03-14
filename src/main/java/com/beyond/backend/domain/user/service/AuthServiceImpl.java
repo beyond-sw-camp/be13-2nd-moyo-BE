@@ -1,5 +1,8 @@
 package com.beyond.backend.domain.user.service;
 
+import com.beyond.backend.domain.common.exception.UserException;
+import com.beyond.backend.domain.common.exception.message.ExceptionMessage;
+import jakarta.security.auth.message.AuthException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -58,7 +61,7 @@ public class AuthServiceImpl implements AuthService {
         String password = dto.getPassword();
 
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("유저가 존재하지 않습니다"));
+                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND));
 
         validPwd(password, user);
 
