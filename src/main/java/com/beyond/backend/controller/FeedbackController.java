@@ -1,5 +1,6 @@
 package com.beyond.backend.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -36,7 +37,7 @@ public class FeedbackController {
 		public ResponseEntity<FeedbackResponseDto> createFeedback(@AuthenticationPrincipal CustomUserDetails userDetails,
 																  @PathVariable Long projectNo,
 																  @RequestParam FeedbackType feedbackType,
-																  @RequestBody FeedbackRequestDto dto) {
+																  @Valid @RequestBody FeedbackRequestDto dto) {
 
 		FeedbackResponseDto feedbackResponseDto = feedbackService.createFeedback(userDetails.getUser().getNo(), projectNo,feedbackType, dto);
 		return ResponseEntity.ok(feedbackResponseDto);
@@ -47,7 +48,7 @@ public class FeedbackController {
 															  @PathVariable Long projectNo,
 															  @PathVariable Long feedbackNo,
 															  @RequestParam FeedbackType feedbackType,
-															  @RequestBody FeedbackUpdateRequestDto dto) {
+															  @Valid @RequestBody FeedbackUpdateRequestDto dto) {
 
 		FeedbackResponseDto feedbackResponseDto = feedbackService.updateFeedback(userDetails.getUser().getNo() , projectNo, feedbackNo, feedbackType, dto);
 

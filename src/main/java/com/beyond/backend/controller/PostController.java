@@ -13,6 +13,7 @@ import com.beyond.backend.domain.post.service.PostService;
 import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -57,6 +58,7 @@ public class PostController {
     // 게시글 전체 조회
     // 게시글 정렬 조건 ( 기본이 최신순)
 
+/*
     @Operation(summary = "게시글 전체 조회", description = "게시판 타입별로 게시글 조회")
     @GetMapping("/posts")
     public ResponseEntity<Page<PostResponseDto>> getPosts(
@@ -64,14 +66,17 @@ public class PostController {
             @RequestParam(required = false) PostSortOption postSortOption,
             @PageableDefault(size = 10, page= 0)Pageable pageable) {
         Page<PostResponseDto> allPosts = postService.getPosts(boardType, pageable, postSortOption);
-       
-      /* 
+
+      */
+/*
         if (allPosts.isEmpty()) {
             return ResponseEntity.ok("게시글이 존재하지 않습니다.");
-        } */// 실무에서는 컨트롤러에서 직접 경고 메시지를 보내는 것을 지양한다
+        } *//*
+// 실무에서는 컨트롤러에서 직접 경고 메시지를 보내는 것을 지양한다
         // NOT_FOUND 오류처리
         return ResponseEntity.ok(allPosts);
     }
+*/
 
 
     // 게시글 단 건 조회 
@@ -96,13 +101,13 @@ public class PostController {
     }
 
 
-    @Operation(summary = "게시글 검색", description = "제목, 내용, 작성자에서 검색어가 포함된 게시글 조회")
+    @Operation(summary = "게시글 검색 및 전체 조회", description = "제목, 내용, 작성자에서 검색어가 포함된 게시글 조회(검색이 아닌 경우 전체 조회)")
     @GetMapping("/posts/search")
     public ResponseEntity<?> searchPosts(
             @RequestParam BoardType boardType,
             @RequestParam(required = false) PostSortOption postSortOption,
             @RequestParam(required = false) PostSearchOption option,
-            @RequestParam String keyword,
+            @RequestParam(required = false) String keyword,
             @PageableDefault(size = 10, page= 0)Pageable pageable) {
 
 //        if (keyword == null || keyword.trim().isEmpty()) {
@@ -123,7 +128,7 @@ public class PostController {
     @PostMapping("/posts")
     public ResponseEntity<PostResponseDto> createPost(
             @RequestParam BoardType boardType,
-            @RequestBody PostDto postDto,
+            @Valid @RequestBody PostDto postDto,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         PostResponseDto postResponseDto = postService.createPost(boardType, postDto, userDetails.getUser().getNo());
         return ResponseEntity.ok(postResponseDto);
@@ -136,7 +141,7 @@ public class PostController {
             @RequestParam BoardType boardType,
             @RequestParam PostStatus postStatus,
             @PathVariable Long postNo,
-            @RequestBody PostDto postDto,
+            @Valid @RequestBody PostDto postDto,
             @AuthenticationPrincipal CustomUserDetails userDetails){
 
         PostResponseDto updatePost = postService.updatePost(boardType, postStatus, postNo, postDto, userDetails.getUser().getNo());
@@ -147,8 +152,7 @@ public class PostController {
     // 게시글 삭제 시 댓글 이 있는 경우 고려해야 함 ( 연관관계 메서드 생성)
     // 게시글 삭제 (작성자,관리자)
     
-    // bordtype이랑 userNo 도 받아야 하고 comment required false로 받기
-    // boardType은 애초에 관리자만 글을 생성할 수 있음 ( 일반유저는 글을 못 써서 회원 번호만 맞으면 지울 수 있게 하자 )
+
     @Operation(summary = "게시글 삭제", description = "게시글 삭제")
     @DeleteMapping( "/posts/{postNo}")
     public ResponseEntity<String> deletePost(

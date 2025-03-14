@@ -7,6 +7,7 @@ import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import com.beyond.backend.domain.user.repository.UserRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -44,7 +45,7 @@ public class MessageController {
     @Operation(summary = "쪽지 전송", description = "쪽지를 전송(저장)합니다")
     @PostMapping("/messages")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<MessageResponseDto> sendMessage(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody MessageDto messageDto) { // senderNo는 토큰으로 어찌저찌 하기
+    public ResponseEntity<MessageResponseDto> sendMessage(@AuthenticationPrincipal CustomUserDetails userDetails, @Valid @RequestBody MessageDto messageDto) { // senderNo는 토큰으로 어찌저찌 하기
         MessageResponseDto messageResponseDto = messageService.messageWrite(userDetails.getUser(), messageDto);
 
         return ResponseEntity.status(HttpStatus.OK).body(messageResponseDto);

@@ -1,6 +1,9 @@
 package com.beyond.backend.domain.report.service;
 
 import com.beyond.backend.domain.comment.repository.CommentRepository;
+import com.beyond.backend.domain.common.exception.ReportException;
+import com.beyond.backend.domain.common.exception.UserException;
+import com.beyond.backend.domain.common.exception.message.ExceptionMessage;
 import com.beyond.backend.domain.post.repository.PostRepository;
 import com.beyond.backend.domain.report.dto.ReportAdminResDto;
 import com.beyond.backend.domain.report.dto.ReportDto;
@@ -18,6 +21,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static com.beyond.backend.domain.report.dto.ReportResponseDto.reportFrom;
 
 /**
  * <p>
@@ -47,33 +52,36 @@ public class ReportServiceImpl implements ReportService {
 
     @Override // role(ADMIN) 추가 예정!
     public Page<ReportResponseDto> getUserReportedList(CustomUserDetails userDetails, String userId, Pageable pageable) {
-        if (!authService.isAdminFromUserDetails(userDetails))
-            throw new AccessDeniedException("권한이 없습니다.");
+        checkAdminAuthority(userDetails);
 
-        User user = userRepository.findByUsername(userId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다"));
+        User user = userRepository.findByUsername(userId).orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND));
         Page<Report> reported = reportRepository.findAllByReported_No(user.getNo(), pageable);
 
-        return reported.map(ReportResponseDto::from);
+        return reported.map(ReportResponseDto::reportFrom);
 
 
     }
 
     @Override
-    public Page<ReportResponseDto> getReportList(CustomUserDetails userDetails, Pageable pageable) {
-        if (!authService.isAdminFromUserDetails(userDetails)) {
-            // 권한이 없는 경우 예외 발생
-            System.out.println(userDetails.getUser().getUsername());
-            throw new AccessDeniedException("권한이 없습니다.");
-        }
+    public Page<ReportResponseDto> getAllReports(CustomUserDetails userDetails, Pageable pageable) {
+        checkAdminAuthority(userDetails);
+
         Page<Report> reports = reportRepository.findAll(pageable);
-        return reports.map(ReportResponseDto::from);
+        return reports.map(ReportResponseDto::reportFrom);
+    }
+
+    @Override
+    public ReportResponseDto getReport(CustomUserDetails userDetails, Long reportNo) {
+        checkAdminAuthority(userDetails);
+        Report report = reportRepository.findById(reportNo).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 신고입니다"));
+        return reportFrom(report);
     }
 
     @Override
     @Transactional
     public ReportResponseDto createReport(User reporter, ReportDto reportDto) {
         User reported = userRepository.findByUsername(reportDto.getReportId())
-                .orElseThrow(() -> new IllegalStateException("존재하지 않는 유저입니다"));
+                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND));
         if (reported.getNo().equals(reporter.getNo())) {
             throw new IllegalArgumentException("자신에게 신고를 할 수 없습니다.");
         }
@@ -89,23 +97,21 @@ public class ReportServiceImpl implements ReportService {
 
         reportRepository.save(report);
 
-        return ReportResponseDto.from(report);
+        return reportFrom(report);
     }
 
     @Override     // role(ADMIN) 추가 예정!
     @Transactional
     public ReportResponseDto processReport(CustomUserDetails userDetails, Long reportNo, ReportAdminResDto reportAdminResDto) {
+        checkAdminAuthority(userDetails);
         Report report = reportRepository.findById(reportNo)
                 .orElseThrow(() -> new IllegalArgumentException("해당 신고가 없습니다"));
-        if (authService.isAdminFromUserDetails(userDetails)) {
 
-            report.updateComment(reportAdminResDto.getComment()); //생성자
-            updateReportStatus(report, reportAdminResDto.getStatus());
+        report.updateComment(reportAdminResDto.getComment()); //생성자
+        updateReportStatus(report, reportAdminResDto.getStatus());
 
-            reportRepository.save(report);
-            return ReportResponseDto.from(report);
-        }
-        throw new AccessDeniedException("권한이 없습니다.");
+        reportRepository.save(report);
+        return reportFrom(report);
     }
 
     // 신고 처리 로직
@@ -132,5 +138,11 @@ public class ReportServiceImpl implements ReportService {
     public void deleteUserComments(User reported) { // BANNED
         // 해당 사용자가 작성한 모든 댓글 삭제
         commentRepository.deleteByUserNo(reported.getNo());
+    }
+
+    public void checkAdminAuthority(CustomUserDetails userDetails) {
+        if (!authService.isAdminFromUserDetails(userDetails)) {
+            throw new AccessDeniedException("권한이 없습니다.");
+        }
     }
 }

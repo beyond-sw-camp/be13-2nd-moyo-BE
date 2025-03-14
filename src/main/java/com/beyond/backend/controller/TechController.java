@@ -3,6 +3,7 @@ package com.beyond.backend.controller;
 import java.util.List;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,7 +33,7 @@ public class TechController {
 	 */
 	@PostMapping("/create")
 	public ResponseEntity<TechResponseDto> createTech(HttpServletRequest request,
-													  @RequestBody TechRequestDto dto) {
+													 @Valid @RequestBody TechRequestDto dto) {
 
 		TechResponseDto response = techService.createTech(request, dto);
 

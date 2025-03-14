@@ -1,5 +1,7 @@
 package com.beyond.backend.domain.user.service;
 
+import com.beyond.backend.domain.common.exception.UserException;
+import com.beyond.backend.domain.common.exception.message.ExceptionMessage;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -31,7 +33,7 @@ public class AdminServiceImpl implements AdminService {
     public DeleteUserByAdminResponseDto deleteUserByAdmin(DeleteUserByAdminRequestDto dto) {
 
         User user = userRepository.findById(dto.getUserNo())
-                .orElseThrow(() -> new IllegalArgumentException("User Not Found"));
+                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + dto.getUserNo()));
                 
         userRepository.delete(user);
       //  userRepository.deleteById(user.getNo());
@@ -54,7 +56,7 @@ public class AdminServiceImpl implements AdminService {
         // 여기서 userno 는 조회하고자 하는 회원
 
         User user = userRepository.findById(userNo).orElseThrow(
-            () -> new IllegalArgumentException("해당하는 사용자를 찾을 수 없습니다.")
+            () ->new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userNo)
         );
 
 

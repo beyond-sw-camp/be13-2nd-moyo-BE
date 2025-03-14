@@ -35,6 +35,7 @@ public class Team {
 
     
     // [홍재민] 25-02-20 팀-유저 중간테이블 cascade 설정
+    @Builder.Default
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TeamUser> teamUsers = new ArrayList<>();
 
@@ -42,6 +43,7 @@ public class Team {
     @OneToOne(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
     private Project project;
 
+    @Builder.Default
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Schedule> schedules = new ArrayList<>();
 
