@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -39,9 +40,18 @@ public class ReportController {
     private final ReportService reportService;
     private final UserRepository userRepository;
 
+    @Operation(summary = "신고 단건 조회")
+    @GetMapping("/reports")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ReportResponseDto> getReport(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestParam Long reportNo) {
+        ReportResponseDto reportResponseDto = reportService.getReport(userDetails, reportNo);
+
+        return ResponseEntity.status(HttpStatus.OK).body(reportResponseDto);
+    }
+
     @Operation(summary = "유저 받은 신고 전체 조회")
     @PreAuthorize("hasRole('ADMIN')") // role(ADMIN) 추가 예정!
-    @GetMapping("/user-reports/{userId}")
+    @GetMapping("/reports/{userId}")
     public ResponseEntity<Page<ReportResponseDto>> getUserReports(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable String userId,
@@ -53,20 +63,20 @@ public class ReportController {
     }
 
     @Operation(summary = "신고 전체 조회")
-    @PreAuthorize("hasRole('ADMIN')") // role(ADMIN) 추가 예정!
-    @GetMapping("/user-reports")
-    public ResponseEntity<Page<ReportResponseDto>> getUserReports(
+    @PreAuthorize("hasRole('ADMIN')") // role(ADMIN) 추가  예정!
+    @GetMapping("/reports-list")
+    public ResponseEntity<Page<ReportResponseDto>> getAllReports(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PageableDefault(size = 10, page = 0, sort = "no") Pageable pageable) {
 
-        Page<ReportResponseDto> reportResponseDto = reportService.getReportList(userDetails, pageable);
+        Page<ReportResponseDto> reportResponseDto = reportService.getAllReports(userDetails, pageable);
 
         return ResponseEntity.ok(reportResponseDto);
     }
 
 
     @Operation(summary = "신고 작성", description = "신고를 생성합니다<br> USER_REPORT(유저)<br> POST_REPORT(게시글)<br> MESSAGE_REPORT(쪽지)<br> OTHER(기타)")
-    @PostMapping("/user-reports")
+    @PostMapping("/reports")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ReportResponseDto> createReport(
             @Parameter(name = "reporterNo", description = "신고하는사람 no") @AuthenticationPrincipal CustomUserDetails reporterNo,
@@ -81,7 +91,7 @@ public class ReportController {
                     " PENDING,      // 처리 중<br>" +
                     "    ONLY_BANNED,   // 사용자 밴 (게시글 유지)<br>" +
                     "    BANNED       // 사용자 밴 + 모든 작성한 글(게시글+댓글) 삭제")
-    @PutMapping("/user-reports/{reportNo}")
+    @PutMapping("/reports/{reportNo}")
     public ResponseEntity<ReportResponseDto> updateReport(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long reportNo,

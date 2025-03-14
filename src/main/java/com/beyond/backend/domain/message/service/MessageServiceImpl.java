@@ -70,9 +70,8 @@ public class MessageServiceImpl implements MessageService {
 
         User receiver = userRepository.findByUsername(messageDto.getReceiverId())
                 .filter(user -> user.getUserStatus() != UserStatus.INACTIVE)
-                .orElseThrow(() ->  new IllegalStateException("받는 회원이 존재하지 않거나 비활성화된 회원입니다."));
+                .orElseThrow(() -> new IllegalArgumentException("받는 회원이 존재하지 않거나 비활성화된 회원입니다."));
 
-        System.out.println(receiver.getUserStatus() + "ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ");
 
         Message message = Message.builder()
                 .sender(sender)
@@ -81,7 +80,6 @@ public class MessageServiceImpl implements MessageService {
                 .deletedBySender(false)
                 .deletedByReceiver(false)
                 .build();
-
 
         // 트랜잭션 종료 후가 아니라, 바로 알림 전송
         notificationService.sendNotification(
@@ -98,7 +96,7 @@ public class MessageServiceImpl implements MessageService {
 
     }
 
-    @Override // 얘도 userNo 받을 때 인증과정한다음에 하기
+    @Override // 얘도 userNo 받을 때 인증과정한다음에  하기
     public Page<MessageResponseDto> getReceivedMessageList(Long userNo, Pageable pageable) {
         Page<Message> receivedMessages = messageRepository.findAllByReceiver_NoAndDeletedByReceiverFalse(userNo, pageable);
 
