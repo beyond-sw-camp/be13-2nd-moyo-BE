@@ -29,7 +29,7 @@ public class ReportDto {
 
     private String reportId;
 
-    @NotNull(message="신고 타입을 지정해주십시오.")
+    @NotNull(message="신고 타입을 지정해 주십시오.")
     private ReportType reportType;
 
     @NotBlank(message="신고 내용은 필수 입력 항목입니다.")

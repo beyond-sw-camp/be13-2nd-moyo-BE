@@ -3,6 +3,9 @@ package com.beyond.backend.domain.message.service;
 import com.beyond.backend.domain.common.dto.RequestNotificationDto;
 import com.beyond.backend.domain.common.entity.NotificationType;
 import com.beyond.backend.domain.common.entity.UserStatus;
+import com.beyond.backend.domain.common.exception.BaseException;
+import com.beyond.backend.domain.common.exception.UserException;
+import com.beyond.backend.domain.common.exception.message.ExceptionMessage;
 import com.beyond.backend.domain.common.service.NotificationService;
 import com.beyond.backend.domain.message.dto.MessageDto;
 import com.beyond.backend.domain.message.dto.MessageResponseDto;
@@ -49,10 +52,11 @@ public class MessageServiceImpl implements MessageService {
         boolean isSender = message.getSender() != null && message.getSender().getNo().equals(userNo);
         boolean isReceiver = message.getReceiver() != null && message.getReceiver().getNo().equals(userNo);
         if (isSender && message.isDeletedBySender()) {
-            throw new RuntimeException("확인할 수 없는 쪽지입니다.");
+            throw new BaseException(ExceptionMessage.MESSAGE_NOT_FOUND,"확인할 수 없는 쪽지입니다.");
         }
         if (isReceiver && message.isDeletedByReceiver()) {
-            throw new RuntimeException("확인할 수 없는 쪽지입니다.");
+            throw new BaseException(ExceptionMessage.MESSAGE_NOT_FOUND,"확인할 수 없는 쪽지입니다.");
+
         }
         if (message.getReceiver() != null && message.getReceiver().getNo().equals(userNo)) {
             message.markAsRead(); // 읽음 처리
@@ -67,6 +71,7 @@ public class MessageServiceImpl implements MessageService {
         User receiver = userRepository.findByUsername(messageDto.getReceiverId())
                 .filter(user -> user.getUserStatus() != UserStatus.INACTIVE)
                 .orElseThrow(() -> new IllegalArgumentException("받는 회원이 존재하지 않거나 비활성화된 회원입니다."));
+
 
         Message message = Message.builder()
                 .sender(sender)
@@ -109,12 +114,12 @@ public class MessageServiceImpl implements MessageService {
     @Transactional
     public Object deleteMessage(Long userNo, Long messageNo) {
         Message message = messageRepository.findById(messageNo).orElseThrow(()
-                -> new IllegalArgumentException("존재하지 않는 메시지입니다."));
+                -> new BaseException(ExceptionMessage.MESSAGE_NOT_FOUND));
 
         boolean isSender = message.getSender() != null && message.getSender().getNo().equals(userNo);
         boolean isReceiver = message.getReceiver() != null && message.getReceiver().getNo().equals(userNo);
         if (!(isSender || isReceiver)) {
-            throw new IllegalArgumentException("유저 정보가 일치하지 않습니다.");
+            throw new UserException(ExceptionMessage.USER_ACCESS_DENIED, "유저 정보가 일치하지 않습니다.");
         }
 
         if (isSender) {

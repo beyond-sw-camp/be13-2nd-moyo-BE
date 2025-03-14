@@ -1,5 +1,7 @@
 package com.beyond.backend.domain.user.service;
 
+import com.beyond.backend.domain.common.exception.UserException;
+import com.beyond.backend.domain.common.exception.message.ExceptionMessage;
 import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import com.beyond.backend.domain.user.entity.User;
 import com.beyond.backend.domain.user.repository.UserRepository;
@@ -19,7 +21,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("no user"));
+                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND));
 
         log.info("Username : {}", user.getNo());
 

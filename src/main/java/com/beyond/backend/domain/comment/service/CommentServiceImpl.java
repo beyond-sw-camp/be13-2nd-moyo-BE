@@ -8,6 +8,10 @@ import com.beyond.backend.domain.comment.repository.CommentRepository;
 import com.beyond.backend.domain.common.dto.RequestNotificationDto;
 import com.beyond.backend.domain.common.entity.NotificationType;
 import com.beyond.backend.domain.common.entity.UserStatus;
+import com.beyond.backend.domain.common.exception.BaseException;
+import com.beyond.backend.domain.common.exception.PostException;
+import com.beyond.backend.domain.common.exception.UserException;
+import com.beyond.backend.domain.common.exception.message.ExceptionMessage;
 import com.beyond.backend.domain.common.service.NotificationService;
 import com.beyond.backend.domain.like.entity.Like;
 import com.beyond.backend.domain.like.repository.LikeRepository;
@@ -62,7 +66,8 @@ public class CommentServiceImpl implements CommentService {
         CustomUserDetails userDetails = authService.getCurrentUser();
         // 게시글이 존재하는지 확인
         Post post = postRepository.findById(commentDto.getPostNo())
-                .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new PostException(ExceptionMessage.POST_NOT_FOUND, "ID: " + commentDto.getPostNo())
+                );
 
         // 비활성화된 게시글은 애초에 상세 조회가 안됨 == 댓글도 못 씀
 
@@ -75,12 +80,13 @@ public class CommentServiceImpl implements CommentService {
 
         // 게시글 비활성 상태면 댓글 작성 막음 아무도 댓글 못 씀
         if (post.getPostStatus() == PostStatus.INACTIVE) {
-            throw new IllegalArgumentException("비활성화된 게시글에는 댓글을 작성할 수 없습니다.");
+            throw new PostException(ExceptionMessage.POST_ACCESS_DENIED);
+            //"비활성화된 게시글에는 댓글을 작성할 수 없습니다."
         }
 
         // 댓글 작성자 확인 및 활성화 여부 체크
         User sender = userRepository.findById(userNo)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userNo));
 
 
         if (sender.getUserStatus() != UserStatus.ACTIVE) {
@@ -88,7 +94,7 @@ public class CommentServiceImpl implements CommentService {
         }
 
         if (!sender.getNo().equals(userDetails.getUser().getNo())) {
-            throw new IllegalArgumentException("bad request");
+            throw new BaseException(ExceptionMessage.INVALID_REQUEST); // bad request
         }
 
 
@@ -127,21 +133,21 @@ public class CommentServiceImpl implements CommentService {
 
         // 게시글이 존재하는지 확인
         Post post  = postRepository.findById(commentDto.getPostNo())
-                .orElseThrow(()-> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
+                .orElseThrow(()-> new PostException(ExceptionMessage.POST_NOT_FOUND, "ID: " + commentDto.getPostNo()));
 
         // 댓글이 존재하는 지 확인
         Comment comment  = commentRepository.findById(commentNo)
-                .orElseThrow(()-> new IllegalArgumentException("해당 댓글을 찾을 수 없습니다."));
+                .orElseThrow(()-> new PostException(ExceptionMessage.COMMENT_NOT_FOUND));
 
 
 
         User user = userRepository.findById(comment.getUser().getNo())
-                .orElseThrow(()-> new IllegalArgumentException("해당하는 유저가 없습니다."));
+                .orElseThrow(()-> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + comment.getUser().getNo()));
 
         // 댓글 작성자가 로그인한 회원과 같은지 비교 userNo로
         // 댓글을 수정하려는 유저가 댓글을 작성한 유저인지 확인
         if (!user.getNo().equals(userDetails.getUser().getNo())) {
-            throw new IllegalArgumentException("bad request");
+            throw new BaseException(ExceptionMessage.INVALID_REQUEST);
         }
 
 
@@ -160,15 +166,15 @@ public class CommentServiceImpl implements CommentService {
 
         // 댓글이 존재하는 지 검증
         Comment comment  = commentRepository.findById(commentNo)
-                .orElseThrow(()-> new IllegalArgumentException("해당 댓글을 찾을 수 없습니다."));
+                .orElseThrow(()-> new PostException(ExceptionMessage.COMMENT_NOT_FOUND));
 
         // 유저가 존재라는 지 검증
         User user = userRepository.findById(comment.getUser().getNo())
-                .orElseThrow(()-> new IllegalArgumentException("해당하는 유저가 없습니다."));
+                .orElseThrow(()-> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + comment.getUser().getNo()));
 
         //작성자와 로그인한 유저가 같은지 확인
         if (!user.getNo().equals(userDetails.getUser().getNo()) && !authService.isAdminFromUserDetails(userDetails)) {
-            throw new IllegalArgumentException("bad request");
+            throw new BaseException(ExceptionMessage.INVALID_REQUEST);
         }
 
 
@@ -194,7 +200,7 @@ public class CommentServiceImpl implements CommentService {
         Page<CommentResponseDto> userComments = commentRepository.getUserComments(userNo, pageable);
 
         if( userComments.isEmpty()){
-            throw new IllegalArgumentException("댓글이 존재하지 않습니다.");
+            throw new PostException(ExceptionMessage.COMMENT_NOT_FOUND);
         }
 
 
@@ -208,7 +214,7 @@ public class CommentServiceImpl implements CommentService {
 
         // 게시글 조회
         Post post = postRepository.findById(postNo)
-                .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 존재하지 않습니다."));
+                .orElseThrow(() ->new PostException(ExceptionMessage.POST_NOT_FOUND, "ID: " + postNo));
 
 
         if (post.getBoardType() != BoardType.FREE) {
@@ -218,7 +224,7 @@ public class CommentServiceImpl implements CommentService {
         Page<CommentResponseDto> postComment = commentRepository.getPostComments(postNo, commentSortOption, pageable);
 
         if( postComment.isEmpty()){
-            throw new IllegalArgumentException("댓글이 존재하지 않습니다.");
+            throw new PostException(ExceptionMessage.COMMENT_NOT_FOUND);
         }
 
         return postComment;
@@ -232,7 +238,7 @@ public class CommentServiceImpl implements CommentService {
         Page<PostResponseDto> commentPost = commentRepository.getUserCommentPosts(userNo, pageable);
 
         if (commentPost.isEmpty()) {
-            throw new IllegalArgumentException("게시글이 존재하지 않습니다.");
+            throw new PostException(ExceptionMessage.POST_NOT_FOUND);
         }
         return commentPost;
     }
@@ -250,15 +256,15 @@ public class CommentServiceImpl implements CommentService {
         CustomUserDetails userDetails = authService.getCurrentUser();
         // 댓글이 존재하는지 확인
         Comment comment = commentRepository.findById(commentNo).orElseThrow(
-                ()-> new IllegalArgumentException("댓글이 존재하지 않습니다."));
+                ()-> new PostException(ExceptionMessage.COMMENT_NOT_FOUND));
 
         // 유저가 존재하는지 확인
         User user = userRepository.findById(userNo).orElseThrow(
-                ()-> new IllegalArgumentException("해당 유저가 존재하지 않습니다."));
+                ()-> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userNo));
 
         // 로그인한 유저만 좋아요 가능
         if (!user.getNo().equals(userDetails.getUser().getNo())) {
-            throw new IllegalArgumentException("bad request");
+            throw new BaseException(ExceptionMessage.INVALID_REQUEST);
         }
 
 
@@ -322,7 +328,7 @@ public class CommentServiceImpl implements CommentService {
 
 
         if (likedComment.isEmpty()) {
-            throw new IllegalArgumentException("댓글이 존재하지 않습니다.");
+            throw new PostException(ExceptionMessage.COMMENT_NOT_FOUND);
         }
 
         return likedComment;

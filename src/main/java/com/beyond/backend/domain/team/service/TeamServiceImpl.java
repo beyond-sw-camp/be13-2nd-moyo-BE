@@ -2,6 +2,10 @@ package com.beyond.backend.domain.team.service;
 
 import com.beyond.backend.domain.common.dto.RequestNotificationDto;
 import com.beyond.backend.domain.common.entity.NotificationType;
+import com.beyond.backend.domain.common.exception.BaseException;
+import com.beyond.backend.domain.common.exception.TeamException;
+import com.beyond.backend.domain.common.exception.UserException;
+import com.beyond.backend.domain.common.exception.message.ExceptionMessage;
 import com.beyond.backend.domain.common.service.NotificationService;
 import com.beyond.backend.domain.project.entity.ProjectStatus;
 import com.beyond.backend.domain.team.dto.TeamDto;
@@ -66,7 +70,7 @@ public class TeamServiceImpl implements TeamService {
     private User findUserByUsername() {
         CustomUserDetails userDetails = authService.getCurrentUser();
         return userRepository.findByUsername(userDetails.getUsername())
-                .orElseThrow(() -> new IllegalArgumentException("유저가 존재하지 않습니다."));
+                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND));
     }
 
     /* 팀 전체 페이지 페이지*/
@@ -120,7 +124,7 @@ public class TeamServiceImpl implements TeamService {
     public void updateTeam(TeamResponseDto teamDto) throws Exception {
 
         Team searchTeam = teamRepository.findById(teamDto.getNo())
-                .orElseThrow(() -> new Exception("팀을 찾을 수 없습니다."));
+                .orElseThrow(() -> new BaseException(ExceptionMessage.TEAM_NOT_FOUND));
 
         searchTeam.updateTeamDetails(
                 teamDto.getTeamName(),
@@ -172,7 +176,7 @@ public class TeamServiceImpl implements TeamService {
      */
     @Override
     public void deleteTeam(Long teamNo) throws Exception {
-        teamRepository.findById(teamNo).orElseThrow(() -> new Exception("팀이 존재하지 않습니다."));
+        teamRepository.findById(teamNo).orElseThrow(() -> new TeamException(ExceptionMessage.TEAM_NOT_FOUND));
 
         User user = findUserByUsername();
 
@@ -180,7 +184,7 @@ public class TeamServiceImpl implements TeamService {
         if (isLeader != null && isLeader) {
             teamRepository.deleteById(teamNo);
         } else {
-            throw new IllegalArgumentException("권한이 없습니다!");
+            throw new UserException(ExceptionMessage.USER_ACCESS_DENIED);
         }
     }
 
@@ -195,7 +199,7 @@ public class TeamServiceImpl implements TeamService {
     @Override
     public List<TeamMemberListDto> getTeamMembers(Long teamNo) throws Exception {
         teamRepository.findById(teamNo)
-                .orElseThrow(() -> new IllegalArgumentException("팀이 존재하지 않습니다."));
+                .orElseThrow(() -> new BaseException(ExceptionMessage.TEAM_NOT_FOUND));
 
         return teamUserRepository.findByTeamNoForMember(teamNo,TeamJoinStatus.Approved);
     }
@@ -212,7 +216,7 @@ public class TeamServiceImpl implements TeamService {
     public void teamJoinRequest(Long teamNo) throws Exception {
         User user = findUserByUsername();
         Team team = teamRepository.findById(teamNo)
-                .orElseThrow(() -> new IllegalArgumentException("팀이 존재하지 않습니다."));
+                .orElseThrow(() -> new BaseException(ExceptionMessage.TEAM_NOT_FOUND));
 
         if (teamUserRepository.findByUserNoEquals(teamNo, user.getNo())) {
             throw new IllegalArgumentException("이미 등록되었거나 요청한 팀 입니다!!");
@@ -271,11 +275,12 @@ public class TeamServiceImpl implements TeamService {
         }
 
         if (teamUserNo == null) {
-            throw new IllegalArgumentException("신청하지 않았거나 존재하지 않는 팀입니다.");
+            throw new BaseException(ExceptionMessage.TEAM_NOT_FOUND,"신청하지 않았거나 존재하지 않는 팀입니다.");
         } else if (status.equals(TeamJoinStatus.Pending)) {
             teamUserRepository.deleteById(teamUserNo);
         } else{
-            throw new IllegalArgumentException("이미 처리된 요청입니다.");
+            throw new BaseException(ExceptionMessage.INVALID_REQUEST);
+            // "이미 처리된 요청입니다."
         }
     }
 
@@ -293,7 +298,7 @@ public class TeamServiceImpl implements TeamService {
         if (isLeader != null && isLeader) {
             return teamUserRepository.findByTeamNoForMember(teamNo, status);
         } else {
-            throw new IllegalArgumentException("권한이 없습니다!");
+            throw new UserException(ExceptionMessage.USER_ACCESS_DENIED);
         }
     }
 
@@ -309,18 +314,18 @@ public class TeamServiceImpl implements TeamService {
         Long teamUserNo = teamUserRepository.findByUserNoForTeamUserNo(teamNo, userNo);
 
         Team team = teamRepository.findById(teamNo)
-                .orElseThrow(() -> new IllegalArgumentException("team not found!"));
+                .orElseThrow(() -> new BaseException(ExceptionMessage.TEAM_NOT_FOUND));
 
         TeamUser teamUser = teamUserRepository.findById(teamUserNo)
-                .orElseThrow(() -> new IllegalArgumentException("신청한 유저가 없습니다!"));
-
+                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID : " + teamUserNo));
+        //"신청한 유저가 없습니다!"
         TeamJoinStatus status = teamUser.getStatus();
         if (status == TeamJoinStatus.Approved) {
             throw new IllegalArgumentException("이미 가입된 유저입니다!");
         }else {
 
             User sender = userRepository.findById(userNo)
-                    .orElseThrow(() -> new IllegalArgumentException("user not found"));
+                    .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID : " + userNo));
 
             User receiver = teamUser.getUser();
 
@@ -354,7 +359,8 @@ public class TeamServiceImpl implements TeamService {
         }
 
         TeamUser teamUser = teamUserRepository.findById(teamUserNo)
-                .orElseThrow(() -> new IllegalArgumentException("신청한 유저가 없습니다!"));
+                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID : " + teamUserNo));
+                //.orElseThrow(() -> new IllegalArgumentException("신청한 유저가 없습니다!"));
 
         teamUser.setStatus(TeamJoinStatus.Rejected);
         teamUserRepository.save(teamUser);
@@ -368,7 +374,7 @@ public class TeamServiceImpl implements TeamService {
         Long teamUserNo = teamUserRepository.findByUserNoForTeamUserNo(teamNo, userNo);
 
         TeamUser teamUser = teamUserRepository.findById(teamUserNo)
-                .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다!"));
+                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID : " + user.getNo()));
 
         teamUser.setLeader(true);
         teamUserRepository.save(teamUser);
@@ -377,7 +383,7 @@ public class TeamServiceImpl implements TeamService {
         teamUserNo = teamUserRepository.findByUserNoForTeamUserNo(teamNo, user.getNo());
 
         teamUser = teamUserRepository.findById(teamUserNo)
-                .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다!"));
+                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID : " + user.getNo()));
         teamUser.setLeader(false);
         teamUserRepository.save(teamUser);
 

@@ -33,7 +33,7 @@ public class PostDto {
     @NotBlank(message = "게시글 내용은 필수 입력 항목입니다.")
     private String content;
 
-    @NotNull(message = "게시판을 타입을 지정해주십시오.")
+    @NotNull(message = "게시판 타입을 지정해 주십시오.")
     private BoardType boardType;
 
     private PostStatus postStatus;
