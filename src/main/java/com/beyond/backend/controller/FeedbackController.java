@@ -62,6 +62,7 @@ public class FeedbackController {
 	}
 
 	@Operation(summary = "사용자가 작성한 모든 피드백 조회 메서드", description = "피드백 조회 메서드입니다.")
+	@GetMapping("/list")
 	public ResponseEntity<Page<FeedbackResponseDto>> getFeedbackByUserNo(@AuthenticationPrincipal CustomUserDetails userDetails,
 																		 @PageableDefault(size = 10, page = 0) Pageable pageable){
 
