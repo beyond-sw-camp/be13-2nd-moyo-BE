@@ -9,8 +9,9 @@ import com.beyond.backend.domain.post.entity.BoardType;
 import com.beyond.backend.domain.post.entity.PostSearchOption;
 import com.beyond.backend.domain.post.entity.PostSortOption;
 import com.beyond.backend.domain.post.entity.PostStatus;
+import com.beyond.backend.domain.post.service.BookMarkService;
 import com.beyond.backend.domain.post.service.PostService;
-import com.beyond.backend.domain.user.dto.CustomUserDetails;
+import com.beyond.backend.domain.user.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -20,7 +21,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -52,6 +52,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class PostController {
 
     private final PostService postService;
+    private final BookMarkService bookMarkService;
+    private final AuthService authService;
 
     
     
@@ -128,9 +130,13 @@ public class PostController {
     @PostMapping("/posts")
     public ResponseEntity<PostResponseDto> createPost(
             @RequestParam BoardType boardType,
-            @Valid @RequestBody PostDto postDto,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
-        PostResponseDto postResponseDto = postService.createPost(boardType, postDto, userDetails.getUser().getNo());
+            @Valid @RequestBody PostDto postDto) {
+
+        if(boardType == BoardType.NOTICE){
+            authService.validateAdminAuthorization();
+        }
+
+        PostResponseDto postResponseDto = postService.createPost(boardType, postDto);
         return ResponseEntity.ok(postResponseDto);
     }
 
@@ -141,10 +147,9 @@ public class PostController {
             @RequestParam BoardType boardType,
             @RequestParam PostStatus postStatus,
             @PathVariable Long postNo,
-            @Valid @RequestBody PostDto postDto,
-            @AuthenticationPrincipal CustomUserDetails userDetails){
+            @Valid @RequestBody PostDto postDto){
 
-        PostResponseDto updatePost = postService.updatePost(boardType, postStatus, postNo, postDto, userDetails.getUser().getNo());
+        PostResponseDto updatePost = postService.updatePost(boardType, postStatus, postNo, postDto);
         return ResponseEntity.ok(updatePost);
     }
     
@@ -156,11 +161,10 @@ public class PostController {
     @Operation(summary = "게시글 삭제", description = "게시글 삭제")
     @DeleteMapping( "/posts/{postNo}")
     public ResponseEntity<String> deletePost(
-            @PathVariable Long postNo,
-            @AuthenticationPrincipal CustomUserDetails userDetails
+            @PathVariable Long postNo) {
 
-    ) {
-         postService.deletePost(postNo, userDetails.getUser().getNo());
+
+        postService.deletePost(postNo);
 
         return ResponseEntity.status(HttpStatus.OK).body("게시물이 삭제되었습니다.");
     }
@@ -170,14 +174,13 @@ public class PostController {
     @Operation(summary = "유저가 작성한 게시글 전체 조회", description = "개인 페이지에서 자신의 게시글 전체 조회")
     @GetMapping("/user/post")
     public ResponseEntity<Page<UserPostResponseDto>> getMyPost(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PageableDefault(size = 10, page= 0)Pageable pageable
 
     ){
         // 내가 쓴 게시글을 게시판 종류를 나눠서 볼 수 있음,
         // 내가 쓴 게시글은 전체 조회랑 다르게 비활성 상태여도 볼 수 있음
 
-        Page<UserPostResponseDto> result =  postService.getUserPosts( userDetails.getUser().getNo(),pageable);
+        Page<UserPostResponseDto> result =  postService.getUserPosts(pageable);
         
         // 조회 결과가 없는 경우 처리
 
@@ -194,8 +197,8 @@ public class PostController {
     @Operation(summary = "게시글 북마크 추가 및 취소", description = "게시글 북마크 상태 (추가, 취소)")
     @PostMapping("/posts/{postNo}/bookmark")
     public ResponseEntity<String> checkBookMark(
-            @PathVariable Long postNo,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
+            @PathVariable Long postNo) {
+
         // 로그인된 세션에서 유저 번호 가져오기
         String result = bookMarkService.checkBookMark(postNo);
         return ResponseEntity.ok(result);
@@ -206,7 +209,6 @@ public class PostController {
     @Operation(summary = "북마크한 게시글 조회", description = "유저가 북마크한 게시글을 게시판 타입별로 조회. 타입이 없으면 전체 조회.")
     @GetMapping("/user-page/bookmark")
     public ResponseEntity<Page<UserPostResponseDto>> getBookmarkedPosts(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(required = false) BoardType boardType, // boardType에 따라 북마크한 게시글을 나눠서 볼 수 있음 (전체 다 보려면 빼기 )
             @PageableDefault(size = 10, page = 0) Pageable pageable) {
 

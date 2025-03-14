@@ -43,27 +43,21 @@ import org.springframework.data.domain.Pageable;
 
 
     // 게시글 생성
-    PostResponseDto createPost(BoardType boardType, PostDto postDto, Long userNo);
+    PostResponseDto createPost(BoardType boardType, PostDto postDto);
 
     // 게시글 수정
-    PostResponseDto updatePost(BoardType boardType,PostStatus postStatus, Long postNo, PostDto postDto, Long userNo);
+    PostResponseDto updatePost(BoardType boardType,PostStatus postStatus, Long postNo, PostDto postDto);
 
     // 게시글 삭제
-    void deletePost(Long postNo, Long userNo) ;
+    void deletePost(Long postN) ;
 
 
     // 내가 쓴 게시글 전체 조회
-    Page<UserPostResponseDto> getUserPosts(Long userNo, Pageable pageable);
+    Page<UserPostResponseDto> getUserPosts( Pageable pageable);
 
     //----
 
     // 게시글 북마크
-
-    String checkBookMark(Long postNo, Long userNo);
-
-    Page<UserPostResponseDto> getBookmarkedPosts(Long userNo, BoardType boardType, Pageable pageable);
-
-
 
 
     //----
