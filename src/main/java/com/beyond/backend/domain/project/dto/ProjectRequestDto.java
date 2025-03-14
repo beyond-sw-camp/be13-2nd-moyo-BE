@@ -20,6 +20,6 @@ public class ProjectRequestDto {
 
     private ProjectStatus projectStatus;
 
-    private List<Long> techsNos;
+    private List<Long> techsNo;
 }
 

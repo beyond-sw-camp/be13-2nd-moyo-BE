@@ -33,23 +33,25 @@ public class ScheduleServiceImpl implements ScheduleService {
     private final NotificationService notificationService;
     private final TeamRepository teamRepository;
 
+    @Override
     @Transactional
     public ScheduleResponseDto createSchedule(Long userNo, ScheduleRequestDto dto) {
 
+        // 유효성 검증: 1. 유저 2. 팀 유저에 속하는지
         validateScheduleRequest(dto);
 
         Team team = teamRepository.findById(dto.getTeamNo())
-                .orElseThrow(() -> new IllegalArgumentException("team not found"));
+                .orElseThrow(() -> new IllegalArgumentException("해당하는 팀이 없습니다."));
 
         Schedule schedule = Schedule.builder()
-                .title(dto.getTitle())
-                .description(dto.getDescription())
-                .startDate(dto.getStartDate())
-                .endDate(dto.getEndDate())
-                .team(team)
-                .status(ScheduleStatus.PENDING)
-                .isAlertSent(false)
-                .build();
+                                    .title(dto.getTitle())
+                                    .description(dto.getDescription())
+                                    .startDate(dto.getStartDate())
+                                    .endDate(dto.getEndDate())
+                                    .team(team)
+                                    .status(ScheduleStatus.PENDING)
+                                    .isAlertSent(false)
+                                    .build();
 
         team.addSchedule(schedule);
         scheduleRepository.save(schedule);
@@ -57,8 +59,11 @@ public class ScheduleServiceImpl implements ScheduleService {
         return new ScheduleResponseDto(schedule);
     }
 
+    @Override
     @Transactional
     public ScheduleResponseDto updateSchedule(Long scheduleId, Long userNo, ScheduleRequestDto dto) {
+
+
         // 유효성 검증
         validateScheduleRequest(dto);
 
@@ -82,9 +87,9 @@ public class ScheduleServiceImpl implements ScheduleService {
         return new ScheduleResponseDto(schedule);
     }
 
-    public ScheduleResponseDto getSchedule(Long scheduleId, Long userNo){
-        Schedule schedule = scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new EntityNotFoundException("Schedule not found with id: " + scheduleId));
+    public ScheduleResponseDto getSchedule(Long scheduleNo, Long userNo){
+        Schedule schedule = scheduleRepository.findById(scheduleNo)
+                .orElseThrow(() -> new EntityNotFoundException("Schedule not found with id: " + scheduleNo));
         validateUserAccessToTeam(userNo, schedule.getTeam());
 
         return new ScheduleResponseDto(schedule);
@@ -101,18 +106,17 @@ public class ScheduleServiceImpl implements ScheduleService {
         // 회원이 팀에 속하는지
         validateUserAccessToTeam(userNo, team);
 
-        //
-        Page<ScheduleResponseDto> schedules = scheduleRepository.getSchedulesByTeam(teamNo, userNo, pageable,
-            scheduleSortOption);
+        Page<ScheduleResponseDto> schedules = scheduleRepository.getSchedulesByTeam(teamNo, userNo, pageable, scheduleSortOption);
 
         return schedules;
     }
 
-
+    @Override
     @Transactional
     public void deleteSchedule(Long scheduleId, Long userNo) {
         Schedule schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new EntityNotFoundException("Schedule not found with id: " + scheduleId));
+
         validateUserAccessToTeam(userNo, schedule.getTeam());
         scheduleRepository.delete(schedule);
     }
@@ -120,13 +124,17 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Override
     @Transactional
     public void sendAlert() {
-        List<AlertResponseDto> result = scheduleRepository.findSchedulesEndingWithin24Hours();
-        for (AlertResponseDto s : result) {
-            User receiver = userRepository.findById(s.getReceiverNo())
-                    .orElseThrow(() -> new IllegalArgumentException("user not found"));
 
-            Schedule schedule = scheduleRepository.findById(s.getScheduleNo())
-                    .orElseThrow(() -> new IllegalArgumentException("schedule not found"));
+        // 1. 24시간 안에 끝나야 하는 Schedule 가져오기
+
+        List<AlertResponseDto> result = scheduleRepository.findSchedulesEndingWithin24Hours();
+        for (AlertResponseDto alertDto : result) {
+
+            User receiver = userRepository.findById(alertDto.getReceiverNo())
+                    .orElseThrow(() -> new IllegalArgumentException("해당하는 유저를 찾을 수 없습니다."));
+
+            Schedule schedule = scheduleRepository.findById(alertDto.getScheduleNo())
+                    .orElseThrow(() -> new IllegalArgumentException("해당하는 일정을 찾을 수 없습니다."));
 
             notificationService.sendNotification(
                     new RequestNotificationDto(
@@ -140,7 +148,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     private void validateScheduleRequest(ScheduleRequestDto dto) {
         if (dto.getEndDate() != null && dto.getStartDate().isAfter(dto.getEndDate())) {
-            throw new IllegalArgumentException("Start date cannot be after end date");
+            throw new IllegalArgumentException("일정 시작일이 일정 종료일보다 늦을 수 없습니다.");
         }
     }
 

@@ -78,26 +78,29 @@ public class ProjectServiceImpl implements ProjectService {
 
 		projectRepository.save(project);
 
-		// 3. techsNos 리스트를 순회하며 각 기술에 대해 ProjectTech 엔티티 생성
-		List<ProjectTech> projectTechList = projectRequestDto.getTechsNos().stream()
-			.map( techNo -> {
-				// 각 techNo로 Tech 엔티티 조회
-				Tech tech = techRepository.findById(techNo).orElseThrow(() -> new IllegalArgumentException("해당 기술이 존재하지 않습니다."));
+		// 3. techsNos 리스트를 순회하며 각 기술에 대해 ProjectTech 리스트 생성
+		List<ProjectTech> projectTechList = projectRequestDto.getTechsNo()
+																.stream()
+																.map(techNo -> {
+																	Tech tech = techRepository.findById(techNo)
+																		.orElseThrow(() -> new IllegalArgumentException("해당 기술이 존재하지 않습니다."));
 
-				// ProjectTech 엔티티 생성: project.getNo()를 사용하여 project_no를 할당
-				return ProjectTech.builder()
-									.tech(tech)
-									.project(project)
-									.build();
-			})
-			.collect(Collectors.toList());
+																	return ProjectTech.builder()
+																		.tech(tech)
+																		.project(project)
+																		.build();
+																}).collect(Collectors.toList());
+
+
+
 
 		// 4. 생성한 ProjectTech 엔티티들을 한 번에 저장
 		projectTechRepository.saveAll(projectTechList);
 
+		// 5. 프로젝트에도 프로젝트 리스트 저장해주기
 		project.addProjectTechList(projectTechList);
 
-		// 5. ProjectResponseDto 생성 후 반환
+		// 6. ProjectResponseDto 생성 후 반환
 		return new ProjectResponseDto(project);
 	}
 
@@ -122,6 +125,7 @@ public class ProjectServiceImpl implements ProjectService {
 
 		Team team = project.getTeam();
 
+
 		// 3. user 가 team 에 속하는가
 		boolean existsByUserNoAndTeamNo = teamUserRepository.existsByUserNoAndTeamNo(userNo, team.getNo());
 
@@ -132,19 +136,20 @@ public class ProjectServiceImpl implements ProjectService {
 		// 4. 기존 ProjectTech 리스트 삭제 (중복 데이터 방지)
 		deleteProjectTechs(project);
 
+
 		// 5. 새로운 ProjectTech 리스트 생성
-		List<ProjectTech> newProjectTechList = projectRequestDto.getTechsNos().stream()
-			.distinct() // 중복 제거
-			.map(techNo -> {
-				Tech tech = techRepository.findById(techNo).orElseThrow(() -> new IllegalArgumentException("해당 기술이 존재하지 않습니다."));
+		List<ProjectTech> newProjectTechList = projectRequestDto.getTechsNos()
+											.stream()
+											.map(techNo -> {
+												Tech tech = techRepository.findById(techNo).orElseThrow(() -> new IllegalArgumentException("해당 기술이 존재하지 않습니다."));
 
 
-				return ProjectTech.builder()
-									.tech(tech)
-									.project(project)
-									.build();
-			})
-			.collect(Collectors.toList());
+												return ProjectTech.builder()
+																	.tech(tech)
+																	.project(project)
+																	.build();
+											})
+											.collect(Collectors.toList());
 
 		// 6. 프로젝트에 새로운 프로젝트 기술 리스트 설정
 		project.getProjectTeches().clear(); // 기존 리스트를 비움
@@ -156,6 +161,7 @@ public class ProjectServiceImpl implements ProjectService {
 		// 8. 업데이트된 프로젝트 정보 반환
 		return new ProjectResponseDto(project);
 	}
+
 
 	@Transactional
 	public void deleteProjectTechs(Project project) {
@@ -257,7 +263,6 @@ public class ProjectServiceImpl implements ProjectService {
 		// 5. 프로젝트 삭제
 		projectRepository.deleteById(projectNo);
 	}
-
 	/**
 	 * 프로젝트를 끝내는 로직ㅠ
 	 * 1. 프로젝트 상태 변경
@@ -265,3 +270,4 @@ public class ProjectServiceImpl implements ProjectService {
 	 * 3. 각각의 유저에게 설문 반영됨
 	 */
 }
+

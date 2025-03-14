@@ -54,11 +54,11 @@ public class ScheduleRepositoryImpl implements ScheduleRepositoryCustom{
 
         List<ScheduleResponseDto> allSchedules = queryFactory
             .select(Projections.constructor(ScheduleResponseDto.class,
-                schedule.title,
-                schedule.startDate,
-                schedule.endDate,
-                schedule.description,
-                schedule.status
+                        schedule.title,
+                        schedule.startDate,
+                        schedule.endDate,
+                        schedule.description,
+                        schedule.status
             ))
             .from(schedule)
             .join(schedule.team, team)
