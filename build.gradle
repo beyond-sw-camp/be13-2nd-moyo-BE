@@ -63,10 +63,3 @@ tasks.named('test') {
 clean {
     delete file('src/main/generated')
 }
-
-tasks.withType(Jar) {
-    from("src/main/resources") {
-        include("application.properties")
-    }
-}
-
