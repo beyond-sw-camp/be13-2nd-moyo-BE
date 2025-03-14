@@ -1,33 +1,33 @@
 
 package com.beyond.backend.domain.project.repository;
 
+import static com.beyond.backend.domain.project.entity.QProject.*;
+import static com.beyond.backend.domain.project.entity.QProjectTech.*;
+import static com.beyond.backend.domain.team.entity.QTeam.*;
+import static com.beyond.backend.domain.teamUser.entity.QTeamUser.*;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.support.PageableExecutionUtils;
+import org.springframework.stereotype.Repository;
 
 import com.beyond.backend.domain.project.dto.ProjectResponseDto;
 import com.beyond.backend.domain.project.entity.ProjectSearchOption;
 import com.beyond.backend.domain.project.entity.ProjectSortOption;
-import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+
 import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.support.PageableExecutionUtils;
-import org.springframework.stereotype.Repository;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import static com.beyond.backend.domain.project.entity.QProject.project;
-import static com.beyond.backend.domain.project.entity.QProjectTech.projectTech;
-import static com.beyond.backend.domain.team.entity.QTeam.team;
-import static com.beyond.backend.domain.teamUser.entity.QTeamUser.teamUser;
 
 /*import static com.beyond.backend.domain.project.entity.QProject.project;
 import static com.beyond.backend.domain.project.entity.QProjectTech.projectTech;
@@ -173,12 +173,12 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
 	private BooleanExpression projectExistsInTech(String keyword) {
 
 		return JPAExpressions.selectOne()
-			.from(projectTech)
-			.where(
-				projectTech.project.no.eq(project.no)
-					.and(projectTech.tech.techName.contains(keyword))
-			)
-			.exists();
+							.from(projectTech)
+							.where(
+								projectTech.project.no.eq(project.no)
+									.and(projectTech.tech.techName.contains(keyword))
+							)
+							.exists();
 	}
 
 

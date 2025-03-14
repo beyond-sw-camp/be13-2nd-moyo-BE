@@ -4,7 +4,6 @@ import com.beyond.backend.domain.team.dto.ScheduleRequestDto;
 import com.beyond.backend.domain.team.dto.ScheduleResponseDto;
 import com.beyond.backend.domain.team.entity.ScheduleSortOption;
 
-import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
