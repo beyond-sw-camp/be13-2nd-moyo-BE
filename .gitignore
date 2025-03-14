@@ -5,7 +5,6 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-/src/main/resources/application-config.properties
 /src/main/resources/static/
 /logs/
 

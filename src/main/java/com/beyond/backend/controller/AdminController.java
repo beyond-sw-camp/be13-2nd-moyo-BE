@@ -39,7 +39,6 @@ public class AdminController {
     public ResponseEntity<DeleteUserByAdminResponseDto> deleteUserByAdmin(@RequestBody DeleteUserByAdminRequestDto dto,
                                                                           @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        System.out.println(dto.getUserNo()+" us dsfs`````````````````````````");
         if (authService.isAdminFromUserDetails(userDetails)) {
             adminService.deleteUserByAdmin(dto);
             DeleteUserByAdminResponseDto response = new DeleteUserByAdminResponseDto("User deleted successfully.");
