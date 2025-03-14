@@ -76,7 +76,6 @@ public class MessageServiceImpl implements MessageService {
                 .deletedByReceiver(false)
                 .build();
 
-
         // 트랜잭션 종료 후가 아니라, 바로 알림 전송
         notificationService.sendNotification(
                 new RequestNotificationDto(
