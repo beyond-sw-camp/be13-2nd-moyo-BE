@@ -197,9 +197,7 @@ public class PostController {
             @PathVariable Long postNo,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         // 로그인된 세션에서 유저 번호 가져오기
-
-
-        String result = postService.checkBookMark(postNo, userDetails.getUser().getNo());
+        String result = bookMarkService.checkBookMark(postNo);
         return ResponseEntity.ok(result);
     }
 
@@ -212,10 +210,7 @@ public class PostController {
             @RequestParam(required = false) BoardType boardType, // boardType에 따라 북마크한 게시글을 나눠서 볼 수 있음 (전체 다 보려면 빼기 )
             @PageableDefault(size = 10, page = 0) Pageable pageable) {
 
-        Page<UserPostResponseDto> result = postService.getBookmarkedPosts( userDetails.getUser().getNo(), boardType , pageable);
+        Page<UserPostResponseDto> result = bookMarkService.getBookmarkedPosts(boardType, pageable);
         return ResponseEntity.ok(result);
     }
-
-
 }
-    

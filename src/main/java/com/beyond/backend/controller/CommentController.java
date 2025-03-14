@@ -89,7 +89,7 @@ public class CommentController {
             @PathVariable Long commentNo,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-            commentService.deleteComment(commentNo,  userDetails.getUser().getNo());
+        commentService.deleteComment(commentNo, userDetails.getUser().getNo());
 
         return ResponseEntity.status(HttpStatus.OK).body("댓글이 삭제되었습니다.");
     }

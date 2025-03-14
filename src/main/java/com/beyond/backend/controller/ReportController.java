@@ -5,7 +5,7 @@ import com.beyond.backend.domain.report.dto.ReportDto;
 import com.beyond.backend.domain.report.dto.ReportResponseDto;
 import com.beyond.backend.domain.report.service.ReportService;
 import com.beyond.backend.domain.user.dto.CustomUserDetails;
-import com.beyond.backend.domain.user.repository.UserRepository;
+import com.beyond.backend.domain.user.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
@@ -38,13 +38,16 @@ DATE              AUTHOR             NOTE
 @RequiredArgsConstructor
 public class ReportController {
     private final ReportService reportService;
-    private final UserRepository userRepository;
+    private final AuthService authService;
 
     @Operation(summary = "신고 단건 조회")
     @GetMapping("/reports")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ReportResponseDto> getReport(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestParam Long reportNo) {
-        ReportResponseDto reportResponseDto = reportService.getReport(userDetails, reportNo);
+    public ResponseEntity<ReportResponseDto> getReport(@RequestParam Long reportNo) {
+
+        authService.validateAdminAuthorization();
+
+        ReportResponseDto reportResponseDto = reportService.getReport(reportNo);
 
         return ResponseEntity.status(HttpStatus.OK).body(reportResponseDto);
     }
@@ -53,11 +56,10 @@ public class ReportController {
     @PreAuthorize("hasRole('ADMIN')") // role(ADMIN) 추가 예정!
     @GetMapping("/reports/{userId}")
     public ResponseEntity<Page<ReportResponseDto>> getUserReports(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable String userId,
             @PageableDefault(size = 10, page = 0, sort = "no") Pageable pageable) {
 
-        Page<ReportResponseDto> reportResponseDto = reportService.getUserReportedList(userDetails, userId, pageable);
+        Page<ReportResponseDto> reportResponseDto = reportService.getUserReportedList(userId, pageable);
 
         return ResponseEntity.ok(reportResponseDto);
     }
@@ -66,10 +68,9 @@ public class ReportController {
     @PreAuthorize("hasRole('ADMIN')") // role(ADMIN) 추가  예정!
     @GetMapping("/reports-list")
     public ResponseEntity<Page<ReportResponseDto>> getAllReports(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PageableDefault(size = 10, page = 0, sort = "no") Pageable pageable) {
 
-        Page<ReportResponseDto> reportResponseDto = reportService.getAllReports(userDetails, pageable);
+        Page<ReportResponseDto> reportResponseDto = reportService.getAllReports(pageable);
 
         return ResponseEntity.ok(reportResponseDto);
     }
@@ -93,10 +94,9 @@ public class ReportController {
                     "    BANNED       // 사용자 밴 + 모든 작성한 글(게시글+댓글) 삭제")
     @PutMapping("/reports/{reportNo}")
     public ResponseEntity<ReportResponseDto> updateReport(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long reportNo,
             @Parameter(description = "no는 신고번호입니다") @RequestBody ReportAdminResDto reportAdminResDto) {
-        ReportResponseDto reportResponseDto = reportService.processReport(userDetails, reportNo, reportAdminResDto);
+        ReportResponseDto reportResponseDto = reportService.processReport(reportNo, reportAdminResDto);
 
         return ResponseEntity.ok(reportResponseDto);
 

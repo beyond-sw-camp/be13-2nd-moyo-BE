@@ -72,10 +72,4 @@ public class AdminServiceImpl implements AdminService {
             user.getUserStatus()
         );
     }
-
-
-
-
-
-
 }

@@ -10,6 +10,7 @@ import com.beyond.backend.domain.project.service.ProjectService;
 import com.beyond.backend.domain.teamUser.repository.TeamUserRepository;
 import com.beyond.backend.domain.user.dto.CustomUserDetails;
 
+import com.beyond.backend.domain.user.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -27,10 +28,11 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/project")
 @RequiredArgsConstructor
-public class    ProjectController {
+public class ProjectController {
 
     private final ProjectService projectService;
     private final TeamUserRepository teamUserRepository;
+    private final AuthService authService;
 
 
     @Operation(summary = "프로젝트 등록 메서드", description = "프로젝트 등록 메서드입니다.")
@@ -60,6 +62,7 @@ public class    ProjectController {
     public ResponseEntity<Void> deleteProject(  @AuthenticationPrincipal CustomUserDetails userDetails ,
                                                 @PathVariable("projectNo") Long projectNo ) throws Exception {
 
+        authService.validateAdminAuthorization();
         projectService.deleteProject(userDetails.getUser().getNo(), projectNo);
 
         return ResponseEntity.noContent().build();
@@ -67,8 +70,8 @@ public class    ProjectController {
 
     @Operation(summary = "프로젝트 전체 조회")
     @GetMapping
-    public ResponseEntity<Page<ProjectResponseDto>> getProjects( @PageableDefault(size = 10, page = 0 ) Pageable pageable ,
-                                                                @RequestParam(required = false) ProjectSortOption projectSortOption){
+    public ResponseEntity<Page<ProjectResponseDto>> getProjects(@PageableDefault(size = 10, page = 0) Pageable pageable,
+                                                                @RequestParam(required = false) ProjectSortOption projectSortOption) {
 
         Page<ProjectResponseDto> allProjects = projectService.getAllProjects(pageable, projectSortOption);
 

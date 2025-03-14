@@ -32,8 +32,6 @@ public class TechServiceImpl implements TechService {
 	@Override
 	public TechResponseDto createTech(HttpServletRequest request, TechRequestDto dto) {
 
-		validationAdmin(request);
-
 		if (techRepository.existsByTechName(dto.getTechName())) {
 			throw new IllegalArgumentException("이미 존재하는 기술입니다");
 		}
@@ -54,40 +52,11 @@ public class TechServiceImpl implements TechService {
 
 	@Override
 	public void deleteTech(HttpServletRequest request, Long no) {
-		validationAdmin(request);
 
 		techRepository.findById(no)
 						.orElseThrow(() -> new ProjectException(ExceptionMessage.TECH_NOT_FOUND));
 
 		techRepository.deleteById(no);
-	}
-
-	private String resolveToken(HttpServletRequest request) {
-		String bearerToken = request.getHeader("Authorization");
-		if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-			return bearerToken.substring(7); // "Bearer " 부분 제거
-		}
-		return null;
-	}
-
-	private void validationAdmin(HttpServletRequest request) {
-		String token = resolveToken(request);
-
-		if (token == null || !jwtTokenProvider.validateToken(token)) {
-			throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
-		}
-
-		Authentication authentication = jwtTokenProvider.getAuthentication(token);
-		CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-
-		// 관리자 권한 체크
-		boolean isAdmin = userDetails.getAuthorities().stream()
-				.map(GrantedAuthority::getAuthority)
-				.anyMatch(role -> role.equals("ROLE_ADMIN"));
-
-		if (!isAdmin) {
-			throw new SecurityException("관리자 권한이 필요합니다.");
-		}
 	}
 
 }

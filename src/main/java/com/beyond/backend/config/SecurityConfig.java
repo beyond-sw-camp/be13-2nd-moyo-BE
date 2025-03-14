@@ -24,7 +24,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+
     private final JwtTokenProvider jwtTokenProvider;
+
 
     //시큐리티 role 수직적 게층 시큐리티에 적용
     @Bean
@@ -80,8 +82,6 @@ public class SecurityConfig {
                 );
         return http.build();
     }
-
-
 
     @Bean
     public PasswordEncoder passwordEncoder(){

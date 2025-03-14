@@ -53,7 +53,6 @@ public class Comment extends BaseEntity {
     }*/
 
     protected Comment(){
-
     }
 
     // 빌더 패턴을 안 쓰고 명시적으로 생성자를 만들어줌

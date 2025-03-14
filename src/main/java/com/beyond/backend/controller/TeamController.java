@@ -280,6 +280,4 @@ public class TeamController {
 
         return ResponseEntity.status(HttpStatus.OK).body("정상적으로 취소되었습니다.");
     }
-
-
 }

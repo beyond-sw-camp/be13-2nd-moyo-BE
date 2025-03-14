@@ -49,23 +49,28 @@ public class AuthController {
     public ResponseEntity<Map<String, Object>> login(@RequestBody LoginRequestDto dto) {
         try {
             TokenResponseDto tokenResponse = authService.login(dto);
-
-            // 로그인 성공 시 액세스 & 리프레시 토큰 반환
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", "로그인 성공");
-            response.put("accessToken", tokenResponse.getAccessToken());
-            response.put("refreshToken", tokenResponse.getRefreshToken());
-
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(createSuccessResponse("로그인 성공", tokenResponse));
         } catch (IllegalArgumentException e) {
-            // 로그인 실패 시 아이디(username) 반환
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", e.getMessage()); // 예외 메시지 (잘못된 비밀번호, 없는 유저 등)
-            response.put("username", dto.getUsername()); // 사용자가 입력한 아이디 유지
-
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(createErrorResponse(e.getMessage(), dto.getUsername()));
         }
     }
+
+    private Map<String, Object> createSuccessResponse(String message, TokenResponseDto tokenResponse) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", message);
+        response.put("accessToken", tokenResponse.getAccessToken());
+        response.put("refreshToken", tokenResponse.getRefreshToken());
+        return response;
+    }
+
+    private Map<String, Object> createErrorResponse(String message, String username) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", message);
+        response.put("username", username);
+        return response;
+    }
+
 
     /**
      * 로그아웃 API

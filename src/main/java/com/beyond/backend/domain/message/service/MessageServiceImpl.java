@@ -77,8 +77,6 @@ public class MessageServiceImpl implements MessageService {
                 .sender(sender)
                 .receiver(receiver)
                 .content(messageDto.getContent())
-                .deletedBySender(false)
-                .deletedByReceiver(false)
                 .build();
 
         // 트랜잭션 종료 후가 아니라, 바로 알림 전송
@@ -91,7 +89,6 @@ public class MessageServiceImpl implements MessageService {
         );
 
         messageRepository.save(message);
-
         return returnMessageDto(message);
 
     }

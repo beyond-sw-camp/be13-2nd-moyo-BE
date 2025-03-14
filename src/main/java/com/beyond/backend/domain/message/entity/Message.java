@@ -15,7 +15,6 @@ import org.hibernate.annotations.OnDeleteAction;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-@Builder
 @Table(name = "messages")
 public class Message extends BaseEntity {
 
@@ -44,9 +43,20 @@ public class Message extends BaseEntity {
     @Column(nullable = false)
     private boolean deletedByReceiver;
 
-    @Builder.Default
     @Column(name = "is_read", nullable = false)
     private boolean isRead = false;
+
+    @Builder
+    public Message(String content, User sender, User receiver) {
+        this.content = content;
+        this.sender = sender;
+        this.receiver = receiver;
+
+        this.deletedBySender = false;
+        this.deletedByReceiver = false;
+
+        this.isRead = false;
+    }
 
     public void deleteBySender() {
         this.deletedBySender = true;
