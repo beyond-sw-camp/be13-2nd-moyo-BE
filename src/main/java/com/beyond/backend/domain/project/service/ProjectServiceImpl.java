@@ -83,8 +83,8 @@ public class ProjectServiceImpl implements ProjectService {
 
 		projectRepository.save(project);
 
-		// 3. techsNos 리스트를 순회하며 각 기술에 대해 ProjectTech 엔티티 생성
-		List<ProjectTech> projectTechList = projectRequestDto.getTechsNos().stream()
+		// 3. techsNo 리스트를 순회하며 각 기술에 대해 ProjectTech 엔티티 생성
+		List<ProjectTech> projectTechList = projectRequestDto.getTechsNo().stream()
 			.map( techNo -> {
 				// 각 techNo로 Tech 엔티티 조회
 				Tech tech = techRepository.findById(techNo).orElseThrow(() -> new ProjectException(ExceptionMessage.TECH_NOT_FOUND));
@@ -145,7 +145,7 @@ public class ProjectServiceImpl implements ProjectService {
 
 		// 5. 새로운 ProjectTech 리스트 생성
 
-		List<ProjectTech> newProjectTechList = projectRequestDto.getTechsNos().stream()
+		List<ProjectTech> newProjectTechList = projectRequestDto.getTechsNo().stream()
 			.distinct() // 중복 제거
 			.map(techNo -> {
 				Tech tech = techRepository.findById(techNo).orElseThrow(() -> new TeamException(ExceptionMessage.TEAM_NOT_FOUND));
