@@ -16,5 +16,5 @@ public class ProjectUpdateRequestDto {
 
 	private Long teamNo;
 
-	private List<Long> techsNos;
+	private List<Long> techsNo;
 }
