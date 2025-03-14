@@ -3,6 +3,7 @@ package com.beyond.backend.domain.user.service;
 import com.beyond.backend.domain.common.exception.UserException;
 import com.beyond.backend.domain.common.exception.message.ExceptionMessage;
 import jakarta.security.auth.message.AuthException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -39,7 +40,7 @@ public class AuthServiceImpl implements AuthService {
         String confirmPassword = dto.getConfirmPassword();
 
         if (userRepository.existsByUsername(username)) {
-            return;
+            throw new IllegalArgumentException("Username is already taken");
         }
 
         if (!password.equals(confirmPassword)) {
@@ -131,8 +132,31 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional(readOnly = true)
-    public boolean isAdminFromUserDetails(CustomUserDetails userDetails) {
-        return userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority)
+    public void validateUser(User user) {
+        CustomUserDetails currentUser = getCurrentUser();
+        if (!currentUser.getUsername().equals(user.getUsername())) {
+            throw new IllegalArgumentException(
+                    "User is not authorized to perform this action. (username: " + currentUser.getUsername() + ")");
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public void validateAdminAuthorization() {
+        CustomUserDetails currentUser = getCurrentUser();
+        boolean result = currentUser.getAuthorities().stream().map(GrantedAuthority::getAuthority)
+                .anyMatch(role -> role.equals("ROLE_ADMIN"));
+
+        if (!result) {
+            throw new AccessDeniedException("권한이 없습니다.");
+        }
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public boolean isAdmin() {
+        CustomUserDetails currentUser = getCurrentUser();
+        return currentUser.getAuthorities().stream().map(GrantedAuthority::getAuthority)
                 .anyMatch(role -> role.equals("ROLE_ADMIN"));
     }
 

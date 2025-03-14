@@ -34,40 +34,36 @@ public class FeedbackController {
 	private final FeedbackService feedbackService;
 	@Operation(summary = "피드백 생성 메서드", description = "피드백 생성 메서드입니다.")
 	@PostMapping("/project/{projectNo}/createFeedback")
-		public ResponseEntity<FeedbackResponseDto> createFeedback(@AuthenticationPrincipal CustomUserDetails userDetails,
-																  @PathVariable Long projectNo,
+		public ResponseEntity<FeedbackResponseDto> createFeedback(@PathVariable Long projectNo,
 																  @RequestParam FeedbackType feedbackType,
 																  @Valid @RequestBody FeedbackRequestDto dto) {
 
-		FeedbackResponseDto feedbackResponseDto = feedbackService.createFeedback(userDetails.getUser().getNo(), projectNo,feedbackType, dto);
+		FeedbackResponseDto feedbackResponseDto = feedbackService.createFeedback(projectNo,feedbackType, dto);
 		return ResponseEntity.ok(feedbackResponseDto);
 	}
 	@Operation(summary = "피드백 수정 메서드", description = "피드백 수정 메서드입니다.")
 	@PostMapping("/project/{projectNo}/update/{feedbackNo}")
-	public ResponseEntity<FeedbackResponseDto> updateFeedback(@AuthenticationPrincipal CustomUserDetails userDetails,
-															  @PathVariable Long projectNo,
+	public ResponseEntity<FeedbackResponseDto> updateFeedback(@PathVariable Long projectNo,
 															  @PathVariable Long feedbackNo,
 															  @RequestParam FeedbackType feedbackType,
 															  @Valid @RequestBody FeedbackUpdateRequestDto dto) {
 
-		FeedbackResponseDto feedbackResponseDto = feedbackService.updateFeedback(userDetails.getUser().getNo() , projectNo, feedbackNo, feedbackType, dto);
+		FeedbackResponseDto feedbackResponseDto = feedbackService.updateFeedback(projectNo, feedbackNo, feedbackType, dto);
 
 		return ResponseEntity.ok(feedbackResponseDto);
 	}
 
 	@Operation(summary = "피드백 삭제 메서드", description = "피드백 삭제 메서드입니다.")
 	@DeleteMapping("/{feedbackNo}")
-	public ResponseEntity<String> deleteFeedback(@AuthenticationPrincipal CustomUserDetails userDetails,
-											     @PathVariable Long feedbackNo) {
+	public ResponseEntity<String> deleteFeedback(@PathVariable Long feedbackNo) {
 
-		feedbackService.deleteFeedback(userDetails.getUser().getNo(), feedbackNo);
+		feedbackService.deleteFeedback(feedbackNo);
 		return ResponseEntity.status(HttpStatus.OK).body("정상적으로 삭제되었습니다.");
 	}
 
 	@Operation(summary = "사용자가 작성한 모든 피드백 조회 메서드", description = "피드백 조회 메서드입니다.")
-	public ResponseEntity<Page<FeedbackResponseDto>> getFeedbackByUserNo(
-													@AuthenticationPrincipal CustomUserDetails userDetails,
-													@PageableDefault(size = 10, page = 0) Pageable pageable){
+	public ResponseEntity<Page<FeedbackResponseDto>> getFeedbackByUserNo(@AuthenticationPrincipal CustomUserDetails userDetails,
+																		 @PageableDefault(size = 10, page = 0) Pageable pageable){
 
 		Page<FeedbackResponseDto> feedbackByUserNo = feedbackService.getFeedbackByUserNo(userDetails.getUser().getNo(), pageable);
 		return ResponseEntity.ok(feedbackByUserNo);

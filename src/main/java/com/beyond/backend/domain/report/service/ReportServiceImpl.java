@@ -1,9 +1,12 @@
 package com.beyond.backend.domain.report.service;
 
 import com.beyond.backend.domain.comment.repository.CommentRepository;
+import com.beyond.backend.domain.common.dto.RequestNotificationDto;
+import com.beyond.backend.domain.common.entity.NotificationType;
 import com.beyond.backend.domain.common.exception.ReportException;
 import com.beyond.backend.domain.common.exception.UserException;
 import com.beyond.backend.domain.common.exception.message.ExceptionMessage;
+import com.beyond.backend.domain.common.service.NotificationService;
 import com.beyond.backend.domain.post.repository.PostRepository;
 import com.beyond.backend.domain.report.dto.ReportAdminResDto;
 import com.beyond.backend.domain.report.dto.ReportDto;
@@ -48,11 +51,11 @@ public class ReportServiceImpl implements ReportService {
     private final AuthService authService;
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
+    private final NotificationService notificationService;
 
 
     @Override // role(ADMIN) 추가 예정!
-    public Page<ReportResponseDto> getUserReportedList(CustomUserDetails userDetails, String userId, Pageable pageable) {
-        checkAdminAuthority(userDetails);
+    public Page<ReportResponseDto> getUserReportedList(String userId, Pageable pageable) {
 
         User user = userRepository.findByUsername(userId).orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND));
         Page<Report> reported = reportRepository.findAllByReported_No(user.getNo(), pageable);
@@ -63,19 +66,20 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public Page<ReportResponseDto> getAllReports(CustomUserDetails userDetails, Pageable pageable) {
-        checkAdminAuthority(userDetails);
+    public Page<ReportResponseDto> getAllReports(Pageable pageable) {
 
         Page<Report> reports = reportRepository.findAll(pageable);
         return reports.map(ReportResponseDto::reportFrom);
     }
 
     @Override
-    public ReportResponseDto getReport(CustomUserDetails userDetails, Long reportNo) {
-        checkAdminAuthority(userDetails);
+    public ReportResponseDto getReport(Long reportNo) {
+
         Report report = reportRepository.findById(reportNo).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 신고입니다"));
         return reportFrom(report);
     }
+
+
 
     @Override
     @Transactional
@@ -96,14 +100,15 @@ public class ReportServiceImpl implements ReportService {
                 .build();
 
         reportRepository.save(report);
-
         return reportFrom(report);
     }
 
-    @Override     // role(ADMIN) 추가 예정!
+    @Override
     @Transactional
-    public ReportResponseDto processReport(CustomUserDetails userDetails, Long reportNo, ReportAdminResDto reportAdminResDto) {
-        checkAdminAuthority(userDetails);
+    public ReportResponseDto processReport(Long reportNo, ReportAdminResDto reportAdminResDto) {
+
+
+
         Report report = reportRepository.findById(reportNo)
                 .orElseThrow(() -> new IllegalArgumentException("해당 신고가 없습니다"));
 
@@ -111,6 +116,15 @@ public class ReportServiceImpl implements ReportService {
         updateReportStatus(report, reportAdminResDto.getStatus());
 
         reportRepository.save(report);
+
+        User receiver = report.getReported();
+        notificationService.sendNotification(
+                new RequestNotificationDto(
+                        "SYSTEM",
+                        receiver.getUsername(),
+                        NotificationType.REPORT,
+                        receiver.getUsername() + "님의 신고가 처리되었습니다")
+        );
         return reportFrom(report);
     }
 
@@ -140,9 +154,5 @@ public class ReportServiceImpl implements ReportService {
         commentRepository.deleteByUserNo(reported.getNo());
     }
 
-    public void checkAdminAuthority(CustomUserDetails userDetails) {
-        if (!authService.isAdminFromUserDetails(userDetails)) {
-            throw new AccessDeniedException("권한이 없습니다.");
-        }
-    }
+
 }

@@ -2,6 +2,7 @@ package com.beyond.backend.controller;
 
 import java.util.List;
 
+import com.beyond.backend.domain.user.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 public class TechController {
 
 	private final TechService techService;
+	private final AuthService authService;
 
 	/**
 	 * 기술 생성 API
@@ -34,7 +36,7 @@ public class TechController {
 	@PostMapping("/create")
 	public ResponseEntity<TechResponseDto> createTech(HttpServletRequest request,
 													 @Valid @RequestBody TechRequestDto dto) {
-
+		authService.validateAdminAuthorization();
 		TechResponseDto response = techService.createTech(request, dto);
 
 		return ResponseEntity.ok(response);
@@ -42,6 +44,7 @@ public class TechController {
 
 	@GetMapping("/get")
 	public ResponseEntity<List<TechResponseDto>> getAllTechs() {
+		authService.validateAdminAuthorization();
 		List<TechResponseDto> techList = techService.findAllTech();
 		return ResponseEntity.ok(techList);
 	}
@@ -54,6 +57,7 @@ public class TechController {
 	 */
 	@DeleteMapping("/{id}")
 	public ResponseEntity<String> deleteTech(HttpServletRequest request, @PathVariable Long id) {
+		authService.validateAdminAuthorization();
 		techService.deleteTech(request, id);
 		return ResponseEntity.ok("기술이 성공적으로 삭제되었습니다.");
 	}

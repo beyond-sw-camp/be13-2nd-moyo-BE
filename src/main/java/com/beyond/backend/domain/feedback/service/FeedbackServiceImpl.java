@@ -4,28 +4,24 @@ import com.beyond.backend.domain.common.exception.PostException;
 import com.beyond.backend.domain.common.exception.ProjectException;
 import com.beyond.backend.domain.common.exception.UserException;
 import com.beyond.backend.domain.common.exception.message.ExceptionMessage;
-import com.beyond.backend.domain.feedback.entity.FeedbackType;
-import com.beyond.backend.domain.teamUser.repository.TeamUserRepository;
-import com.beyond.backend.domain.user.dto.CustomUserDetails;
-import com.beyond.backend.domain.user.entity.User;
-import com.beyond.backend.domain.user.repository.UserRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.beyond.backend.domain.feedback.dto.FeedbackRequestDto;
 import com.beyond.backend.domain.feedback.dto.FeedbackResponseDto;
 import com.beyond.backend.domain.feedback.dto.FeedbackUpdateRequestDto;
 import com.beyond.backend.domain.feedback.entity.Feedback;
-import com.beyond.backend.domain.project.entity.Project;
-import com.beyond.backend.domain.team.entity.Team;
-import com.beyond.backend.domain.teamUser.entity.TeamUser;
+import com.beyond.backend.domain.feedback.entity.FeedbackType;
 import com.beyond.backend.domain.feedback.repository.FeedbackRepository;
+import com.beyond.backend.domain.project.entity.Project;
 import com.beyond.backend.domain.project.repository.ProjectRepository;
+import com.beyond.backend.domain.teamUser.repository.TeamUserRepository;
+import com.beyond.backend.domain.user.dto.CustomUserDetails;
+import com.beyond.backend.domain.user.entity.User;
+import com.beyond.backend.domain.user.repository.UserRepository;
 import com.beyond.backend.domain.user.service.AuthService;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
@@ -41,23 +37,18 @@ public class FeedbackServiceImpl implements FeedbackService {
 	// 1. feedback 팀원만 가능?? yes
 
 	@Transactional
-	public FeedbackResponseDto createFeedback(Long userNo, Long projectNo, FeedbackType feedbackType, FeedbackRequestDto feedbackDto) {
+	public FeedbackResponseDto createFeedback(Long projectNo, FeedbackType feedbackType, FeedbackRequestDto feedbackDto) {
 
 		// 로그인한 사용자 정보 가져오기
-		CustomUserDetails userDetails = authService.getCurrentUser();
+		User user = authService.getCurrentUser().getUser();
 
 		// 1. 프로젝트가 존재하는지
 		Project project = projectRepository.findById(projectNo).orElseThrow(
 			() -> new ProjectException(ExceptionMessage.PROJECT_NOT_FOUND)
 		);
 
-		// 2. user가 존재하는지
-		User user = userRepository.findById(userNo).orElseThrow(
-			() ->  new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userNo)
-		);
-
 		// 3. user 가 팀에 속하는지
-		if (!teamUserRepository.existsByUserNoAndTeamNo(userNo, project.getTeam().getNo())){
+		if (!teamUserRepository.existsByUserNoAndTeamNo(user.getNo(), project.getTeam().getNo())){
 			throw new IllegalArgumentException("해당 프로젝트에 피드백을 작성할 권한이 없습니다.");
 		}
 
@@ -75,20 +66,16 @@ public class FeedbackServiceImpl implements FeedbackService {
 	}
 
 	@Transactional
-	public FeedbackResponseDto updateFeedback(Long userNo, Long projectNo, Long feedbackNo, FeedbackType feedbackType, FeedbackUpdateRequestDto dto){
+	public FeedbackResponseDto updateFeedback(Long projectNo, Long feedbackNo, FeedbackType feedbackType, FeedbackUpdateRequestDto dto){
 
-		// 1. user 존재 여부
-		User user = userRepository.findById(userNo).orElseThrow(
-			() -> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userNo)
-		);
-
+		User user = authService.getCurrentUser().getUser();
 		// 2. 프로젝트 존재 여부
 		Project project = projectRepository.findById(projectNo).orElseThrow(
 			() -> new ProjectException(ExceptionMessage.PROJECT_NOT_FOUND)
 		);
 
 		// 3. user 가 팀에 속하는지
-		if (!teamUserRepository.existsByUserNoAndTeamNo(userNo, project.getTeam().getNo())){
+		if (!teamUserRepository.existsByUserNoAndTeamNo(user.getNo(), project.getTeam().getNo())){
 			throw new IllegalArgumentException("해당 프로젝트에 피드백을 작성할 권한이 없습니다.");
 		}
 
@@ -98,9 +85,7 @@ public class FeedbackServiceImpl implements FeedbackService {
 		);
 
 		// 5. 본인의 피드백인지 검증
-		if (!feedback.getUser().getNo().equals(userNo)){
-			throw new IllegalArgumentException("본인의 피드백만 수정할 수 있습니다");
-		}
+		authService.validateUser(feedback.getUser());
 
 		feedback.updateFeedback(dto.getContent(), feedbackType);
 
@@ -110,29 +95,16 @@ public class FeedbackServiceImpl implements FeedbackService {
 
 
 	@Transactional
-	public void deleteFeedback(Long userNo, Long feedbackNo) {
-
-		// 로그인한 정보 가져오기
-		CustomUserDetails userDetails = authService.getCurrentUser();
-
-		// 본인의 피드백인지 DB 에서
-		User user = userRepository.findById(userNo).orElseThrow(
-			() -> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userNo)
-		);
+	public void deleteFeedback(Long feedbackNo) {
 
 		Feedback feedback = feedbackRepository.findById(feedbackNo).orElseThrow(
 				() ->  new PostException(ExceptionMessage.FEEDBACK_NOT_FOUND)
 		);
 
-		// DB에 있는 객체와 로그인한 객체 정보가 같은지 검증
-		if(!user.getNo().equals(userDetails.getUser().getNo())){
-			throw new IllegalArgumentException("삭제할 권한이 없습니다.");
-		}
+		authService.validateUser(feedback.getUser());
+		Long userNo = authService.getCurrentUser().getUser().getNo();
 
-
-		// 관리자가 아니고 && 본인이 작성한 피드백이 아니고 && 팀장이 아니면 삭제 불가능
-		if (!authService.isAdminFromUserDetails(userDetails) && !feedback.getUser().getNo().equals(userNo)
-			&& !teamUserRepository.isLeader(feedback.getProject().getTeam().getNo(),userNo)) {
+		if (!teamUserRepository.isLeader(feedback.getProject().getTeam().getNo(), userNo) || !authService.isAdmin()) {
 			throw new IllegalArgumentException("삭제할 권한이 없습니다.");
 		}
 

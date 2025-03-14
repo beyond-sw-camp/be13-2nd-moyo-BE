@@ -15,6 +15,4 @@ public interface AdminService {
     Page<AllUserResponseDto> getUsers(Pageable pageable);
 
     OneUserResponseDto getOneUser(Long userNo);
-
-
 }

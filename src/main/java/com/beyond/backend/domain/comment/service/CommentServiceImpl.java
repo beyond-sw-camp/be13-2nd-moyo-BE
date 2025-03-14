@@ -56,7 +56,6 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
-
     private final AuthService authService;
 
     @Override
@@ -146,10 +145,7 @@ public class CommentServiceImpl implements CommentService {
 
         // 댓글 작성자가 로그인한 회원과 같은지 비교 userNo로
         // 댓글을 수정하려는 유저가 댓글을 작성한 유저인지 확인
-        if (!user.getNo().equals(userDetails.getUser().getNo())) {
-            throw new BaseException(ExceptionMessage.INVALID_REQUEST);
-        }
-
+        authService.validateUser(user);
 
         // 댓글 수정 (update 메서드 사용)
         comment.update(commentDto.getContent());
@@ -172,11 +168,7 @@ public class CommentServiceImpl implements CommentService {
         User user = userRepository.findById(comment.getUser().getNo())
                 .orElseThrow(()-> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + comment.getUser().getNo()));
 
-        //작성자와 로그인한 유저가 같은지 확인
-        if (!user.getNo().equals(userDetails.getUser().getNo()) && !authService.isAdminFromUserDetails(userDetails)) {
-            throw new BaseException(ExceptionMessage.INVALID_REQUEST);
-        }
-
+        authService.validateUser(user);
 
         Post post = comment.getPost();
         // 댓글 삭제
@@ -199,7 +191,7 @@ public class CommentServiceImpl implements CommentService {
 
         Page<CommentResponseDto> userComments = commentRepository.getUserComments(userNo, pageable);
 
-        if( userComments.isEmpty()){
+        if (userComments.isEmpty()) {
             throw new PostException(ExceptionMessage.COMMENT_NOT_FOUND);
         }
 
@@ -246,93 +238,7 @@ public class CommentServiceImpl implements CommentService {
 
 
 
-    //-----------------------------------------------------------
 
-    // 댓글 좋아요
-    @Override
-    @Transactional
-    public String checkCommentLike(Long commentNo, Long userNo) {
-
-        CustomUserDetails userDetails = authService.getCurrentUser();
-        // 댓글이 존재하는지 확인
-        Comment comment = commentRepository.findById(commentNo).orElseThrow(
-                ()-> new PostException(ExceptionMessage.COMMENT_NOT_FOUND));
-
-        // 유저가 존재하는지 확인
-        User user = userRepository.findById(userNo).orElseThrow(
-                ()-> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userNo));
-
-        // 로그인한 유저만 좋아요 가능
-        if (!user.getNo().equals(userDetails.getUser().getNo())) {
-            throw new BaseException(ExceptionMessage.INVALID_REQUEST);
-        }
-
-
-        // 좋아요가 되어있는지 확인
-        Like existingLike = likeRepository.findByCommentAndUser(comment, user);
-
-        if (existingLike != null) {
-            // 좋아요가 이미 있다면 삭제 (좋아요 취소)
-            likeRepository.delete(existingLike);
-
-            // 좋아요 개수 -1
-            int updatedCount = commentRepository.decreaseLikeCount(commentNo);
-
-            // 좋아요 개수가 0이면 좋아요 취소 실패
-            if (updatedCount == 0) {
-                throw new IllegalStateException("좋아요 취소 실패(이미 좋아요 개수가 0입니다.)");
-            }
-
-            // 최신 좋아요 개수 반환
-            int latestCount = commentRepository.getLatestLikeCount(commentNo);
-
-            return "좋아요가 취소되었습니다.";
-        }
-
-        // 4. 좋아요 추가
-        Like newLike = new Like( comment, user);
-        likeRepository.save(newLike);
-
-        //좋아요 알림///////////////////////////
-        User receiver = comment.getUser();
-
-        // 트랜잭션 종료 후가 아니라, 바로 알림 전송
-        notificationService.sendNotification(
-                new RequestNotificationDto(
-                        user.getUsername(),
-                        receiver.getUsername(),
-                        NotificationType.COMMENT,
-                        user.getUsername() + "가 님의 게시글에 좋아요 누름")
-        );
-
-
-        // 좋아요 개수 +1
-        int updatedCount = commentRepository.increaseLikeCount(commentNo);
-
-        if (updatedCount == 0) {
-            throw new IllegalStateException("좋아요 추가 실패: 댓글이 존재하지 않습니다.");
-        }
-
-
-        // 최신 좋아요 개수 반환
-        int latestCount = commentRepository.getLatestLikeCount(commentNo);
-
-        return "좋아요가 추가되었습니다.";
-    }
-
-    // 유저가 좋아요한 댓글 전체 조회
-    @Override
-    public Page<CommentResponseDto> getUserLikedComments(Long userNo, Pageable pageable) {
-
-        Page<CommentResponseDto> likedComment = likeRepository.getUserLikedComments(userNo,pageable);
-
-
-        if (likedComment.isEmpty()) {
-            throw new PostException(ExceptionMessage.COMMENT_NOT_FOUND);
-        }
-
-        return likedComment;
-    }
 
 
 }

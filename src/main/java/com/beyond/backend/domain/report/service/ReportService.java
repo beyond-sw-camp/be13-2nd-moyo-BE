@@ -27,11 +27,11 @@ public interface ReportService {
 
     ReportResponseDto createReport(User reporter, ReportDto reportDto);
 
-    ReportResponseDto processReport(CustomUserDetails userDetails, Long reportNo, ReportAdminResDto reportAdminResDto);
+    ReportResponseDto processReport(Long reportNo, ReportAdminResDto reportAdminResDto);
 
-    Page<ReportResponseDto> getUserReportedList(CustomUserDetails userDetails, String userId, Pageable pageable);
+    Page<ReportResponseDto> getUserReportedList(String userId, Pageable pageable);
 
-    Page<ReportResponseDto> getAllReports(CustomUserDetails userDetails, Pageable pageable);
+    Page<ReportResponseDto> getAllReports(Pageable pageable);
 
-    ReportResponseDto getReport(CustomUserDetails userDetails, Long reportNo);
+    ReportResponseDto getReport(Long reportNo);
 }

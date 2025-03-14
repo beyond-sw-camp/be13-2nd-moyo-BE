@@ -29,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,7 +59,6 @@ import java.util.List;
 public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
-    private final BookMarkRepository bookMarkRepository;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
     private final AuthService authService;
@@ -161,23 +161,14 @@ public class PostServiceImpl implements PostService {
     // 게시글 생성
     @Override
     @Transactional
-    public PostResponseDto createPost(BoardType boardType, PostDto postDto, Long userNo) {
+    public PostResponseDto createPost(BoardType boardType, PostDto postDto) {
 
+
+        // 유저가 존재하는 지 확인
         CustomUserDetails userDetails = authService.getCurrentUser();
 
-        // 관리자인 경우 공지 게시판에 게시글 작성 가능
-        if(boardType == BoardType.NOTICE){
-
-            if (!authService.isAdminFromUserDetails(userDetails)) {
-                throw new UserException(ExceptionMessage.USER_ACCESS_DENIED);
-                //"공지 게시판의 게시글 작성 권한이 없습니다."
-            }
-
-        }
-        // 유저가 존재하는 지 확인
-        User user = userRepository.findById(userNo).orElseThrow(
-                () ->  new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userNo)
-        );
+        User user = userRepository.findById(userDetails.getUser().getNo())
+                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userDetails.getUser().getNo()));
 
         // DTO -> entity 로 변환
         Post post = Post.builder()
@@ -204,31 +195,19 @@ public class PostServiceImpl implements PostService {
     // 업데이트된 게시글 dto 객체로 반환
     @Override
     @Transactional
-    public PostResponseDto updatePost(BoardType boardType, PostStatus postStatus, Long postNo, PostDto postDto, Long userNo) {
+    public PostResponseDto updatePost(BoardType boardType, PostStatus postStatus, Long postNo, PostDto postDto) {
         CustomUserDetails userDetails = authService.getCurrentUser();
 
-        // 관리자인 경우 공지 게시판에 게시글 작성 가능
-        if(boardType == BoardType.NOTICE){
 
-            if (!authService.isAdminFromUserDetails(userDetails)) {
-                throw new UserException(ExceptionMessage.USER_ACCESS_DENIED);
-                //"공지 게시판의 게시글 작성 권한이 없습니다."
-            }
-
-        }
         // 게시글 찾기
         Post post= postRepository.findById(postNo)
                 .orElseThrow(() -> new PostException(ExceptionMessage.POST_NOT_FOUND, "ID: " + postNo));
 
         // 수정하려는 유저 찾기
         User user = userRepository.findById(post.getUser().getNo())
-                .orElseThrow(()-> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userNo));
+                .orElseThrow(()-> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userDetails.getUser().getNo()));
 
          //post의 유저와 수정하려는 유저가 같은지 확인
-        if (!user.getNo().equals(userDetails.getUser().getNo())) {
-            throw new PostException(ExceptionMessage.USER_ACCESS_DENIED);
-            // "해당 게시글의 수정 권한이 없습니다."
-        }
 
         post.update(postDto.getTitle(), postDto.getContent(), postDto.getPostStatus());
 
@@ -239,21 +218,18 @@ public class PostServiceImpl implements PostService {
     // 게시글과 댓글 연관관계 메서드 사용 생각해보기
     @Override
     @Transactional
-    public void deletePost(Long postNo, Long userNo){
+    public void deletePost(Long postNo){
+
         CustomUserDetails userDetails = authService.getCurrentUser();
 
         Post post = postRepository.findById(postNo)
                 .orElseThrow(() -> new PostException(ExceptionMessage.POST_NOT_FOUND, "ID: " + postNo));
 
+        // 관리자
+//     if(!authService.validateAdminAuthorization() && !authService.validateUser(userDetails.getUser())){
+//          throw new IllegalArgumentException("삭제할 권한이 없습니다.");
+//        };
 
-        User user = userRepository.findById(post.getUser().getNo())
-                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userNo));
-
-        // 삭제 요청을 보내는 사람과 작성한 사람이 같은지, 관리자인지 확인
-        if (!user.getNo().equals(userDetails.getUser().getNo()) && !authService.isAdminFromUserDetails(userDetails)) {
-            throw new UserException(ExceptionMessage.USER_ACCESS_DENIED);
-            //"해당 게시글의 삭제 권한이 없습니다."
-        }
 
         postRepository.deleteById(postNo);
 
@@ -262,14 +238,16 @@ public class PostServiceImpl implements PostService {
     
     // 유저가 작성한 게시글 전체 조회 가능 ( boardtype,postsatus 알려줌)
     @Override
-    public Page<UserPostResponseDto> getUserPosts(Long userNo, Pageable pageable) {
+    public Page<UserPostResponseDto> getUserPosts(Pageable pageable) {
+
+        CustomUserDetails userDetails = authService.getCurrentUser();
 
         // 유저가 존재하는지 확인
-        User user = userRepository.findById(userNo)
-                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userNo));
+        User user = userRepository.findById(userDetails.getUser().getNo())
+                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userDetails.getUser().getNo()));
 
         // 유저가 작성한 게시글 조회
-        Page<UserPostResponseDto> userPosts = postRepository.getUserPosts(userNo, pageable);
+        Page<UserPostResponseDto> userPosts = postRepository.getUserPosts(userDetails.getUser().getNo(), pageable);
 
         if (userPosts.isEmpty()) {
             throw new PostException(ExceptionMessage.POST_NOT_FOUND);
@@ -279,87 +257,9 @@ public class PostServiceImpl implements PostService {
     }
 
 
-    // 게시글 북마크
-    @Override
-    @Transactional
-    public String checkBookMark(Long postNo, Long userNo) {
 
-
-        CustomUserDetails userDetails = authService.getCurrentUser();
-
-       /* if (userDetails == null) {
-            throw new BaseException(ExceptionMessage.LOGIN_REQUIRED, "로그인이 필요합니다.");
-        }
-*/
-        BookMarkNo bookMarkNo = new BookMarkNo(postNo, userNo);
-
-        // 게시글 비활성화 상태이면 북마크 추가 불가능 ( 비활성 상태인 게시글은 전체 게시글에서 보이지 않음 )
-        // 활성화 상태이던 게시글이 비활성화된 경우 내 북마크 리스트에서는 보이지만 게시글에 들어갈 수는 없고
-        // 북마크 취소만 가능
-        // 내가 북마크한 게시글 리스트 조회 시 비활성화된 게시글이 보임 상세 조회가 안됨
-
-
-        // 게시글이 북마크된 게시글인지 찾고 있으면 삭제
-        // 게시글 비활성화 상태이면 북마크 추가 불가능
-        if (bookMarkRepository.existsById(bookMarkNo)) {
-            bookMarkRepository.deleteById(bookMarkNo);
-
-            int updatedCount = postRepository.decreaseBookmark(postNo);
-
-            if (updatedCount == 0) {
-                throw new IllegalStateException("게시글 북마크 개수가 0입니다.");
-            }
-
-            //  최신 북마크 수 조회 (정합성 문제 해결)
-            int latestCount = postRepository.getLatestBookmarkCount(postNo);
-
-            return "북마크가 해제되었습니다.";
-        }
-
-        // 신규 북마크 추가
-        Post post = postRepository.findById(postNo)
-                .orElseThrow(() -> new PostException(ExceptionMessage.POST_NOT_FOUND, "ID: " + postNo));
-
-        User user = userRepository.findById(userNo)
-                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userNo));
-
-        // 로그인한 유저만 북마크 가능
-        if (!user.getNo().equals(userDetails.getUser().getNo())) {
-            throw new UserException(ExceptionMessage.USER_ACCESS_DENIED);
-        }
-
-        // 새 북마크 생성 및 저장
-        BookMark newBookMark = new BookMark(bookMarkNo, post, user);
-        bookMarkRepository.save(newBookMark);
-
-        int updatedCount = postRepository.increaseBookmark(postNo);
-
-        if (updatedCount == 0) {
-            throw new PostException(ExceptionMessage.POST_NOT_FOUND, "ID: " + postNo);
-        }
-
-        int latestCount = postRepository.getLatestBookmarkCount(postNo);
-
-        return "북마크가 추가되었습니다.";
+    private boolean isPostOwner(CustomUserDetails userDetails, Post post) {
+        return userDetails.getUser().getNo().equals(post.getUser().getNo());
     }
 
-
-
-    // 북마크된 게시글 전체 조회
-    @Override
-    public Page<UserPostResponseDto> getBookmarkedPosts(Long userNo, BoardType boardType, Pageable pageable) {
-
-        // 유저 존재 확인
-        User user = userRepository.findById(userNo)
-                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userNo));
-
-        // 북마크한 게시글 조회
-        Page<UserPostResponseDto> bookmarkedPosts = bookMarkRepository.getBookmarkedPosts(userNo, boardType, pageable);
-
-        if (bookmarkedPosts.isEmpty()) {
-            throw new PostException(ExceptionMessage.POST_NOT_FOUND);
-        }
-
-        return bookmarkedPosts;
-    }
 }

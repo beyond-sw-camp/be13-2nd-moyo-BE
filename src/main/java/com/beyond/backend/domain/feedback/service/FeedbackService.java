@@ -10,11 +10,12 @@ import com.beyond.backend.domain.feedback.entity.FeedbackType;
 
 public interface FeedbackService {
 
-	FeedbackResponseDto createFeedback(Long userNo, Long projectNo, FeedbackType feedbackType, FeedbackRequestDto dto);
 
-	FeedbackResponseDto updateFeedback(Long userNo, Long projectNo, Long feedbackNo, FeedbackType feedbackType, FeedbackUpdateRequestDto dto);
+	FeedbackResponseDto createFeedback(Long projectNo, FeedbackType feedbackType, FeedbackRequestDto feedbackDto);
 
-	void deleteFeedback(Long userNo, Long feedbackNo);
+	FeedbackResponseDto updateFeedback(Long projectNo, Long feedbackNo, FeedbackType feedbackType, FeedbackUpdateRequestDto dto);
+
+	void deleteFeedback(Long feedbackNo);
 
 	// 1. 내가 쓴 피드백 조회
 	Page<FeedbackResponseDto> getFeedbackByUserNo(Long userNo, Pageable pageable);

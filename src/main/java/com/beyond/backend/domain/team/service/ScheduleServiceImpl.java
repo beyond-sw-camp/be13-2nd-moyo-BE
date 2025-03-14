@@ -55,7 +55,6 @@ public class ScheduleServiceImpl implements ScheduleService {
 
         team.addSchedule(schedule);
         scheduleRepository.save(schedule);
-
         return new ScheduleResponseDto(schedule);
     }
 

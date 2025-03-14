@@ -134,7 +134,7 @@ public class ProjectServiceImpl implements ProjectService {
 		// 3. user 가 team 에 속하는가
 		boolean existsByUserNoAndTeamNo = teamUserRepository.existsByUserNoAndTeamNo(userNo, team.getNo());
 
-		if (!existsByUserNoAndTeamNo && !authService.isAdminFromUserDetails(userDetails)) {
+		if (!existsByUserNoAndTeamNo) {
 			throw new UserException(ExceptionMessage.USER_ACCESS_DENIED);
 			// "사용자는 해당 프로젝트를 수정할 권한이 없습니다."
 		}
@@ -266,7 +266,7 @@ public class ProjectServiceImpl implements ProjectService {
 		}
 
 		//  4. 리더가 아니고 관리자가 아니면 예외
-		if( !teamUserRepository.isLeader(team.getNo(), userNo) && !authService.isAdminFromUserDetails(userDetails)){
+		if (!teamUserRepository.isLeader(team.getNo(), userNo)) {
 			//throw new IllegalArgumentException("사용자는 해당 프로젝트를 삭제할 권한이 없습니다.");
 			throw new UserException(ExceptionMessage.USER_ACCESS_DENIED);
 		}
