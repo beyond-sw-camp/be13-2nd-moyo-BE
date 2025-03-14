@@ -1,11 +1,17 @@
-FROM openjdk:17-jdk-slim
+
+FROM gradle:8.11.1-jdk17-alpine AS builder
 
 WORKDIR /app
 
 COPY . .
 
-RUN chmod +x gradlew
+RUN gradle clean build -x test
 
-RUN ./gradlew build --no-daemon
+FROM openjdk:17-jdk-alpine
+WORKDIR /app
 
-CMD ["java", "-jar", "build/libs/*.jar"]
+COPY --from=builder /app/build/libs/*.jar app.jar
+
+EXPOSE 8080
+
+ENTRYPOINT ["java", "-jar", "/app.jar"]
