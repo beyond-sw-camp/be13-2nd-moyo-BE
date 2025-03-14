@@ -4,7 +4,9 @@ import com.beyond.backend.domain.comment.dto.CommentDto;
 import com.beyond.backend.domain.comment.dto.CommentResponseDto;
 import com.beyond.backend.domain.comment.entity.CommentSortOption;
 import com.beyond.backend.domain.comment.service.CommentService;
+import com.beyond.backend.domain.comment.service.LikeService;
 import com.beyond.backend.domain.post.dto.PostResponseDto;
+import com.beyond.backend.domain.post.service.PostService;
 import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -45,6 +47,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class CommentController {
 
     private final CommentService commentService;
+    private final LikeService likeService;
 
     // boardType Free에서만 가능하게 하기
     @Operation(summary = "댓글 생성", description = "댓글 등록")
@@ -150,7 +153,7 @@ public class CommentController {
             @PathVariable Long commentNo,
             @AuthenticationPrincipal CustomUserDetails userDetails){
 
-        String result = commentService.checkCommentLike(commentNo, userDetails.getUser().getNo());
+        String result = likeService.checkCommentLike(commentNo, userDetails.getUser().getNo());
 
 
         return ResponseEntity.ok(result);
@@ -165,7 +168,7 @@ public class CommentController {
             @PageableDefault(size = 10, page= 0) Pageable pageable){
 
 
-        Page<CommentResponseDto> result = commentService.getUserLikedComments(userDetails.getUser().getNo(), pageable);
+        Page<CommentResponseDto> result = likeService.getUserLikedComments(userDetails.getUser().getNo(), pageable);
 
         return ResponseEntity.ok(result);
     }

@@ -41,9 +41,5 @@ import org.springframework.data.domain.Pageable;
     // 내가 댓글 단 게시글 전체 조회
     Page<PostResponseDto> getUserCommentPosts(Long userNo, Pageable pageable);
 
-    // 댓글 좋아요
-    String checkCommentLike(Long commentNo, Long userNo);
 
-    // 유저가 좋아요한 댓글 전체 조회
-    Page<CommentResponseDto> getUserLikedComments(Long userNo, Pageable pageable);
 }
