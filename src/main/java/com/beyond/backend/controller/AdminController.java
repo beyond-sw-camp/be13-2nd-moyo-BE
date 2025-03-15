@@ -3,6 +3,7 @@ package com.beyond.backend.controller;
 import com.beyond.backend.domain.comment.dto.CommentResponseDto;
 import com.beyond.backend.domain.comment.service.CommentService;
 import com.beyond.backend.domain.post.dto.UserPostResponseDto;
+import com.beyond.backend.domain.post.entity.BoardType;
 import com.beyond.backend.domain.post.service.PostService;
 import com.beyond.backend.domain.project.dto.ProjectResponseDto;
 import com.beyond.backend.domain.project.service.ProjectService;
@@ -10,6 +11,7 @@ import com.beyond.backend.domain.user.dto.*;
 import com.beyond.backend.domain.user.service.AdminService;
 import com.beyond.backend.domain.user.service.AuthService;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 
+@Tag(name = "10 관리자 API", description = "관리자 API")
 @RestController
 @RequestMapping("/admin")
 @RequiredArgsConstructor
@@ -89,11 +92,13 @@ public class AdminController {
 
     // 유저의 게시글 가져오기
     @GetMapping("/user/{userNo}/post")
-    public ResponseEntity<Page<UserPostResponseDto>> getUserPosts(@PageableDefault(size = 10, page = 0) Pageable pageable,
-                                                                  @PathVariable Long userNo) {
+    public ResponseEntity<Page<UserPostResponseDto>> getUserPosts(
+            @RequestParam BoardType boardType,
+            @PageableDefault(size = 10, page = 0) Pageable pageable,
+            @PathVariable Long userNo) {
 
         authService.validateAdminAuthorization();
-        Page<UserPostResponseDto> userPosts = postService.getUserPosts(pageable);
+        Page<UserPostResponseDto> userPosts = postService.getUserPosts(boardType, pageable);
         return ResponseEntity.ok(userPosts);
 
     }

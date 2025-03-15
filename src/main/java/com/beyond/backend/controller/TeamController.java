@@ -47,7 +47,7 @@ import java.util.List;
  * 2025-02-24        hongjm           코드 정리
  * 2025-02-26        hongjm           URL 할당 및 중복 코드 통합
  */
-@Tag(name = "팀 API", description = "팀 API")
+@Tag(name = "05 팀 API", description = "팀 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/team")

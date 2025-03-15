@@ -3,6 +3,7 @@ package com.beyond.backend.controller;
 import java.util.List;
 
 import com.beyond.backend.domain.user.service.AuthService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import com.beyond.backend.domain.tech.service.TechService;
 
 import lombok.RequiredArgsConstructor;
 
+@Tag(name = "11 기술 API", description = "기술 API")
 @RestController
 @RequestMapping("/techs")  // 공통 경로 설정
 @RequiredArgsConstructor

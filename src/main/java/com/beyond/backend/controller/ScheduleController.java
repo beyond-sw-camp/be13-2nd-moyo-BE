@@ -7,6 +7,7 @@ import com.beyond.backend.domain.team.entity.ScheduleSortOption;
 import com.beyond.backend.domain.team.service.ScheduleService;
 import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import com.beyond.backend.domain.user.service.AuthService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -18,7 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-
+@Tag(name = "07 스케줄 API", description = "스케줄 API")
 @RestController
 @RequestMapping("/api/schedules")
 @RequiredArgsConstructor

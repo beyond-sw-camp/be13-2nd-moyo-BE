@@ -1,5 +1,6 @@
 package com.beyond.backend.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +27,7 @@ import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 
+@Tag(name = "08 피드백 API", description = "피드백 API")
 @RestController
 @RequestMapping("/feedback")
 @RequiredArgsConstructor

@@ -24,7 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "프로젝트 API", description = "프로젝트 API")
+@Tag(name = "06 프로젝트 API", description = "프로젝트 API")
 @RestController
 @RequestMapping("/project")
 @RequiredArgsConstructor

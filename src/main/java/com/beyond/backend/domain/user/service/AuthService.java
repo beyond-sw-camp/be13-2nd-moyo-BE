@@ -12,6 +12,8 @@ public interface AuthService {
 
     void validateAdminAuthorization();
 
+    boolean isUser(User user);
+
     boolean isAdmin();
 
     void join(JoinRequestDto dto);

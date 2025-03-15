@@ -37,16 +37,16 @@ public class BookMarkServiceImpl implements BookMarkService {
     @Transactional
     public String checkBookMark(Long postNo) {
 
-
         CustomUserDetails userDetails = authService.getCurrentUser();
 
-       /* if (userDetails == null) {
-            throw new BaseException(ExceptionMessage.LOGIN_REQUIRED, "로그인이 필요합니다.");
-        }
-*/
+        // 로그인한 유저인지 검증
+        authService.validateUser(userDetails.getUser());
+
         BookMarkNo bookMarkNo = new BookMarkNo(postNo, userDetails.getUser().getNo());
 
         // 게시글 비활성화 상태이면 북마크 추가 불가능 ( 비활성 상태인 게시글은 전체 게시글에서 보이지 않음 )
+        // 내 게시글이어도 북마크 추가 못함
+
         // 활성화 상태이던 게시글이 비활성화된 경우 내 북마크 리스트에서는 보이지만 게시글에 들어갈 수는 없고
         // 북마크 취소만 가능
         // 내가 북마크한 게시글 리스트 조회 시 비활성화된 게시글이 보임 상세 조회가 안됨
