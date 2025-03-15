@@ -1,16 +1,14 @@
 package com.beyond.backend.domain.user.service;
 
+import com.beyond.backend.domain.user.dto.AllUserResponseDto;
+import com.beyond.backend.domain.user.dto.DeleteUserByAdminResponseDto;
+import com.beyond.backend.domain.user.dto.OneUserResponseDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import com.beyond.backend.domain.user.dto.AllUserResponseDto;
-import com.beyond.backend.domain.user.dto.DeleteUserByAdminRequestDto;
-import com.beyond.backend.domain.user.dto.DeleteUserByAdminResponseDto;
-import com.beyond.backend.domain.user.dto.OneUserResponseDto;
-
 public interface AdminService {
 
-    DeleteUserByAdminResponseDto deleteUserByAdmin(DeleteUserByAdminRequestDto dto);
+    DeleteUserByAdminResponseDto delete(Long userNo);
 
     Page<AllUserResponseDto> getUsers(Pageable pageable);
 

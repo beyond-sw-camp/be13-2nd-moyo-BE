@@ -30,14 +30,12 @@ public class AdminServiceImpl implements AdminService {
     private final CommentRepository commentRepository;
 
     @Override
-    public DeleteUserByAdminResponseDto deleteUserByAdmin(DeleteUserByAdminRequestDto dto) {
+    public DeleteUserByAdminResponseDto delete(Long userNo) {
 
-        User user = userRepository.findById(dto.getUserNo())
-                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + dto.getUserNo()));
+        User user = userRepository.findById(userNo)
+                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userNo));
                 
         userRepository.delete(user);
-      //  userRepository.deleteById(user.getNo());
-
         return new DeleteUserByAdminResponseDto();
     }
 
@@ -59,17 +57,6 @@ public class AdminServiceImpl implements AdminService {
             () ->new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userNo)
         );
 
-
-        return new OneUserResponseDto(
-            user.getUsername(),
-            user.getRole(),
-            user.getEmail(),
-            user.getPhoneNum(),
-            user.getBanned(),
-            user.getPasswordErrorCount(),
-            user.getCreatedAt(),
-            user.getUpdatedAt(),
-            user.getUserStatus()
-        );
+        return new OneUserResponseDto(user);
     }
 }

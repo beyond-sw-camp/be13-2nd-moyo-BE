@@ -3,6 +3,7 @@ package com.beyond.backend.domain.user.dto;
 import java.time.LocalDateTime;
 
 import com.beyond.backend.domain.common.entity.UserStatus;
+import com.beyond.backend.domain.user.entity.User;
 import com.beyond.backend.domain.user.entity.UserRoleType;
 
 import lombok.AllArgsConstructor;
@@ -24,4 +25,15 @@ public class OneUserResponseDto {
 
 	private UserStatus status;
 
+	public OneUserResponseDto(User user) {
+		this.username = user.getUsername();
+		this.role = user.getRole();
+		this.email = user.getEmail();
+		this.phoneNum = user.getPhoneNum();
+		this.banned = user.getBanned();
+		this.passwordErrorCount = user.getPasswordErrorCount();
+		this.createdAt = user.getCreatedAt();
+		this.updateAt = user.getUpdatedAt();
+		this.status = user.getUserStatus();
+	}
 }
