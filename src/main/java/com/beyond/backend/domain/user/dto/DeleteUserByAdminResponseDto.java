@@ -11,7 +11,7 @@ public class DeleteUserByAdminResponseDto {
 
     }
 
-    public DeleteUserByAdminResponseDto(String mesaage) {
-        this.message = mesaage;
+    public DeleteUserByAdminResponseDto(String message) {
+        this.message = message;
     }
 }
