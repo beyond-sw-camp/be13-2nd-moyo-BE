@@ -7,6 +7,7 @@ import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import com.beyond.backend.domain.user.repository.UserRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -18,6 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "09 쪽지 API", description = "쪽지 API")
 @RestController
 @RequiredArgsConstructor
 public class MessageController {

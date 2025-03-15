@@ -1,9 +1,7 @@
 package com.beyond.backend.controller;
 
-import com.beyond.backend.domain.comment.entity.CommentSortOption;
 import com.beyond.backend.domain.post.dto.PostDto;
 import com.beyond.backend.domain.post.dto.PostResponseDto;
-import com.beyond.backend.domain.post.dto.PostWithCommentsResponseDto;
 import com.beyond.backend.domain.post.dto.UserPostResponseDto;
 import com.beyond.backend.domain.post.entity.BoardType;
 import com.beyond.backend.domain.post.entity.PostSearchOption;
@@ -46,7 +44,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 25. 2. 17.       hyunjo             내용 수정
  * 25. 2. 20.       hyunjo             내용 수정
  */
-@Tag(name = "게시판 API", description = "게시판 API")
+@Tag(name = "03 게시판 API", description = "게시판 API")
 @RestController
 @RequiredArgsConstructor
 public class PostController {
@@ -56,53 +54,21 @@ public class PostController {
     private final AuthService authService;
 
     
-    
-    // 게시글 전체 조회
-    // 게시글 정렬 조건 ( 기본이 최신순)
 
-/*
-    @Operation(summary = "게시글 전체 조회", description = "게시판 타입별로 게시글 조회")
-    @GetMapping("/posts")
-    public ResponseEntity<Page<PostResponseDto>> getPosts(
-            @RequestParam BoardType boardType,
-            @RequestParam(required = false) PostSortOption postSortOption,
-            @PageableDefault(size = 10, page= 0)Pageable pageable) {
-        Page<PostResponseDto> allPosts = postService.getPosts(boardType, pageable, postSortOption);
-
-      */
-/*
-        if (allPosts.isEmpty()) {
-            return ResponseEntity.ok("게시글이 존재하지 않습니다.");
-        } *//*
-// 실무에서는 컨트롤러에서 직접 경고 메시지를 보내는 것을 지양한다
-        // NOT_FOUND 오류처리
-        return ResponseEntity.ok(allPosts);
-    }
-*/
-
-
-    // 게시글 단 건 조회 
-/*    @Operation(summary = "게시글 단건 조회", description = "활성화된 게시글 상세 조회")
-    @GetMapping("/posts/{postNo}")
-    public ResponseEntity<PostResponseDto> getPostById(@PathVariable Long postNo) {
-        PostResponseDto post = postService.getPostById(postNo);
-
-        return ResponseEntity.ok(post);
-    }*/
-
-    @Operation(summary = "게시글 단건 및 댓글 조회", description = "활성화된 게시글 상세 조회 및 댓글 목록 조회")
+    // 게시글 단건 조회 (활성화된 게시글만 조회 가능/ 관리자와 작성자만 보임)
+    @Operation(summary = "게시글 단건 조회", description = "활성화된 게시글 상세 조회")
     @GetMapping("/posts/{postNo}/with-comments")
-    public ResponseEntity<PostWithCommentsResponseDto> getPostWithCommentsById(
-            @PathVariable Long postNo,
-            @RequestParam(required = false) CommentSortOption commentSortOption,
-            @PageableDefault(size = 10, page = 0) Pageable pageable) {
+    public ResponseEntity<PostResponseDto> getPostDetail(
+            @PathVariable Long postNo) {
 
-        PostWithCommentsResponseDto postWithComments = postService.getPostWithCommentsById(postNo, commentSortOption, pageable);
+        PostResponseDto postResponseDto = postService.getPostById(postNo);
 
-        return ResponseEntity.ok(postWithComments);
+        return ResponseEntity.ok(postResponseDto);
     }
 
 
+
+    // 게시글 전체 조회 (아무 조건이 없는 경우 기본 최신순으로 조회됨)
     @Operation(summary = "게시글 검색 및 전체 조회", description = "제목, 내용, 작성자에서 검색어가 포함된 게시글 조회(검색이 아닌 경우 전체 조회)")
     @GetMapping("/posts/search")
     public ResponseEntity<?> searchPosts(
@@ -111,31 +77,26 @@ public class PostController {
             @RequestParam(required = false) PostSearchOption option,
             @RequestParam(required = false) String keyword,
             @PageableDefault(size = 10, page= 0)Pageable pageable) {
+          // 검색어가 있는 경우 검색 조건도 무조건 선택하도록 뒤에서 처리함
 
-//        if (keyword == null || keyword.trim().isEmpty()) {
-//            return ResponseEntity.badRequest().body("검색어가 없습니다.");
-//        }
 
         Page<PostResponseDto> searchPosts = postService.searchPosts(boardType, option, postSortOption, keyword, pageable);
 
         return ResponseEntity.ok(searchPosts);
     }
     
-    //----------------------------------------------------------------------------
-    // 게시글 생성 수정 (삭제 - 댓글 생각해야 함)
+
 
     //게시글 생성
-
     @Operation(summary = "게시글 등록", description = "게시글 등록 ")
     @PostMapping("/posts")
     public ResponseEntity<PostResponseDto> createPost(
             @RequestParam BoardType boardType,
             @Valid @RequestBody PostDto postDto) {
+           //게시글 작성할 보드 타입을 지정해야 함
 
-        if(boardType == BoardType.NOTICE){
-            authService.validateAdminAuthorization();
-        }
-
+        // 게시글이 notice인 경우 관리자인지 검증
+        postService.validatePostAuthority(postDto.getBoardType());
         PostResponseDto postResponseDto = postService.createPost(boardType, postDto);
         return ResponseEntity.ok(postResponseDto);
     }
@@ -144,64 +105,53 @@ public class PostController {
     @Operation(summary = "게시글 수정", description = "제목, 내용, 게시글 상태 수정 가능")
     @PostMapping("/posts/{postNo}")
     public ResponseEntity<PostResponseDto> updatePost(
-            @RequestParam BoardType boardType,
-            @RequestParam PostStatus postStatus,
+            @RequestParam PostStatus postStatus, 
+            // 게시글 생성 시에는 무조건 활성 상태로 만들어지고 게시글 수정 시 활성/비활성 가능
             @PathVariable Long postNo,
             @Valid @RequestBody PostDto postDto){
 
-        PostResponseDto updatePost = postService.updatePost(boardType, postStatus, postNo, postDto);
+        postService.validatePostAuthority(postDto.getBoardType());
+        PostResponseDto updatePost = postService.updatePost(postStatus, postNo, postDto);
         return ResponseEntity.ok(updatePost);
     }
     
 
-    // 게시글 삭제 시 댓글 이 있는 경우 고려해야 함 ( 연관관계 메서드 생성)
+   
     // 게시글 삭제 (작성자,관리자)
-    
-
     @Operation(summary = "게시글 삭제", description = "게시글 삭제")
     @DeleteMapping( "/posts/{postNo}")
     public ResponseEntity<String> deletePost(
             @PathVariable Long postNo) {
 
-
+        authService.validateAdminAuthorization();
+        // 게시글 삭제 시 댓글도 자동으로 삭제됨
         postService.deletePost(postNo);
-
         return ResponseEntity.status(HttpStatus.OK).body("게시물이 삭제되었습니다.");
     }
 
 
-    // 로그인한 유저가 작성한 게시글 리스트
+    // 유저가 작성한 게시글 전체 조회 (비활성화 상태인 게시글도 보임)
     @Operation(summary = "유저가 작성한 게시글 전체 조회", description = "개인 페이지에서 자신의 게시글 전체 조회")
     @GetMapping("/user/post")
     public ResponseEntity<Page<UserPostResponseDto>> getMyPost(
-            @PageableDefault(size = 10, page= 0)Pageable pageable
+            // 내가 쓴 게시글을 게시판 종류를 나눠서 볼 수 있음
+            @RequestParam BoardType boardType,
+            @PageableDefault(size = 10, page= 0)Pageable pageable){
 
-    ){
-        // 내가 쓴 게시글을 게시판 종류를 나눠서 볼 수 있음,
-        // 내가 쓴 게시글은 전체 조회랑 다르게 비활성 상태여도 볼 수 있음
-
-        Page<UserPostResponseDto> result =  postService.getUserPosts(pageable);
+        Page<UserPostResponseDto> userPosts =  postService.getUserPosts(boardType, pageable);
         
-        // 조회 결과가 없는 경우 처리
-
-       return ResponseEntity.ok(result);
+       return ResponseEntity.ok(userPosts);
     }
 
 
-
-
-    //---------------------------------------------------------------------------
-    // 북마크
-
-
+    // 게시글 북마크 추가 / 취소
     @Operation(summary = "게시글 북마크 추가 및 취소", description = "게시글 북마크 상태 (추가, 취소)")
     @PostMapping("/posts/{postNo}/bookmark")
     public ResponseEntity<String> checkBookMark(
             @PathVariable Long postNo) {
 
-        // 로그인된 세션에서 유저 번호 가져오기
-        String result = bookMarkService.checkBookMark(postNo);
-        return ResponseEntity.ok(result);
+        String bookMarkResult = bookMarkService.checkBookMark(postNo);
+        return ResponseEntity.ok(bookMarkResult);
     }
 
 
@@ -209,7 +159,7 @@ public class PostController {
     @Operation(summary = "북마크한 게시글 조회", description = "유저가 북마크한 게시글을 게시판 타입별로 조회. 타입이 없으면 전체 조회.")
     @GetMapping("/user-page/bookmark")
     public ResponseEntity<Page<UserPostResponseDto>> getBookmarkedPosts(
-            @RequestParam(required = false) BoardType boardType, // boardType에 따라 북마크한 게시글을 나눠서 볼 수 있음 (전체 다 보려면 빼기 )
+            @RequestParam(required = false) BoardType boardType,
             @PageableDefault(size = 10, page = 0) Pageable pageable) {
 
         Page<UserPostResponseDto> result = bookMarkService.getBookmarkedPosts(boardType, pageable);

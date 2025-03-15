@@ -72,4 +72,9 @@ public class PostResponseDto {
 
     }
 
+    // 단건 조회, 비활성화 상태인 경우
+    public PostResponseDto(Post post, int latestCommentCount) {
+        this(post);  // 기존 생성자 호출
+        this.commentCount = latestCommentCount;
+    }
 }

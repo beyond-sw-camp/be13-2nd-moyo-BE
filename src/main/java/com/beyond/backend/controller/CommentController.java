@@ -41,7 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
  * -----------------------------------------------------------
  * 25. 3. 3.        hyunjo             최초 생성
  */
-@Tag(name = "댓글 API", description = "댓글 API")    
+@Tag(name = "04 댓글 API", description = "댓글 API")
 @RestController
 @RequiredArgsConstructor
 public class CommentController {

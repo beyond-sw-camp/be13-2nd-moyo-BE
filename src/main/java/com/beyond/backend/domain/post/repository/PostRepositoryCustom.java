@@ -10,8 +10,6 @@ import com.beyond.backend.domain.post.entity.PostSortOption;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.Optional;
-
 /**
  * <p>
  *
@@ -27,12 +25,12 @@ import java.util.Optional;
  * -----------------------------------------------------------
  * 25. 2. 20.        hyunjo             최초 생성
  */public interface PostRepositoryCustom {
-    Page<PostResponseDto> getPostsByBoardType(BoardType boardType, Pageable pageable, PostSortOption postSortOption);
+    //Page<PostResponseDto> getPostsByBoardType(BoardType boardType, Pageable pageable, PostSortOption postSortOption);
 
+    // 게시글 검색 + 전체 조회
     Page<PostResponseDto> searchPosts(BoardType boardType, PostSearchOption option, String keyword, Pageable pageable, PostSortOption postSortOption);
 
-    Page<UserPostResponseDto> getUserPosts(Long userNo, Pageable pageable);
+    // 유저가 작성한 게시글 전체 조회
+    Page<UserPostResponseDto> getUserPosts(Long userNo, BoardType boardType, Pageable pageable);
 
-    // 게시글 단 건 조회
-    Post findByIdWithUser(Long postNo);
 }

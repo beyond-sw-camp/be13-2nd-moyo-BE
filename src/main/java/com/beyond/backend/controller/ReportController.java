@@ -8,6 +8,7 @@ import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import com.beyond.backend.domain.user.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -34,6 +35,7 @@ DATE              AUTHOR             NOTE
 2025. 3. 3.        mlnstone             최초 생성
 */
 
+@Tag(name = "10 신고 API", description = "신고 API")
 @RestController
 @RequiredArgsConstructor
 public class ReportController {
