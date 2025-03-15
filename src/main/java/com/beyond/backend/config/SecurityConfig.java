@@ -97,7 +97,7 @@ public class SecurityConfig {
         return request -> {
             CorsConfiguration configuration = new CorsConfiguration();
 
-            configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:5173")); // setAllowedOriginPatterns 사용
+            configuration.setAllowedOriginPatterns(Arrays.asList("http://183.99.3.15:3011")); // setAllowedOriginPatterns 사용
             configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
             configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type")); // 필요한 헤더 설정
             configuration.setExposedHeaders(Arrays.asList("Authorization"));  // 쿠키와 관련된 헤더 노출
