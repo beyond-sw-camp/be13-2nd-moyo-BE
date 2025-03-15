@@ -207,11 +207,12 @@ public class PostServiceImpl implements PostService {
         return userPosts;
     }
 
+
     @Override
     @Transactional(readOnly = true)
     public void validatePostAuthority(BoardType boardType) {
         if (boardType == BoardType.NOTICE && !authService.isAdmin()) {
             throw new IllegalArgumentException("제시글 작성 권한이 없습니다.");
         }
-    }
+
 }

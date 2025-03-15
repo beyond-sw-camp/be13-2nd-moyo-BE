@@ -63,11 +63,10 @@ public class AdminController {
     }
 
 
-    @PostMapping("/deleteuser")
-    public ResponseEntity<DeleteUserByAdminResponseDto> deleteUserByAdmin(@RequestBody DeleteUserByAdminRequestDto dto) {
+    @PostMapping("/delete/{userNo}")
+    public ResponseEntity<DeleteUserByAdminResponseDto> delete(@PathVariable Long userNo) {
         authService.validateAdminAuthorization();
-
-        adminService.deleteUserByAdmin(dto);
+        adminService.delete(userNo);
         DeleteUserByAdminResponseDto response = new DeleteUserByAdminResponseDto("User deleted successfully.");
         return ResponseEntity.ok(response);
     }
