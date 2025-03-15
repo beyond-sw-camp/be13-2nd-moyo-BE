@@ -214,5 +214,6 @@ public class PostServiceImpl implements PostService {
         if (boardType == BoardType.NOTICE && !authService.isAdmin()) {
             throw new IllegalArgumentException("제시글 작성 권한이 없습니다.");
         }
+    }
 
 }
