@@ -91,13 +91,12 @@ public class PostController {
     @Operation(summary = "게시글 등록", description = "게시글 등록 ")
     @PostMapping("/posts")
     public ResponseEntity<PostResponseDto> createPost(
-            @RequestParam BoardType boardType,
             @Valid @RequestBody PostDto postDto) {
            //게시글 작성할 보드 타입을 지정해야 함
 
         // 게시글이 notice인 경우 관리자인지 검증
         postService.validatePostAuthority(postDto.getBoardType());
-        PostResponseDto postResponseDto = postService.createPost(boardType, postDto);
+        PostResponseDto postResponseDto = postService.createPost(postDto.getBoardType(), postDto);
         return ResponseEntity.ok(postResponseDto);
     }
 
