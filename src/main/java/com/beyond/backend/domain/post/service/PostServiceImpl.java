@@ -255,11 +255,4 @@ public class PostServiceImpl implements PostService {
 
         return userPosts;
     }
-
-
-
-    private boolean isPostOwner(CustomUserDetails userDetails, Post post) {
-        return userDetails.getUser().getNo().equals(post.getUser().getNo());
-    }
-
 }
