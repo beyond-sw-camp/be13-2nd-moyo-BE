@@ -20,6 +20,7 @@ import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 import java.util.List;
@@ -93,17 +94,18 @@ public class SecurityConfig {
     }
 
     private static CorsConfigurationSource getCorsConfigurationSource() {
-        return request -> {  // 🟢 요청(request)을 받아서 CORS 설정을 동적으로 적용하는 람다 함수
+        return request -> {
             CorsConfiguration configuration = new CorsConfiguration();
 
-            configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:3011","http:183.99.3.15:3011")); // Vue 개발 서버 허용
-            configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 허용할 HTTP 메서드
-            configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type")); // 요청에서 허용할 헤더
-            configuration.setExposedHeaders(List.of("Authorization"));  // 응답에서 노출할 헤더
-            configuration.setAllowCredentials(true);  // 쿠키 인증 허용
-            configuration.setMaxAge(3600L); // CORS 설정을 1시간 동안 캐시
+            configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:5173")); // setAllowedOriginPatterns 사용
+            configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+            configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type")); // 필요한 헤더 설정
+            configuration.setExposedHeaders(Arrays.asList("Authorization"));  // 쿠키와 관련된 헤더 노출
+            configuration.setAllowCredentials(true);  // credentials: true 설정
+            configuration.setMaxAge(3600L); // 1시간
 
             return configuration;
         };
     }
+
 }
