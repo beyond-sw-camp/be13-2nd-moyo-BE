@@ -1,8 +1,8 @@
 package com.beyond.backend.domain.post.service;
 
-import com.beyond.backend.domain.bookMark.entity.BookMark;
-import com.beyond.backend.domain.bookMark.entity.BookMarkNo;
-import com.beyond.backend.domain.bookMark.repository.BookMarkRepository;
+import com.beyond.backend.domain.post.entity.BookMark;
+import com.beyond.backend.domain.post.entity.BookMarkNo;
+import com.beyond.backend.domain.post.repository.BookMarkRepository;
 import com.beyond.backend.domain.common.exception.PostException;
 import com.beyond.backend.domain.common.exception.UserException;
 import com.beyond.backend.domain.common.exception.message.ExceptionMessage;

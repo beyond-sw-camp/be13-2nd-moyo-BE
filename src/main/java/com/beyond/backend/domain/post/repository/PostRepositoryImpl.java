@@ -49,6 +49,51 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 
 
 
+	// 게시글 정렬 조건
+	private OrderSpecifier<?> getOrderSpecifier(PostSortOption postSortOption) {
+		if (postSortOption == null || postSortOption == PostSortOption.LATEST) {
+			return post.createdAt.desc(); // 기본 최신순
+		}
+		switch (postSortOption) {
+			case BOOKMARK:
+				return post.bookmarkCount.desc();
+			case VIEW:
+				return post.viewCount.desc();
+			case COMMENT:
+				return post.commentCount.desc();
+			default:
+				return post.createdAt.desc(); // 기본값
+		}
+
+	}
+
+	// 검색 조건
+	private BooleanExpression searchOptions(String keyword, PostSearchOption option) {
+
+		// 옵션 값이 없으면 전체 조회(최신 순)
+		// 검색어가 있으면 검색 옵션도 있어야 함
+		if(option == null || keyword == null) {
+
+			return null;
+		}
+
+		if (option == PostSearchOption.CONTENT) {
+
+			return post.postContent.contains(keyword);
+
+		} else if (option == PostSearchOption.TITLE) {
+
+			return post.postTitle.contains(keyword);
+
+		} else if (option == PostSearchOption.USERNAME) {
+
+			return user.username.contains(keyword);
+		}
+
+		// 기본 전체 조회
+		return null;
+	}
+
     // 게시글 검색 + 전체 조회
     @Override
     public Page<PostResponseDto> searchPosts(BoardType boardType, PostSearchOption option, String keyword, Pageable pageable, PostSortOption postSortOption) {
@@ -137,50 +182,6 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 	}
 
 
-	// 게시글 정렬 조건
-	private OrderSpecifier<?> getOrderSpecifier(PostSortOption postSortOption) {
-		if (postSortOption == null || postSortOption == PostSortOption.LATEST) {
-			return post.createdAt.desc(); // 기본 최신순
-		}
-		switch (postSortOption) {
-			case BOOKMARK:
-				return post.bookmarkCount.desc();
-			case VIEW:
-				return post.viewCount.desc();
-			case COMMENT:
-				return post.commentCount.desc();
-			default:
-				return post.createdAt.desc(); // 기본값
-		}
-
-	}
-
-	// 검색 조건
-	private BooleanExpression searchOptions(String keyword, PostSearchOption option) {
-
-		// 옵션 값이 없으면 전체 조회(최신 순)
-		// 검색어가 있으면 검색 옵션도 있어야 함
-		if(option == null || keyword == null) {
-
-			return null;
-		}
-
-		if (option == PostSearchOption.CONTENT) {
-
-			return post.postContent.contains(keyword);
-
-		} else if (option == PostSearchOption.TITLE) {
-
-			return post.postTitle.contains(keyword);
-
-		} else if (option == PostSearchOption.USERNAME) {
-
-			return user.username.contains(keyword);
-		}
-
-		// 기본 전체 조회
-		return null;
-	}
 
 }
 

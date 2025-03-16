@@ -29,7 +29,6 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostRepositor
 
     // 트래픽이 중간이거나 적은 곳에서 동시성, 정합성 문제 해결하기에는 @Modifying + @Transactional 이 적당하다고 함
 
-
     @Query("SELECT p FROM Post p JOIN FETCH p.user WHERE p.no = :postNo")
     Optional<Post> findByIdWithUser(@Param("postNo") Long postNo);
 

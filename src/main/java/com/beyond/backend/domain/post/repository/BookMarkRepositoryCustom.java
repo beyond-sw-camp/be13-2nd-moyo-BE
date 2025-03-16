@@ -1,4 +1,4 @@
-package com.beyond.backend.domain.bookMark.repository;
+package com.beyond.backend.domain.post.repository;
 
 import com.beyond.backend.domain.post.dto.UserPostResponseDto;
 import com.beyond.backend.domain.post.entity.BoardType;
@@ -23,10 +23,5 @@ import org.springframework.data.domain.Pageable;
 
     Page<UserPostResponseDto> getBookmarkedPosts(Long userNo, BoardType boardType,Pageable pageable);
 
-   /* int increaseBookmark(Long postNo);
-    int decreaseBookmark(Long postNo);
 
-
-    // 최신 북마크 개수 구하기
-    int getLatestBookmarkCount(Long postNo);*/
 }
