@@ -87,21 +87,21 @@ public class PostServiceImpl implements PostService {
         CustomUserDetails userDetails = authService.getCurrentUser();
 
         // 게시글이 존재하는지 확인
-        Post post = postRepository.findByIdWithUser(postNo) //
+        Post prePost = postRepository.findByIdWithUser(postNo) //
                 .orElseThrow(() -> new PostException(ExceptionMessage.POST_NOT_FOUND, "ID: " + postNo));
 
         // 비활성화된 게시글 처리
-        if (post.getPostStatus() == PostStatus.INACTIVE) {
+        if (prePost.getPostStatus() == PostStatus.INACTIVE) {
 //authService.isUser(post.getUser())
             // 관리자나 작성자가 아닌 경우 예외 처리
-            if (!authService.isAdmin() && !post.getUser().equals(userDetails.getUser())) {
+            if (!authService.isAdmin() && !prePost.getUser().equals(userDetails.getUser())) {
                 throw new PostException(ExceptionMessage.POST_ACCESS_DENIED);
             }
 
             // 비활성 게시글은 조회수 증가 제외( 최신 댓글 수만 조회하고 바로 돌려줌 )
             int latestCommentCount = postRepository.getLatestCommentCount(postNo);
 
-            return new PostResponseDto(post, latestCommentCount);
+            return new PostResponseDto(prePost, latestCommentCount);
         }
         // 활성화된 게시글인 경우
 
@@ -110,6 +110,9 @@ public class PostServiceImpl implements PostService {
 
         // 최신 댓글 개수 조회 (정합성 보장)
         int latestCommentCount = postRepository.getLatestCommentCount(postNo);
+
+        Post post= postRepository.findById(postNo)
+                .orElseThrow(() -> new PostException(ExceptionMessage.POST_NOT_FOUND, "ID: " + postNo));
 
         return new PostResponseDto(post, latestCommentCount);
     }
