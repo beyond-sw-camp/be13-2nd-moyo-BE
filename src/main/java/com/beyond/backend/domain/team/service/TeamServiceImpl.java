@@ -8,6 +8,7 @@ import com.beyond.backend.domain.common.exception.UserException;
 import com.beyond.backend.domain.common.exception.message.ExceptionMessage;
 import com.beyond.backend.domain.common.service.NotificationService;
 import com.beyond.backend.domain.project.entity.ProjectStatus;
+import com.beyond.backend.domain.team.dto.TeamDetailDto;
 import com.beyond.backend.domain.team.dto.TeamDto;
 import com.beyond.backend.domain.team.dto.TeamMemberListDto;
 import com.beyond.backend.domain.team.dto.TeamResponseDto;
@@ -86,7 +87,7 @@ public class TeamServiceImpl implements TeamService {
     // timePeriod 객체 삭제  ->  생성자에서 설정 삭제
     @Override
     public TeamResponseDto createTeam(TeamDto teamDto) {
-
+        System.out.println("유저 확인시도");
         User user = findUserByUsername();
 
         // 팀 저장
@@ -189,6 +190,12 @@ public class TeamServiceImpl implements TeamService {
     }
 
     /* --------- 팀 디테일 페이지 ----------*/
+
+    // @Override
+    // public TeamDetailDto getTeamDetailDto(Long teamNo) throws Exception {
+    //     return teamRepository.findByTeamDetail(teamNo)
+    //             .orElseThrow(() -> new BaseException(ExceptionMessage.TEAM_NOT_FOUND));
+    // }
 
     /**
      * 팀원 목록 조회 서비스
