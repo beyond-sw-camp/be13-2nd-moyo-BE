@@ -1,6 +1,5 @@
 package com.beyond.backend.domain.post.entity;
 
-import com.beyond.backend.domain.bookMark.entity.BookMark;
 import com.beyond.backend.domain.comment.entity.Comment;
 import com.beyond.backend.domain.common.BaseEntity;
 import com.beyond.backend.domain.user.entity.User;

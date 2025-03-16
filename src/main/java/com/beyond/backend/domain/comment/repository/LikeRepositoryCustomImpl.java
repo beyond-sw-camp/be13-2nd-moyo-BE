@@ -1,4 +1,4 @@
-package com.beyond.backend.domain.like.repository;
+package com.beyond.backend.domain.comment.repository;
 
 import com.beyond.backend.domain.comment.dto.CommentResponseDto;
 import com.querydsl.core.types.Projections;
@@ -13,14 +13,10 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 import static com.beyond.backend.domain.comment.entity.QComment.comment;
-import static com.beyond.backend.domain.like.entity.QLike.like;
-import static com.beyond.backend.domain.post.entity.QPost.post;
-import static com.beyond.backend.domain.user.entity.QUser.user;
-
-/*import static com.beyond.backend.domain.comment.entity.QComment.*;
-import static com.beyond.backend.domain.like.entity.QLike.*;
+import static com.beyond.backend.domain.comment.entity.QLike.like;
 import static com.beyond.backend.domain.post.entity.QPost.*;
-import static com.beyond.backend.domain.user.entity.QUser.*;*/
+import static com.beyond.backend.domain.user.entity.QUser.*;
+
 
 /**
  * <p>
@@ -44,8 +40,7 @@ public class LikeRepositoryCustomImpl implements LikeRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
-    // 내가 좋아요한 댓글 페이징 처리
-
+    // 내가 좋아요한 댓글
     @Override
     public Page<CommentResponseDto> getUserLikedComments(Long userNo, Pageable pageable) {
 
