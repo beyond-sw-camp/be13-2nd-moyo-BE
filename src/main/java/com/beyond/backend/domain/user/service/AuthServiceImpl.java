@@ -131,6 +131,23 @@ public class AuthServiceImpl implements AuthService {
         return null;
     }
 
+//    @Override
+//    @Transactional(readOnly = true)
+//    public void validateUser(User user) {
+//
+//        CustomUserDetails currentUser = getCurrentUser();
+//
+//        //트랜잭션이 닫히거나, 프록시가 적절히 초기화되지 않으면 getUsername()을 호출해도 프록시에서 원하는 값을 가져오지 못할 수 있음
+//        User savedUser = userRepository.findById(user.getNo())
+//                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND));
+//
+//        if (!currentUser.getUser().equals(savedUser)) {
+//            throw new IllegalArgumentException(
+//                    "User is not authorized to perform this action. (username: " + currentUser.getUsername() + ")"
+//            );
+//        }
+//    }
+
     @Override
     @Transactional(readOnly = true)
     public void validateUser(User user) {
@@ -141,7 +158,7 @@ public class AuthServiceImpl implements AuthService {
         User savedUser = userRepository.findById(user.getNo())
                 .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND));
 
-        if (!currentUser.getUser().equals(savedUser)) {
+        if (!currentUser.getUser().getNo().equals(savedUser.getNo())) {
             throw new IllegalArgumentException(
                     "User is not authorized to perform this action. (username: " + currentUser.getUsername() + ")"
             );
@@ -153,10 +170,18 @@ public class AuthServiceImpl implements AuthService {
     public boolean isUser(User user) {
         CustomUserDetails currentUser = getCurrentUser();
 
+        // 유저가 null인 경우 false 반환
+        if (user == null || currentUser == null) {
+            return false;
+        }
         User savedUser = userRepository.findById(user.getNo())
                 .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND));
 
-        return currentUser.getUser().equals(savedUser);
+        if (savedUser == null) {
+            return false;
+        }
+
+        return currentUser.getUser().getNo().equals(savedUser.getNo());
     }
 
 
@@ -185,7 +210,7 @@ public class AuthServiceImpl implements AuthService {
         if (!passwordEncoder.matches(password, user.getPassword())) {
             // passwordErrorCount 를 별도의 트랜잭션에서 업데이트
             authTransactionService.increasePasswordErrorCount(user);
-            log.info("Username : {}, PasswordErrorCount : {}", user.getUsername(), user.getPasswordErrorCount());
+            log.info("Username : {}, PasswordErrorCount :0 {}", user.getUsername(), user.getPasswordErrorCount());
             throw new IllegalArgumentException("패스워드가 일치하지 않습니다");
 
         }

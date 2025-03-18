@@ -122,7 +122,7 @@ public class PostController {
     public ResponseEntity<String> deletePost(
             @PathVariable Long postNo) {
 
-        authService.validateAdminAuthorization();
+
         // 게시글 삭제 시 댓글도 자동으로 삭제됨
         postService.deletePost(postNo);
         return ResponseEntity.status(HttpStatus.OK).body("게시물이 삭제되었습니다.");
