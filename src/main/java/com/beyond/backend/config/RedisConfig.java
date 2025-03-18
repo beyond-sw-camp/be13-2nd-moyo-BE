@@ -61,7 +61,6 @@ public class RedisConfig {
                         redisSubscriber.onMessage(new String(message.getChannel()), new String(message.getBody())),
                 new PatternTopic("commentNotification")
         );
-
         return container;
     }
 }
