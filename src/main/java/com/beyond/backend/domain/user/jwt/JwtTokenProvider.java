@@ -1,6 +1,9 @@
 package com.beyond.backend.domain.user.jwt;
 
+import com.beyond.backend.domain.common.exception.JwtAuthenticationException;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,7 +45,6 @@ public class JwtTokenProvider {
 
     /**
      * 생성자: JWT 비밀키를 설정하고, 필요한 서비스들을 주입받음
-     *
      * @param secret            JWT 서명용 비밀키 (application.yml에서 설정)
      * @param userDetailsService 사용자 정보를 가져오는 서비스
      * @param redisTemplate     Redis에 토큰을 저장/관리하기 위한 템플릿
@@ -66,7 +68,6 @@ public class JwtTokenProvider {
 
     /**
      * 액세스 토큰을 생성하는 메서드
-     *
      * @param username 사용자 이름
      * @param role     사용자 역할 (권한)
      * @return 생성된 액세스 토큰
@@ -81,7 +82,6 @@ public class JwtTokenProvider {
 
     /**
      * 리프레시 토큰을 생성하는 메서드
-     *
      * @param username 사용자 이름
      * @return 생성된 리프레시 토큰
      */
@@ -97,7 +97,6 @@ public class JwtTokenProvider {
 
     /**
      * JWT 토큰을 생성하는 내부 메서드
-     *
      * @param claims   JWT에 포함할 정보 (Payload)
      * @param tokenExp 토큰 유효기간
      * @return 생성된 JWT 문자열
@@ -117,17 +116,24 @@ public class JwtTokenProvider {
 
     /**
      * 토큰이 유효한지 검증하는 메서드
-     *
      * @param token 검증할 JWT
      * @return 유효하면 true, 만료되었으면 false 반환
      */
     public boolean validateToken(String token) {
-        return !getClaims(token).getExpiration().before(new Date());
+        try {
+            Claims claims = getClaims(token);
+            return !claims.getExpiration().before(new Date());
+        } catch (ExpiredJwtException e) {
+            // 토큰이 만료되었으므로, AuthenticationException 으로 감싸서 던짐
+            throw new JwtAuthenticationException("토큰이 만료되었습니다.", e);
+        } catch (JwtException e) {
+            // 기타 JWT 관련 예외 처리
+            throw new JwtAuthenticationException("유효하지 않은 토큰입니다.", e);
+        }
     }
 
     /**
      * JWT에서 사용자 이름을 추출하는 메서드
-     *
      * @param token JWT 토큰
      * @return 사용자 이름
      */
@@ -137,7 +143,6 @@ public class JwtTokenProvider {
 
     /**
      * JWT에서 JTI (JWT ID) 값을 추출하는 메서드
-     *
      * @param token JWT 토큰
      * @return JTI 값
      */
@@ -147,7 +152,6 @@ public class JwtTokenProvider {
 
     /**
      * 토큰에 역할(Role)이 포함되어 있는지 확인하는 메서드
-     *
      * @param token JWT 토큰
      * @return 역할 정보가 존재하면 true, 없으면 false
      */
@@ -157,7 +161,6 @@ public class JwtTokenProvider {
 
     /**
      * JWT를 파싱하여 클레임을 추출하는 메서드
-     *
      * @param token JWT 토큰
      * @return Claims 객체
      */
@@ -173,7 +176,6 @@ public class JwtTokenProvider {
 
     /**
      * 요청에서 전달된 Bearer 토큰을 추출하는 메서드
-     *
      * @param bearerToken HTTP 요청 헤더에서 전달된 토큰
      * @return 실제 JWT 토큰 (Bearer 제거)
      */
@@ -186,7 +188,6 @@ public class JwtTokenProvider {
 
     /**
      * 토큰을 이용해 Authentication 객체를 생성하는 메서드
-     *
      * @param token JWT 토큰
      * @return Spring Security의 Authentication 객체
      */
