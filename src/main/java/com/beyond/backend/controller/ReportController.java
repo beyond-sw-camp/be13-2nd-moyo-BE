@@ -99,7 +99,6 @@ public class ReportController {
             @PathVariable Long reportNo,
             @Parameter(description = "no는 신고번호입니다") @RequestBody ReportAdminResDto reportAdminResDto) {
         ReportResponseDto reportResponseDto = reportService.processReport(reportNo, reportAdminResDto);
-
         return ResponseEntity.ok(reportResponseDto);
 
     }

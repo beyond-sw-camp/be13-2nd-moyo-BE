@@ -1,17 +1,7 @@
 package com.beyond.backend.domain.user.service;
 
-import com.beyond.backend.domain.common.exception.PostException;
 import com.beyond.backend.domain.common.exception.UserException;
 import com.beyond.backend.domain.common.exception.message.ExceptionMessage;
-import jakarta.security.auth.message.AuthException;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import com.beyond.backend.domain.user.dto.JoinRequestDto;
 import com.beyond.backend.domain.user.dto.LoginRequestDto;
@@ -19,9 +9,15 @@ import com.beyond.backend.domain.user.dto.TokenResponseDto;
 import com.beyond.backend.domain.user.entity.User;
 import com.beyond.backend.domain.user.jwt.JwtTokenProvider;
 import com.beyond.backend.domain.user.repository.UserRepository;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -111,7 +107,6 @@ public class AuthServiceImpl implements AuthService {
         }
 
         User user = userRepository.findByUsername(jwtTokenProvider.getUserName(refreshToken)).get();
-
         return new TokenResponseDto(jwtTokenProvider.createAccessToken(user.getUsername(), user.getRole().toString()),
                 refreshToken);
     }
@@ -212,7 +207,6 @@ public class AuthServiceImpl implements AuthService {
             authTransactionService.increasePasswordErrorCount(user);
             log.info("Username : {}, PasswordErrorCount :0 {}", user.getUsername(), user.getPasswordErrorCount());
             throw new IllegalArgumentException("패스워드가 일치하지 않습니다");
-
         }
     }
 }

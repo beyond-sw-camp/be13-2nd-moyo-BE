@@ -73,11 +73,8 @@ public class TeamController {
             @RequestParam String teamName,
             @RequestParam(required = false) String teamIntroduce,
             @RequestParam ProjectStatus projectStatus){
-
         TeamDto teamDto = new TeamDto(teamName, teamIntroduce, projectStatus);
-
         TeamResponseDto teamResponseDto = teamService.createTeam(teamDto);
-
         return ResponseEntity.status(HttpStatus.OK).body(teamResponseDto);
     }
 
@@ -139,7 +136,6 @@ public class TeamController {
             @RequestParam int size){
 
         PageImpl<TeamResponseDto> teamSearch = teamService.filterUserTeams(userNo, teamName, teamIntroduce, projectStatus, page, size);
-
         return ResponseEntity.status(HttpStatus.OK). body(teamSearch);
     }
 
@@ -155,7 +151,6 @@ public class TeamController {
     public ResponseEntity<String> deleteTeam(@PathVariable Long teamNo) throws Exception {
 
         teamService.deleteTeam(teamNo);
-
         return ResponseEntity.status(HttpStatus.OK).body("정상적으로 삭제되었습니다.");
     }
 
@@ -172,7 +167,6 @@ public class TeamController {
             @PathVariable Long teamNo,
             @RequestParam TeamJoinStatus status) throws Exception {
         List<TeamMemberListDto> teamMemberRequest = teamService.getTeamMemberRequest(teamNo, status);
-
         return ResponseEntity.status(HttpStatus.OK).body(teamMemberRequest);
     }
 
@@ -193,7 +187,6 @@ public class TeamController {
     public ResponseEntity<String> teamAccept (@PathVariable Long teamNo,
                                               @PathVariable Long userNo) throws Exception {
         teamService.teamAccept(teamNo, userNo);
-
         return ResponseEntity.status(HttpStatus.OK).body("정상적으로 수락 되었습니다.");
     }
 
@@ -213,7 +206,6 @@ public class TeamController {
     public ResponseEntity<String> teamDelete(@PathVariable Long teamNo,
                                              @PathVariable Long userNo) throws Exception {
         teamService.teamDelete(teamNo, userNo);
-
         return ResponseEntity.status(HttpStatus.OK).body("정상적으로 처리 되었습니다.");
     }
 
@@ -243,7 +235,6 @@ public class TeamController {
     @Parameters({@Parameter(name = "teamNo" , description = "팀 번호", example = "1")})
     public ResponseEntity<List<TeamMemberListDto>> getUserTeams( @PathVariable Long teamNo ) throws Exception {
         List<TeamMemberListDto> teamMembers = teamService.getTeamMembers(teamNo);
-
         return ResponseEntity.status(HttpStatus.OK).body(teamMembers);
     }
 
@@ -259,9 +250,8 @@ public class TeamController {
     @PostMapping("/{teamNo}/join-request")
     @Operation(summary = "팀원 가입 신청 메서드", description = "팀원 가입 신청 메서드입니다.")
     @Parameters({@Parameter(name = "teamNo" , description = "팀 번호", example = "1"),})
-    public ResponseEntity<String> teamJoinRequest (@PathVariable Long teamNo) throws Exception {
+    public ResponseEntity<String> teamJoinRequest(@PathVariable Long teamNo) throws Exception {
         teamService.teamJoinRequest(teamNo);
-
         return ResponseEntity.status(HttpStatus.OK).body("정상적으로 신청되었습니다.");
     }
 
@@ -274,8 +264,8 @@ public class TeamController {
      */
     @DeleteMapping("/{teamNo}/join-cancel")
     @Operation(summary = "팀원 가입 취소 메서드", description = "팀원 가입 취소  메서드입니다.")
-    @Parameters({@Parameter(name = "teamNo" , description = "팀 번호", example = "1"),})
-    public ResponseEntity<String> teamJoinRequestCancel (@PathVariable Long teamNo) throws Exception {
+    @Parameters({@Parameter(name = "teamNo", description = "팀 번호", example = "1"),})
+    public ResponseEntity<String> teamJoinRequestCancel(@PathVariable Long teamNo) throws Exception {
         teamService.teamJoinRequestCancel(teamNo);
 
         return ResponseEntity.status(HttpStatus.OK).body("정상적으로 취소되었습니다.");
