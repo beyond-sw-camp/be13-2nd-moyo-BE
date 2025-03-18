@@ -131,16 +131,6 @@ public class AuthServiceImpl implements AuthService {
         return null;
     }
 
-   /* @Override
-    @Transactional(readOnly = true)
-    public void validateUser(User user) {
-        CustomUserDetails currentUser = getCurrentUser();
-        if (!currentUser.getUsername().equals(user.getUsername())) {
-            throw new IllegalArgumentException(
-                    "User is not authorized to perform this action. (username: " + currentUser.getUsername() + ")");
-        }
-    }*/
-
     @Override
     @Transactional(readOnly = true)
     public void validateUser(User user) {
