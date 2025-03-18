@@ -1,8 +1,9 @@
 package com.beyond.backend.domain.common.exception.handler;
 
 import com.beyond.backend.domain.common.exception.BaseException;
-import com.beyond.backend.domain.common.exception.PostException;
 import com.beyond.backend.domain.common.exception.dto.ApiErrorResponseDto;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -95,7 +96,6 @@ public class GlobalExceptionHandler {
 
         // 예외 메시지를 로그로 기록
         log.error("🔥 전역 예외(Global Exception) 발생: {}", e.getMessage());
-        // log.error("🔥 [서버 오류] {}", e.getMessage(), e);
 
         return new ResponseEntity<>(
                 new ApiErrorResponseDto(
@@ -108,31 +108,31 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<ApiErrorResponseDto> handleExpiredJwtException(ExpiredJwtException e) {
+        log.error("🔥 토큰 만료 예외 발생: {}", e.getMessage());
 
+        return new ResponseEntity<>(
+                new ApiErrorResponseDto(
+                        HttpStatus.UNAUTHORIZED.value(),
+                        "TOKEN_EXPIRED",
+                        "토큰이 만료되었습니다."
+                ),
+                HttpStatus.UNAUTHORIZED  // 401 상태 코드 반환
+        );
+    }
 
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<ApiErrorResponseDto> handleJwtException(JwtException e) {
+        log.error("🔥 JWT 예외 발생: {}", e.getMessage());
+
+        return new ResponseEntity<>(
+                new ApiErrorResponseDto(
+                        HttpStatus.UNAUTHORIZED.value(),
+                        "INVALID_TOKEN",
+                        "유효하지 않은 토큰입니다."
+                ),
+                HttpStatus.UNAUTHORIZED  // 401 상태 코드 반환
+        );
+    }
 }
-/*
-
-     * 사용자 정의 예외 (UniversityException) 처리
-     * - 개발자가 `throw new UniversityException(...)` 형태로 발생시킨 예외를 처리하는 메서드
-     * - HTTP 상태 코드, 에러 유형(type), 메시지를 `ApiErrorResponseDto`에 담아 JSON으로 응답
-     *
-     * @param e UniversityException 예외 객체
-     * @return ResponseEntity<ApiErrorResponseDto> JSON 응답
-
-@ExceptionHandler(UniversityException.class)
-public ResponseEntity<ApiErrorResponseDto> handleException(UniversityException e) {
-
-    // 예외 메시지를 로그로 기록
-    log.error("⚠️ UniversityException 발생: {}", e.getMessage());
-
-    return new ResponseEntity<>(
-            new ApiErrorResponseDto(
-                    e.getStatus().value(),  // HTTP 상태 코드
-                    e.getType(),            // 예외 유형 (커스텀)
-                    e.getMessage()          // 상세 메시지
-            ),
-            e.getStatus()  // ResponseEntity의 상태 코드 설정
-    );
-}
- */
