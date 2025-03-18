@@ -159,11 +159,15 @@ public class PostServiceImpl implements PostService {
     @Transactional
     public PostResponseDto updatePost(PostStatus postStatus, Long postNo, PostDto postDto) {
 
+        // 로그인한 유저 정보 가져옴
+        CustomUserDetails userDetails = authService.getCurrentUser();
+
         // 게시글 찾기
         Post post= postRepository.findById(postNo)
                 .orElseThrow(() -> new PostException(ExceptionMessage.POST_NOT_FOUND, "ID: " + postNo));
 
         // 게시글을 작성한 유저가 로그인한 유저와 같은지 검증
+
         authService.validateUser(post.getUser());
 
 
@@ -179,9 +183,18 @@ public class PostServiceImpl implements PostService {
     @Transactional
     public void deletePost(Long postNo){
 
+        // 로그인한 유저 정보 가져옴
+        CustomUserDetails userDetails = authService.getCurrentUser();
+
         Post post = postRepository.findById(postNo)
                 .orElseThrow(() -> new PostException(ExceptionMessage.POST_NOT_FOUND, "ID: " + postNo));
-        authService.validateUser(post.getUser());
+
+        // 게시글 작성자이거나 관리자인 경우만 삭제 가능
+
+        if ( !authService.isUser(post.getUser()) && !authService.isAdmin()) {
+
+            throw new PostException(ExceptionMessage.POST_ACCESS_DENIED);
+        }
 
         postRepository.deleteById(postNo);
 
