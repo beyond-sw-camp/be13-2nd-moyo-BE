@@ -141,7 +141,7 @@ public class AuthServiceImpl implements AuthService {
         User savedUser = userRepository.findById(user.getNo())
                 .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND));
 
-        if (!currentUser.getUser().equals(savedUser)) {
+        if (!currentUser.getUser().getNo().equals(savedUser.getNo())) {
             throw new IllegalArgumentException(
                     "User is not authorized to perform this action. (username: " + currentUser.getUsername() + ")"
             );
