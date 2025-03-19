@@ -165,11 +165,17 @@ public class JwtTokenProvider {
      * @return Claims 객체
      */
     private Claims getClaims(String token) {
-        return Jwts.parser()
-                .verifyWith(secretKey)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+
+        // 토큰이 만료되면 parseSignedClaims() 단계에서 ExpiredJWtException 발생
+        try {
+            return Jwts.parser()
+                    .verifyWith(secretKey)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+        } catch (ExpiredJwtException e) {
+            return e.getClaims();
+        }
     }
 
     // ========================= 🔹 인증(Authentication) 관련 메서드 =========================

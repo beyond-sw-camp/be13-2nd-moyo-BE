@@ -110,9 +110,6 @@ public class PostServiceImpl implements PostService {
         }
         // 활성화된 게시글인 경우
 
-        // 조회수 증가
-        postRepository.increaseViewCount(postNo);
-
         // 최신 댓글 개수 조회 (정합성 보장)
         int latestCommentCount = postRepository.getLatestCommentCount(postNo);
 

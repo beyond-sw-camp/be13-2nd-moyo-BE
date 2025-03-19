@@ -181,6 +181,7 @@ public class TeamServiceImpl implements TeamService {
         User user = findUserByUsername();
 
         Boolean isLeader = teamUserRepository.isLeader(teamNo, user.getNo());
+
         if (isLeader != null && isLeader) {
             teamRepository.deleteById(teamNo);
         } else {
@@ -227,7 +228,7 @@ public class TeamServiceImpl implements TeamService {
         }
 
         User receiver = new User();
-        //좋아요 알림///////////////////////////
+
         List<TeamUser> teamUserList = team.getTeamUsers();
         for (TeamUser teamUser : teamUserList) {
             if (teamUser.isLeader()) {
