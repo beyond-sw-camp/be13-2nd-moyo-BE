@@ -153,19 +153,23 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
 
 	private BooleanExpression searchOption(String keyword, ProjectSearchOption option){
 
-		// 옵션이 없다면 전체 option에서 contains 하기
-		if (option == null){
-			return project.name.contains(keyword)
-				.or(project.content.contains(keyword))
-				.or(projectExistsInTech(keyword));
 
+		if (option == null || keyword == null) {
+			log.info("옵션도 키워드도 없어서 전체 조회");
+			return null;
 		}
-
-		return switch(option){
-			case NAME -> project.name.contains(keyword);
-			case CONTENT -> project.content.contains(keyword);
-			case PROJECT_TECHS -> projectExistsInTech(keyword); // 서브쿼리 활용
-		};
+		if (option == ProjectSearchOption.NAME) {
+			log.info("searchOption keyword : {}", keyword);
+			return project.name.contains(keyword);
+		}else if (option == ProjectSearchOption.CONTENT) {
+			log.info("searchOption keyword : {}", keyword);
+			return project.content.contains(keyword);
+		}else if (option == ProjectSearchOption.PROJECT_TECHS) {
+			log.info("searchOption keyword : {}", keyword);
+			return projectExistsInTech(keyword);
+		}
+		log.info("전체조회됨");
+		return null;
 	}
 
 
