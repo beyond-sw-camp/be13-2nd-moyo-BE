@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 public interface ProjectRepository extends JpaRepository<Project, Long>, ProjectRepositoryCustom {
 
-	// 쿠키로 수정할 예정!
 	@Modifying
 	@Transactional
 	@Query("UPDATE Project p SET p.viewCnt = p.viewCnt + 1 WHERE p.no =:projectNo")

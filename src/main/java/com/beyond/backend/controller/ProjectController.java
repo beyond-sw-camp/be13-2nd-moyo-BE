@@ -13,6 +13,7 @@ import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import com.beyond.backend.domain.user.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -84,7 +85,9 @@ public class ProjectController {
 
     @Operation(summary = "프로젝트 단건 조회")
     @GetMapping("/{projectNo}")
-    public ResponseEntity<ProjectResponseDto> getProjectByNo(@PathVariable("projectNo") Long projectNo){
+    public ResponseEntity<ProjectResponseDto> getProjectByNo(@PathVariable("projectNo") Long projectNo,
+                                                             HttpServletRequest request){
+        projectService.viewProject(projectNo, request);
         ProjectResponseDto projectByProjectNo = projectService.getProjectByProjectNo(projectNo);
 
         return ResponseEntity.ok(projectByProjectNo);

@@ -18,15 +18,21 @@ import com.beyond.backend.domain.post.entity.PostStatus;
 import com.beyond.backend.domain.post.repository.PostRepository;
 import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import com.beyond.backend.domain.user.entity.User;
+import com.beyond.backend.domain.user.jwt.JwtTokenProvider;
 import com.beyond.backend.domain.user.repository.UserRepository;
 import com.beyond.backend.domain.user.service.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.util.List;
 
 /**
@@ -47,6 +53,7 @@ import java.util.List;
  * 25. 2. 20.       hyunjo             내용 수정
  */
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -56,6 +63,7 @@ public class PostServiceImpl implements PostService {
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
     private final AuthService authService;
+    private final RedisTemplate<String, String> redisTemplate;
 
 
     // 게시글 검색
@@ -92,7 +100,7 @@ public class PostServiceImpl implements PostService {
 
         // 비활성화된 게시글 처리
         if (prePost.getPostStatus() == PostStatus.INACTIVE) {
-//authService.isUser(post.getUser())
+            //authService.isUser(post.getUser())
             // 관리자나 작성자가 아닌 경우 예외 처리
             if (!authService.isAdmin() && !prePost.getUser().equals(userDetails.getUser())) {
                 throw new PostException(ExceptionMessage.POST_ACCESS_DENIED);
@@ -232,4 +240,77 @@ public class PostServiceImpl implements PostService {
         }
     }
 
+
+    /**
+     * 게시글 조회 시 조회수를 증가시키는 메서드
+     * - Redis를 활용하여 동일 사용자의 중복 조회를 방지(24시간 내)
+     *
+     * @param postNo 조회할 게시글 번호
+     * @param request HTTP 요청 객체 (사용자 식별에 사용)
+     */
+    @Override
+    @Transactional
+    public void viewPost(Long postNo, HttpServletRequest request) {
+        // Redis에 저장할 고유 키 생성 (게시글ID + 사용자ID 조합)
+        String key = "post:view:" + postNo + ":"  + getUserId(request);
+
+        // Redis에 키가 존재하지 않을 경우에만 값 설정 (24시간 유효)
+        Boolean isNotViewed = redisTemplate.opsForValue().setIfAbsent(key, "Viewed", Duration.ofHours(24));
+        // 첫 조회인 경우에만 조회수 증가 처리
+        if (Boolean.TRUE.equals(isNotViewed)) {
+            Post post = postRepository.findById(postNo)
+                    .orElseThrow(() -> new PostException(ExceptionMessage.POST_NOT_FOUND, "ID: " + postNo));
+            postRepository.increaseViewCount(postNo);
+        }
+    }
+
+    /**
+     * 사용자 또는 방문자의 고유 식별자를 생성하는 메서드
+     * - 로그인 사용자: 회원 번호 기반 해시값 생성
+     * - 비로그인 사용자: IP주소와 User-Agent 기반 해시값 생성
+     *
+     * @param request HTTP 요청 객체
+     * @return 사용자 고유 식별자 문자열
+     */
+    private String getUserId(HttpServletRequest request) {
+        String userIdentifier = "";
+        CustomUserDetails userDetails = authService.getCurrentUser();
+
+        // 로그인 된 사용자인 경우(회원)
+        if (userDetails != null) {
+            User user = userDetails.getUser();
+            if (user != null) {
+                //사용자 번호를 해시값으로 변환하여 식별자 생성
+                userIdentifier = "user:" + user.getNo().hashCode();
+                log.info("{} 님이 조회함", user.getUsername());
+            }
+        } else { //비로그인 사용자인 경우(게스트)
+            //IP 주소 가져오기
+            String ipAddress = request.getRemoteAddr();
+
+
+            if (ipAddress != null && !ipAddress.isEmpty()) {
+                // X-Forwarded-For 헤더가 있는 경우, 첫 번째 IP(클라이언트 실제 IP) 사용
+                ipAddress = ipAddress.split(",")[0].trim();
+            } else {
+                // 헤더가 없는 경우 직접 연결된 IP 사용
+                ipAddress = request.getRemoteAddr();
+            }
+
+            //User-Agent 정보 가져오기
+            String userAgent = request.getHeader("User-Agent");
+
+            //User-Agent 정보가 없는 경우 IP만으로 식별자 생성
+            if (userAgent == null || userAgent.isEmpty()) {
+                userIdentifier = "guest:" + ipAddress.hashCode();
+            } else {//IP와 User-Agent를 조합하여 더 고유한 식별자 생성
+                String identifier = ipAddress + userAgent;
+                userIdentifier = "guest:" + (long) identifier.hashCode();
+            }
+            log.info("ip : {} User-Agent : {}인 게스트가 조회함", ipAddress, userAgent);
+
+        }
+
+        return userIdentifier;
+    }
 }

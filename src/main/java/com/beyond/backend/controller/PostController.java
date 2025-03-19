@@ -12,6 +12,7 @@ import com.beyond.backend.domain.post.service.PostService;
 import com.beyond.backend.domain.user.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -58,11 +59,11 @@ public class PostController {
     // 게시글 단건 조회 (활성화된 게시글만 조회 가능/ 관리자와 작성자만 보임)
     @Operation(summary = "게시글 단건 조회", description = "활성화된 게시글 상세 조회")
     @GetMapping("/posts/{postNo}/with-comments")
-    public ResponseEntity<PostResponseDto> getPostDetail(
-            @PathVariable Long postNo) {
+    public ResponseEntity<PostResponseDto> getPostDetail(@PathVariable Long postNo,
+                                                         HttpServletRequest request) {
 
+        postService.viewPost(postNo, request);
         PostResponseDto postResponseDto = postService.getPostById(postNo);
-
         return ResponseEntity.ok(postResponseDto);
     }
 
@@ -137,9 +138,9 @@ public class PostController {
             @RequestParam BoardType boardType,
             @PageableDefault(size = 10, page= 0)Pageable pageable){
 
-        Page<UserPostResponseDto> userPosts =  postService.getUserPosts(boardType, pageable);
-        
-       return ResponseEntity.ok(userPosts);
+        Page<UserPostResponseDto> userPosts = postService.getUserPosts(boardType, pageable);
+
+        return ResponseEntity.ok(userPosts);
     }
 
 
@@ -165,3 +166,4 @@ public class PostController {
         return ResponseEntity.ok(result);
     }
 }
+

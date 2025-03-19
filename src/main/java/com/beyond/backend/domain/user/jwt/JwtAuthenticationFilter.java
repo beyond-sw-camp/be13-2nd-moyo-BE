@@ -1,20 +1,19 @@
 package com.beyond.backend.domain.user.jwt;
 
 import com.beyond.backend.domain.common.exception.JwtAuthenticationException;
+import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import com.beyond.backend.domain.user.handler.AuthenticationEntryPointImpl;
-import lombok.extern.slf4j.Slf4j;
 import jakarta.servlet.FilterChain;
-import lombok.RequiredArgsConstructor;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.filter.OncePerRequestFilter;
-import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Optional;
 
 /**
  * JWT 인증 필터
@@ -37,9 +36,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 Authentication authentication = jwtTokenProvider.getAuthentication(token);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 checkPermission(token, authentication);
-
             }
-        }catch (JwtAuthenticationException ex) {
+        } catch (JwtAuthenticationException ex) {
             SecurityContextHolder.clearContext();
             new AuthenticationEntryPointImpl().commence(request, response, ex);
             return;

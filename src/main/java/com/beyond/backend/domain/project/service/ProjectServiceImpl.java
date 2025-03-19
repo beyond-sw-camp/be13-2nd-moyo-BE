@@ -1,10 +1,9 @@
 package com.beyond.backend.domain.project.service;
 
-import com.beyond.backend.domain.common.exception.BaseException;
-import com.beyond.backend.domain.common.exception.ProjectException;
-import com.beyond.backend.domain.common.exception.TeamException;
-import com.beyond.backend.domain.common.exception.UserException;
+import com.beyond.backend.domain.common.exception.*;
 import com.beyond.backend.domain.common.exception.message.ExceptionMessage;
+import com.beyond.backend.domain.post.repository.PostRepository;
+import com.beyond.backend.domain.post.service.PostService;
 import com.beyond.backend.domain.project.dto.ProjectRequestDto;
 import com.beyond.backend.domain.project.dto.ProjectResponseDto;
 import com.beyond.backend.domain.project.dto.ProjectUpdateRequestDto;
@@ -32,9 +31,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,6 +52,7 @@ public class ProjectServiceImpl implements ProjectService {
 	private final TechRepository techRepository;
 	private final ProjectTechRepository projectTechRepository;
 	private final AuthService authService;
+	private final RedisTemplate<String, String> redisTemplate;
 
 	@Override
 	@Transactional
@@ -274,6 +276,70 @@ public class ProjectServiceImpl implements ProjectService {
 		// 5. 프로젝트 삭제
 		projectRepository.deleteById(projectNo);
 	}
+
+	/**
+	 * 게시글 조회 시 조회수를 증가시키는 메서드
+	 * - Redis를 활용하여 동일 사용자의 중복 조회를 방지(24시간 내)
+	 */
+	@Override
+	@Transactional
+	public void viewProject(Long projectNo, HttpServletRequest request) {
+		// Redis에 저장할 고유 키 생성 (게시글ID + 사용자ID 조합)
+		String key = "project:view:" + projectNo + ":"  + getUserId(request);
+
+		// Redis에 키가 존재하지 않을 경우에만 값 설정 (24시간 유효)
+		Boolean isNotViewed = redisTemplate.opsForValue().setIfAbsent(key, "Viewed", Duration.ofHours(24));
+		// 첫 조회인 경우에만 조회수 증가 처리
+		if (Boolean.TRUE.equals(isNotViewed)) {
+			Project project = projectRepository.findById(projectNo)
+					.orElseThrow(() -> new ProjectException(ExceptionMessage.PROJECT_NOT_FOUND, "ID: " + projectNo));
+			projectRepository.increaseViewCount(projectNo);
+		}
+	}
+
+	/**
+	 * 사용자 또는 방문자의 고유 식별자를 생성하는 메서드
+	 * - 로그인 사용자: 회원 번호 기반 해시값 생성
+	 * - 비로그인 사용자: IP주소와 User-Agent 기반 해시값 생성
+	 */
+	private String getUserId(HttpServletRequest request) {
+		String userIdentifier = "";
+		CustomUserDetails userDetails = authService.getCurrentUser();
+
+		// 로그인 된 사용자인 경우(회원)
+		if (userDetails != null) {
+			User user = userDetails.getUser();
+			if (user != null) {
+				//사용자 번호를 해시값으로 변환하여 식별자 생성
+				userIdentifier = "user:" + user.getNo().hashCode();
+			}
+		} else { //비로그인 사용자인 경우(게스트)
+			//IP 주소 가져오기
+			String ipAddress = request.getHeader("X-Forwarded-For");//비회원은 IP 주소와 User-Agent를 사용
+
+			if (ipAddress != null && !ipAddress.isEmpty()) {
+				// X-Forwarded-For 헤더가 있는 경우, 첫 번째 IP(클라이언트 실제 IP) 사용
+				ipAddress = ipAddress.split(",")[0].trim();
+			} else {
+				// 헤더가 없는 경우 직접 연결된 IP 사용
+				ipAddress = request.getRemoteAddr();
+			}
+
+			//User-Agent 정보 가져오기
+			String userAgent = request.getHeader("User-Agent");
+
+			//User-Agent 정보가 없는 경우 IP만으로 식별자 생성
+			if (userAgent == null || userAgent.isEmpty()) {
+				userIdentifier = "guest:" + ipAddress.hashCode();
+			} else {//IP와 User-Agent를 조합하여 더 고유한 식별자 생성
+				String identifier = ipAddress + userAgent;
+				userIdentifier = "guest:" + (long) identifier.hashCode();
+			}
+		}
+		return userIdentifier;
+	}
+
+
 	/**
 	 * 프로젝트를 끝내는 로직ㅠ
 	 * 1. 프로젝트 상태 변경
