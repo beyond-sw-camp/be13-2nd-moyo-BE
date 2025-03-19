@@ -1,7 +1,9 @@
 package com.beyond.backend.domain.user.service;
 
+import com.beyond.backend.domain.common.dto.EmailAuthRequestDto;
 import com.beyond.backend.domain.common.exception.UserException;
 import com.beyond.backend.domain.common.exception.message.ExceptionMessage;
+import com.beyond.backend.domain.common.service.EmailService;
 import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import com.beyond.backend.domain.user.dto.JoinRequestDto;
 import com.beyond.backend.domain.user.dto.LoginRequestDto;
@@ -125,23 +127,6 @@ public class AuthServiceImpl implements AuthService {
         }
         return null;
     }
-
-//    @Override
-//    @Transactional(readOnly = true)
-//    public void validateUser(User user) {
-//
-//        CustomUserDetails currentUser = getCurrentUser();
-//
-//        //트랜잭션이 닫히거나, 프록시가 적절히 초기화되지 않으면 getUsername()을 호출해도 프록시에서 원하는 값을 가져오지 못할 수 있음
-//        User savedUser = userRepository.findById(user.getNo())
-//                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND));
-//
-//        if (!currentUser.getUser().equals(savedUser)) {
-//            throw new IllegalArgumentException(
-//                    "User is not authorized to perform this action. (username: " + currentUser.getUsername() + ")"
-//            );
-//        }
-//    }
 
     @Override
     @Transactional(readOnly = true)
