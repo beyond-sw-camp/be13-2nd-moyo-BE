@@ -58,6 +58,7 @@ public class PostController {
 
     // 게시글 단건 조회 (활성화된 게시글만 조회 가능/ 관리자와 작성자만 보임)
     @Operation(summary = "게시글 단건 조회", description = "활성화된 게시글 상세 조회")
+
     @GetMapping("/posts/{postNo}/with-comments")
     public ResponseEntity<PostResponseDto> getPostDetail(@PathVariable Long postNo,
                                                          HttpServletRequest request) {
@@ -71,7 +72,7 @@ public class PostController {
 
     // 게시글 전체 조회 (아무 조건이 없는 경우 기본 최신순으로 조회됨)
     @Operation(summary = "게시글 검색 및 전체 조회", description = "제목, 내용, 작성자에서 검색어가 포함된 게시글 조회(검색이 아닌 경우 전체 조회)")
-    @GetMapping("/posts/search")
+    @GetMapping("/posts")
     public ResponseEntity<?> searchPosts(
             @RequestParam BoardType boardType,
             @RequestParam(required = false) PostSortOption postSortOption,
@@ -105,13 +106,12 @@ public class PostController {
     @Operation(summary = "게시글 수정", description = "제목, 내용, 게시글 상태 수정 가능")
     @PostMapping("/posts/{postNo}")
     public ResponseEntity<PostResponseDto> updatePost(
-            @RequestParam PostStatus postStatus, 
             // 게시글 생성 시에는 무조건 활성 상태로 만들어지고 게시글 수정 시 활성/비활성 가능
             @PathVariable Long postNo,
             @Valid @RequestBody PostDto postDto){
 
         postService.validatePostAuthority(postDto.getBoardType());
-        PostResponseDto updatePost = postService.updatePost(postStatus, postNo, postDto);
+        PostResponseDto updatePost = postService.updatePost(postNo, postDto);
         return ResponseEntity.ok(updatePost);
     }
     
@@ -132,7 +132,7 @@ public class PostController {
 
     // 유저가 작성한 게시글 전체 조회 (비활성화 상태인 게시글도 보임)
     @Operation(summary = "유저가 작성한 게시글 전체 조회", description = "개인 페이지에서 자신의 게시글 전체 조회")
-    @GetMapping("/user/post")
+    @GetMapping("/users/{userNo}/posts")
     public ResponseEntity<Page<UserPostResponseDto>> getMyPost(
             // 내가 쓴 게시글을 게시판 종류를 나눠서 볼 수 있음
             @RequestParam BoardType boardType,
@@ -157,7 +157,7 @@ public class PostController {
 
     // 유저가 북마크한 게시글 전체 조회
     @Operation(summary = "북마크한 게시글 조회", description = "유저가 북마크한 게시글을 게시판 타입별로 조회. 타입이 없으면 전체 조회.")
-    @GetMapping("/user-page/bookmark")
+    @GetMapping("/users/{userNo}bookmark")
     public ResponseEntity<Page<UserPostResponseDto>> getBookmarkedPosts(
             @RequestParam(required = false) BoardType boardType,
             @PageableDefault(size = 10, page = 0) Pageable pageable) {

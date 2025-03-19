@@ -1,12 +1,10 @@
 package com.beyond.backend.domain.post.service;
 
-import com.beyond.backend.domain.comment.entity.CommentSortOption;
 import com.beyond.backend.domain.post.dto.PostDto;
 import com.beyond.backend.domain.post.dto.PostResponseDto;
 import com.beyond.backend.domain.post.dto.UserPostResponseDto;
 import com.beyond.backend.domain.post.entity.BoardType;
 import com.beyond.backend.domain.post.entity.PostSearchOption;
-
 import com.beyond.backend.domain.post.entity.PostSortOption;
 import com.beyond.backend.domain.post.entity.PostStatus;
 import jakarta.servlet.http.HttpServletRequest;
@@ -42,7 +40,7 @@ import org.springframework.data.domain.Pageable;
     PostResponseDto createPost(BoardType boardType, PostDto postDto);
 
     // 게시글 수정
-    PostResponseDto updatePost(PostStatus postStatus, Long postNo, PostDto postDto);
+    PostResponseDto updatePost(Long postNo, PostDto postDto);
 
     // 게시글 삭제
     void deletePost(Long postN) ;

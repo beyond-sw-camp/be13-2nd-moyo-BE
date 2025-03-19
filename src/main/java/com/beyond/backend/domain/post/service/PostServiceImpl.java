@@ -1,8 +1,5 @@
 package com.beyond.backend.domain.post.service;
 
-import com.beyond.backend.domain.comment.dto.CommentResponseDto;
-import com.beyond.backend.domain.comment.entity.Comment;
-import com.beyond.backend.domain.comment.entity.CommentSortOption;
 import com.beyond.backend.domain.comment.repository.CommentRepository;
 import com.beyond.backend.domain.common.exception.PostException;
 import com.beyond.backend.domain.common.exception.UserException;
@@ -165,7 +162,7 @@ public class PostServiceImpl implements PostService {
     // 게시글 수정 // 보드 타입 수정 불가
     @Override
     @Transactional
-    public PostResponseDto updatePost(PostStatus postStatus, Long postNo, PostDto postDto) {
+    public PostResponseDto updatePost(Long postNo, PostDto postDto) {
 
         // 로그인한 유저 정보 가져옴
         CustomUserDetails userDetails = authService.getCurrentUser();
@@ -190,9 +187,6 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional
     public void deletePost(Long postNo){
-
-        // 로그인한 유저 정보 가져옴
-        CustomUserDetails userDetails = authService.getCurrentUser();
 
         Post post = postRepository.findById(postNo)
                 .orElseThrow(() -> new PostException(ExceptionMessage.POST_NOT_FOUND, "ID: " + postNo));
