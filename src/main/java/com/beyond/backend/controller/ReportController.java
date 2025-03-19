@@ -43,9 +43,9 @@ public class ReportController {
     private final AuthService authService;
 
     @Operation(summary = "신고 단건 조회")
-    @GetMapping("/reports")
+    @GetMapping("/reports/{reportNo}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ReportResponseDto> getReport(@RequestParam Long reportNo) {
+    public ResponseEntity<ReportResponseDto> getReport(@PathVariable Long reportNo) {
 
         authService.validateAdminAuthorization();
 
