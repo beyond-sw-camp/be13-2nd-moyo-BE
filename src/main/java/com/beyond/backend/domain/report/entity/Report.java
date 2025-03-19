@@ -1,6 +1,6 @@
 package com.beyond.backend.domain.report.entity;
 
-import com.beyond.backend.domain.common.BaseEntity;
+import com.beyond.backend.domain.common.entity.BaseEntity;
 import com.beyond.backend.domain.user.entity.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;

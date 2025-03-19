@@ -1,6 +1,6 @@
 package com.beyond.backend.domain.feedback.entity;
 
-import com.beyond.backend.domain.common.BaseEntity;
+import com.beyond.backend.domain.common.entity.BaseEntity;
 import com.beyond.backend.domain.project.entity.Project;
 import com.beyond.backend.domain.user.entity.User;
 import jakarta.persistence.*;
