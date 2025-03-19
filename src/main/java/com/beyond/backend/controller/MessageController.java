@@ -80,10 +80,10 @@ public class MessageController {
      * 쪽지 삭제
      */
     @Operation(summary = "쪽지 삭제", description = "쪽지를 삭제합니다.")
-    @DeleteMapping("/messages")
+    @DeleteMapping("/messages/{messageNo}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<MessageResponseDto> deleteMessage
-    (@AuthenticationPrincipal CustomUserDetails userDetails, @RequestParam Long messageNo) {
+    (@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable Long messageNo) {
         messageService.deleteMessage(userDetails.getUser().getNo(), messageNo);
 
         MessageResponseDto responseDto = new MessageResponseDto("삭제되었습니다");
