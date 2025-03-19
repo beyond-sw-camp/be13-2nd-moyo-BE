@@ -52,8 +52,6 @@ public class PostController {
 
     private final PostService postService;
     private final BookMarkService bookMarkService;
-    private final AuthService authService;
-
     
 
     // 게시글 단건 조회 (활성화된 게시글만 조회 가능/ 관리자와 작성자만 보임)

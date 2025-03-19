@@ -36,7 +36,7 @@ public enum ExceptionMessage {
     // 인증 관련
     INVALID_CREDENTIALS("AUTH_001", "아이디 또는 비밀번호가 올바르지 않습니다.", HttpStatus.UNAUTHORIZED),
     ACCESS_TOKEN_INVALID("AUTH_002", "토큰이 유효하지 않습니다.", HttpStatus.UNAUTHORIZED),
-    REFRESH_TOKEN_INVALID("AUTH_003", "토큰이 유효하지 않습니다.", HttpStatus.UNAUTHORIZED),
+    REFRESH_TOKEN_INVALID("AUTH_003", "토큰이 유효하지 않습니다.", HttpStatus.BAD_REQUEST),
 
     // 공통
     INVALID_REQUEST("COMMON_001", "잘못된 요청입니다.", HttpStatus.BAD_REQUEST),
