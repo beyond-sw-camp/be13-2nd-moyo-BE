@@ -49,14 +49,15 @@ public class CommentController {
     private final CommentService commentService;
     private final LikeService likeService;
 
+    // 댓글 생성
     // boardType Free에서만 가능하게 하기
     @Operation(summary = "댓글 생성", description = "댓글 등록")
-    @PostMapping("/comments")
+    @PostMapping("/posts/{postNo}/comments")
     public ResponseEntity<CommentResponseDto> createComment(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody CommentDto commentDto) {
 
-        CommentResponseDto commentResponseDto = commentService.createComment(commentDto, userDetails.getUser().getNo());
+        CommentResponseDto commentResponseDto = commentService.createComment( userDetails.getUser().getNo(), commentDto);
         return ResponseEntity.ok(commentResponseDto);
     }
 
@@ -76,6 +77,7 @@ public class CommentController {
 
 
 
+    // 댓글 삭제 (관리자와 작성자만 삭제 가능)
     /*
      * 게시글 삭제 시 댓글도 같이 삭제됨
      * 게시글이 비활성화 된 상태인 경우 유저는 자신의 댓글을 볼 수 있고 삭제 가능 but 게시글 내용은 볼 수 없음
@@ -84,15 +86,12 @@ public class CommentController {
      *
      * 게시글 활성화 상태에서는 내가 쓴 댓글 전체 조회에서 삭제 할 수 있고
      * */
-
-    // 관리자와 댓글 작성자만 삭제 가능 ( 비활성 상태인 경우 안 보임, 유저가 상태가 어떻든 게시글이 활성 상태이면 볼 수 있음, 게시글이 비활성이면 못 봄 )
     @Operation(summary = "댓글 삭제", description = "댓글 삭제")
     @DeleteMapping("/comments/{commentNo}")
     public ResponseEntity<String> deleteComment(
-            @PathVariable Long commentNo,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
+            @PathVariable Long commentNo) {
 
-        commentService.deleteComment(commentNo, userDetails.getUser().getNo());
+        commentService.deleteComment(commentNo);
 
         return ResponseEntity.status(HttpStatus.OK).body("댓글이 삭제되었습니다.");
     }
@@ -119,7 +118,7 @@ public class CommentController {
 
     // 내가 쓴 댓글 전체 조회
     @Operation(summary = "유저의 댓글 전체 조회", description = "개인 페이지에서 자신의 댓글을 전체 조회 가능")
-    @GetMapping("/user-page/comments")
+    @GetMapping("/users/{userNo}/comments")
     public ResponseEntity<Page<CommentResponseDto>> getUserComments(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PageableDefault(size = 10, page= 0) Pageable pageable){
@@ -132,7 +131,7 @@ public class CommentController {
 
     // 내가 댓글 단 게시글 전체 조회
     @Operation(summary = "유저가 댓글단 게시글 전체 조회", description = "개인 페이지에서 자신이 댓글단 게시글 전체 조회 가능")
-    @GetMapping("/users/comments/posts")
+    @GetMapping("/comments/users/comments-posts")
     public ResponseEntity<Page<PostResponseDto>> getUserCommentPosts(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PageableDefault(size = 10, page= 0) Pageable pageable){
@@ -162,7 +161,7 @@ public class CommentController {
 
     // 유저가 좋아요한 댓글 전체 조회
     @Operation(summary = "유저가 좋아요한 댓글 전체 조회", description = "개인 페이지에서 자신이 좋아요한 댓글 전체 조회 가능")
-    @GetMapping("/users/liked-comments")
+    @GetMapping("/me/liked-comments") // 회원 기능이라 userNo이 안들어감
     public ResponseEntity<Page<CommentResponseDto>> getUserLikedComments(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PageableDefault(size = 10, page= 0) Pageable pageable){

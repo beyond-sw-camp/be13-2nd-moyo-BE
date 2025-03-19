@@ -59,7 +59,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public CommentResponseDto createComment(CommentDto commentDto, Long userNo) {
+    public CommentResponseDto createComment(Long userNo, CommentDto commentDto) {
 
         CustomUserDetails userDetails = authService.getCurrentUser();
         // 게시글이 존재하는지 확인
@@ -82,7 +82,8 @@ public class CommentServiceImpl implements CommentService {
             //"비활성화된 게시글에는 댓글을 작성할 수 없습니다."
         }
 
-        // 댓글 작성자 확인 및 활성화 여부 체크
+        // 댓글 작성자가 로그인한 유저인지 확인
+
         User sender = userRepository.findById(userNo)
                 .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userNo));
 
@@ -155,23 +156,26 @@ public class CommentServiceImpl implements CommentService {
     // 댓글 삭제
     @Override
     @Transactional
-    public void deleteComment(Long commentNo, Long userNo) {
-        // 게시글이 지워지면 댓글도 같이 지워지는 것 생각
-        CustomUserDetails userDetails = authService.getCurrentUser();
+    public void deleteComment(Long commentNo) {
+
 
         // 댓글이 존재하는 지 검증
         Comment comment  = commentRepository.findById(commentNo)
                 .orElseThrow(()-> new PostException(ExceptionMessage.COMMENT_NOT_FOUND));
 
-        // 유저가 존재라는 지 검증
-        User user = userRepository.findById(comment.getUser().getNo())
-                .orElseThrow(()-> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + comment.getUser().getNo()));
+        authService.validateUser(comment.getUser());
 
-        authService.validateUser(user);
+        // 댓글 작성자이거나 관리자인 경우만 삭제 가능
+
+        if ( !authService.isUser(comment.getUser()) && !authService.isAdmin()) {
+
+            throw new UserException(ExceptionMessage.USER_ACCESS_DENIED);
+        }
+
 
         Post post = comment.getPost();
         // 댓글 삭제
-        commentRepository.deleteById(commentNo); // 일단은 그냥 삭제
+        commentRepository.deleteById(commentNo);
 
         // 댓글 개수 감소
         int updatedCount = postRepository.decreaseCommentCount(post.getNo());
