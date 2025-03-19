@@ -3,7 +3,6 @@ package com.beyond.backend.domain.report.service;
 import com.beyond.backend.domain.comment.repository.CommentRepository;
 import com.beyond.backend.domain.common.dto.RequestNotificationDto;
 import com.beyond.backend.domain.common.entity.NotificationType;
-import com.beyond.backend.domain.common.exception.ReportException;
 import com.beyond.backend.domain.common.exception.UserException;
 import com.beyond.backend.domain.common.exception.message.ExceptionMessage;
 import com.beyond.backend.domain.common.service.NotificationService;
@@ -14,14 +13,12 @@ import com.beyond.backend.domain.report.dto.ReportResponseDto;
 import com.beyond.backend.domain.report.entity.Report;
 import com.beyond.backend.domain.report.entity.ReportStatus;
 import com.beyond.backend.domain.report.repository.ReportRepository;
-import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import com.beyond.backend.domain.user.entity.User;
 import com.beyond.backend.domain.user.repository.UserRepository;
 import com.beyond.backend.domain.user.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -80,11 +77,10 @@ public class ReportServiceImpl implements ReportService {
     }
 
 
-
     @Override
     @Transactional
     public ReportResponseDto createReport(User reporter, ReportDto reportDto) {
-        User reported = userRepository.findByUsername(reportDto.getReportId())
+        User reported = userRepository.findByUsername(reportDto.getReportedId())
                 .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND));
         if (reported.getNo().equals(reporter.getNo())) {
             throw new IllegalArgumentException("자신에게 신고를 할 수 없습니다.");
@@ -106,7 +102,6 @@ public class ReportServiceImpl implements ReportService {
     @Override
     @Transactional
     public ReportResponseDto processReport(Long reportNo, ReportAdminResDto reportAdminResDto) {
-
 
 
         Report report = reportRepository.findById(reportNo)
