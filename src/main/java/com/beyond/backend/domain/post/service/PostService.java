@@ -5,8 +5,9 @@ import com.beyond.backend.domain.post.dto.PostResponseDto;
 import com.beyond.backend.domain.post.dto.UserPostResponseDto;
 import com.beyond.backend.domain.post.entity.BoardType;
 import com.beyond.backend.domain.post.entity.PostSearchOption;
-
 import com.beyond.backend.domain.post.entity.PostSortOption;
+import com.beyond.backend.domain.post.entity.PostStatus;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -49,5 +50,7 @@ import org.springframework.data.domain.Pageable;
 
     // 공지 게시판인 경우 관리자인지 검증
     void validatePostAuthority(BoardType boardType);
+
+    void viewPost(Long postNo, HttpServletRequest request);
 
 }

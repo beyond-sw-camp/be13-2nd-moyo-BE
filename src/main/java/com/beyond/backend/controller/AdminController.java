@@ -62,7 +62,6 @@ public class AdminController {
         return response;
     }
 
-
     @PostMapping("/delete/{userNo}")
     public ResponseEntity<DeleteUserByAdminResponseDto> delete(@PathVariable Long userNo) {
         authService.validateAdminAuthorization();
@@ -70,7 +69,6 @@ public class AdminController {
         DeleteUserByAdminResponseDto response = new DeleteUserByAdminResponseDto("User deleted successfully.");
         return ResponseEntity.ok(response);
     }
-
 
     @GetMapping("/users")
     public ResponseEntity<Page<AllUserResponseDto>> getUsersByAdmin(@PageableDefault Pageable pageable) {

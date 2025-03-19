@@ -32,9 +32,9 @@ public class MessageController {
      * 쪽지 단일 조회
      */
     @Operation(summary = "쪽지 단일 조회", description = "쪽지를 조회합니다.")
-    @GetMapping("/messages")
+    @GetMapping("/messages/{messageNo}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<MessageResponseDto> getMessage(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestParam Long messageNo) {
+    public ResponseEntity<MessageResponseDto> getMessage(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable Long messageNo) {
         MessageResponseDto messageResponseDto = messageService.getMessage(userDetails.getUser().getNo(), messageNo);
 
         return ResponseEntity.status(HttpStatus.OK).body(messageResponseDto);
@@ -57,7 +57,7 @@ public class MessageController {
      * 쪽지 조회 리스트
      */
     @Operation(summary = "쪽지리스트")
-    @GetMapping("/messages/{type}")
+    @GetMapping("/messages/list/{type}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Page<MessageResponseDto>> getMessages(
             @AuthenticationPrincipal CustomUserDetails userDetails,

@@ -1,6 +1,6 @@
 package com.beyond.backend.domain.team.entity;
 
-import com.beyond.backend.domain.common.AuditableEntity;
+import com.beyond.backend.domain.common.entity.AuditableEntity;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;

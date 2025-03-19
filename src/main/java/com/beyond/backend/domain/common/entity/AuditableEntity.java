@@ -1,4 +1,4 @@
-package com.beyond.backend.domain.common;
+package com.beyond.backend.domain.common.entity;
 
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
