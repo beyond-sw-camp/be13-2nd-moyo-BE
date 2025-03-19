@@ -2,6 +2,7 @@ package com.beyond.backend.controller;
 
 import com.beyond.backend.domain.user.dto.*;
 import com.beyond.backend.domain.user.service.AuthService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,7 @@ import java.util.Map;
  * - 로그아웃 (토큰 무효화)
  * - 액세스 토큰 재발급 (Refresh Token 사용)
  */
+@Tag(name = "01 인증 API", description = "인증 API")
 @Slf4j
 @RestController
 @RequestMapping("/auth")

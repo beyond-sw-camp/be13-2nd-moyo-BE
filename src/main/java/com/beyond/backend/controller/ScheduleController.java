@@ -1,15 +1,13 @@
 package com.beyond.backend.controller;
 
-import com.beyond.backend.domain.project.entity.ProjectSortOption;
 import com.beyond.backend.domain.team.dto.ScheduleRequestDto;
 import com.beyond.backend.domain.team.dto.ScheduleResponseDto;
 import com.beyond.backend.domain.team.entity.ScheduleSortOption;
 import com.beyond.backend.domain.team.service.ScheduleService;
 import com.beyond.backend.domain.user.dto.CustomUserDetails;
-import com.beyond.backend.domain.user.service.AuthService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -18,19 +16,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-
+@Tag(name = "07 스케줄 API", description = "스케줄 API")
 @RestController
 @RequestMapping("/api/schedules")
 @RequiredArgsConstructor
 public class ScheduleController {
 
     private final ScheduleService scheduleService;
-    private final AuthService authService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<ScheduleResponseDto> createSchedule(  @AuthenticationPrincipal CustomUserDetails userDetails,
-                                                                @Valid @RequestBody ScheduleRequestDto requestDto ) {
+    public ResponseEntity<ScheduleResponseDto> createSchedule(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                              @Valid @RequestBody ScheduleRequestDto requestDto ) {
         Long userNo = userDetails.getUser().getNo();
         ScheduleResponseDto responseDto = scheduleService.createSchedule(userNo, requestDto);
 
@@ -38,9 +35,9 @@ public class ScheduleController {
     }
 
     @PutMapping("/{scheduleNo}")
-    public ResponseEntity<ScheduleResponseDto> updateSchedule(  @PathVariable Long scheduleNo,
-                                                                @AuthenticationPrincipal CustomUserDetails userDetails,
-                                                                @Valid @RequestBody ScheduleRequestDto dto ) {
+    public ResponseEntity<ScheduleResponseDto> updateSchedule(@PathVariable Long scheduleNo,
+                                                              @AuthenticationPrincipal CustomUserDetails userDetails,
+                                                              @Valid @RequestBody ScheduleRequestDto dto ) {
         Long userNo = userDetails.getUser().getNo();
         ScheduleResponseDto responseDto = scheduleService.updateSchedule(scheduleNo, userNo, dto);
 
@@ -49,8 +46,8 @@ public class ScheduleController {
 
     @DeleteMapping("/{scheduleNo}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public ResponseEntity<Void> deleteSchedule( @PathVariable Long scheduleNo,
-                                                @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<Void> deleteSchedule(@PathVariable Long scheduleNo,
+                                               @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Long userNo = userDetails.getUser().getNo();
         scheduleService.deleteSchedule(scheduleNo, userNo);
@@ -59,8 +56,8 @@ public class ScheduleController {
     }
 
     @GetMapping("/{scheduleNo}")
-    public ResponseEntity<ScheduleResponseDto> getSchedule( @PathVariable Long scheduleNo,
-                                                            @AuthenticationPrincipal CustomUserDetails userDetails ) {
+    public ResponseEntity<ScheduleResponseDto> getSchedule(@PathVariable Long scheduleNo,
+                                                           @AuthenticationPrincipal CustomUserDetails userDetails ) {
         Long userNo = userDetails.getUser().getNo();
         ScheduleResponseDto responseDto = scheduleService.getSchedule(scheduleNo, userNo);
 
@@ -69,14 +66,13 @@ public class ScheduleController {
     }
 
     @GetMapping("/team/{teamNo}")
-    public ResponseEntity<Page<ScheduleResponseDto>> getSchedulesByTeam( @PathVariable Long teamNo,
+    public ResponseEntity<Page<ScheduleResponseDto>> getSchedulesByTeam(@PathVariable Long teamNo,
                                                                         @AuthenticationPrincipal CustomUserDetails userDetails,
-                                                                        @PageableDefault(size = 10, page = 0 ) Pageable pageable ,
+                                                                        @PageableDefault(size = 10, page = 0) Pageable pageable,
                                                                         @RequestParam(required = false) ScheduleSortOption scheduleSortOption) {
+
         Long userNo = userDetails.getUser().getNo();
-
         Page<ScheduleResponseDto> schedulesByTeam = scheduleService.getSchedulesByTeam(teamNo, userNo, pageable, scheduleSortOption);
-
         return ResponseEntity.ok(schedulesByTeam);
     }
 }

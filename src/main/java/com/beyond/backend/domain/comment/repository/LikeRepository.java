@@ -1,7 +1,7 @@
-package com.beyond.backend.domain.like.repository;
+package com.beyond.backend.domain.comment.repository;
 
 import com.beyond.backend.domain.comment.entity.Comment;
-import com.beyond.backend.domain.like.entity.Like;
+import com.beyond.backend.domain.comment.entity.Like;
 import com.beyond.backend.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 

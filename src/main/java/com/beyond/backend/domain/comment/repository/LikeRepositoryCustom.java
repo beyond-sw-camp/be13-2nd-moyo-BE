@@ -1,4 +1,4 @@
-package com.beyond.backend.domain.like.repository;
+package com.beyond.backend.domain.comment.repository;
 
 import com.beyond.backend.domain.comment.dto.CommentResponseDto;
 import org.springframework.data.domain.Page;

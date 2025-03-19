@@ -13,6 +13,7 @@ import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import com.beyond.backend.domain.user.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -24,7 +25,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "프로젝트 API", description = "프로젝트 API")
+@Tag(name = "06 프로젝트 API", description = "프로젝트 API")
 @RestController
 @RequestMapping("/project")
 @RequiredArgsConstructor
@@ -84,7 +85,9 @@ public class ProjectController {
 
     @Operation(summary = "프로젝트 단건 조회")
     @GetMapping("/{projectNo}")
-    public ResponseEntity<ProjectResponseDto> getProjectByNo(@PathVariable("projectNo") Long projectNo){
+    public ResponseEntity<ProjectResponseDto> getProjectByNo(@PathVariable("projectNo") Long projectNo,
+                                                             HttpServletRequest request){
+        projectService.viewProject(projectNo, request);
         ProjectResponseDto projectByProjectNo = projectService.getProjectByProjectNo(projectNo);
 
         return ResponseEntity.ok(projectByProjectNo);

@@ -1,9 +1,7 @@
-package com.beyond.backend.domain.bookMark.entity;
+package com.beyond.backend.domain.post.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

@@ -8,6 +8,7 @@ import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import com.beyond.backend.domain.user.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -34,6 +35,7 @@ DATE              AUTHOR             NOTE
 2025. 3. 3.        mlnstone             최초 생성
 */
 
+@Tag(name = "10 신고 API", description = "신고 API")
 @RestController
 @RequiredArgsConstructor
 public class ReportController {
@@ -41,9 +43,9 @@ public class ReportController {
     private final AuthService authService;
 
     @Operation(summary = "신고 단건 조회")
-    @GetMapping("/reports")
+    @GetMapping("/reports/{reportNo}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ReportResponseDto> getReport(@RequestParam Long reportNo) {
+    public ResponseEntity<ReportResponseDto> getReport(@PathVariable Long reportNo) {
 
         authService.validateAdminAuthorization();
 
@@ -97,7 +99,6 @@ public class ReportController {
             @PathVariable Long reportNo,
             @Parameter(description = "no는 신고번호입니다") @RequestBody ReportAdminResDto reportAdminResDto) {
         ReportResponseDto reportResponseDto = reportService.processReport(reportNo, reportAdminResDto);
-
         return ResponseEntity.ok(reportResponseDto);
 
     }

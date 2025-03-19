@@ -1,12 +1,9 @@
-package com.beyond.backend.domain.bookMark.entity;
+package com.beyond.backend.domain.post.entity;
 
-import com.beyond.backend.domain.post.entity.Post;
 import com.beyond.backend.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Getter

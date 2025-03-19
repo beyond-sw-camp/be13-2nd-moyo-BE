@@ -1,6 +1,6 @@
 package com.beyond.backend.domain.team.entity;
 
-import com.beyond.backend.domain.common.Base;
+import com.beyond.backend.domain.common.entity.AuditableEntity;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor
-public class Schedule extends Base {
+public class Schedule extends AuditableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -59,5 +59,4 @@ public class Schedule extends Base {
     public void updateAlertSent(boolean isAlertSent) {
         this.isAlertSent = isAlertSent;
     }
-
 }

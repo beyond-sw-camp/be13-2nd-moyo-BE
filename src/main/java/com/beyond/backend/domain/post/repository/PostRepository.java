@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 /**
  * <p>
  *
@@ -27,6 +29,8 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostRepositor
 
     // 트래픽이 중간이거나 적은 곳에서 동시성, 정합성 문제 해결하기에는 @Modifying + @Transactional 이 적당하다고 함
 
+    @Query("SELECT p FROM Post p JOIN FETCH p.user WHERE p.no = :postNo")
+    Optional<Post> findByIdWithUser(@Param("postNo") Long postNo);
 
     // 최신 북마크 수만 반환  jpql 사용 X 면 customrepository로 옮기기
     @Query("SELECT p.bookmarkCount FROM Post p WHERE p.no = :postNo")

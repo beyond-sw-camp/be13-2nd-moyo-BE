@@ -7,6 +7,7 @@ import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import com.beyond.backend.domain.user.repository.UserRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -18,6 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "09 쪽지 API", description = "쪽지 API")
 @RestController
 @RequiredArgsConstructor
 public class MessageController {
@@ -30,9 +32,9 @@ public class MessageController {
      * 쪽지 단일 조회
      */
     @Operation(summary = "쪽지 단일 조회", description = "쪽지를 조회합니다.")
-    @GetMapping("/messages")
+    @GetMapping("/messages/{messageNo}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<MessageResponseDto> getMessage(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestParam Long messageNo) {
+    public ResponseEntity<MessageResponseDto> getMessage(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable Long messageNo) {
         MessageResponseDto messageResponseDto = messageService.getMessage(userDetails.getUser().getNo(), messageNo);
 
         return ResponseEntity.status(HttpStatus.OK).body(messageResponseDto);
@@ -55,7 +57,7 @@ public class MessageController {
      * 쪽지 조회 리스트
      */
     @Operation(summary = "쪽지리스트")
-    @GetMapping("/messages/{type}")
+    @GetMapping("/messages/list/{type}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Page<MessageResponseDto>> getMessages(
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -78,10 +80,10 @@ public class MessageController {
      * 쪽지 삭제
      */
     @Operation(summary = "쪽지 삭제", description = "쪽지를 삭제합니다.")
-    @DeleteMapping("/messages")
+    @DeleteMapping("/messages/{messageNo}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<MessageResponseDto> deleteMessage
-    (@AuthenticationPrincipal CustomUserDetails userDetails, @RequestParam Long messageNo) {
+    (@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable Long messageNo) {
         messageService.deleteMessage(userDetails.getUser().getNo(), messageNo);
 
         MessageResponseDto responseDto = new MessageResponseDto("삭제되었습니다");

@@ -47,7 +47,7 @@ import java.util.List;
  * 2025-02-24        hongjm           코드 정리
  * 2025-02-26        hongjm           URL 할당 및 중복 코드 통합
  */
-@Tag(name = "팀 API", description = "팀 API")
+@Tag(name = "05 팀 API", description = "팀 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/team")
@@ -57,8 +57,7 @@ public class TeamController {
 
     /**
      * 팀 생성 메소드
-     *
-     * @param teamName      팀 이름
+     * @param teamName 팀 이름
      * @param teamIntroduce 팀 설명
      * @param projectStatus 프로젝트 상태
      * @return teamResponseDto
@@ -66,27 +65,21 @@ public class TeamController {
     @PostMapping
     @Operation(summary = "팀 생성 메서드", description = "팀 생성 메서드입니다.")
     @Parameters({
-            @Parameter(name = "teamName", description = "팀 이름", example = "테스트"),
-            @Parameter(name = "teamIntroduce", description = "팀 설명"),
-            @Parameter(name = "projectStatus", description = "프로젝트 상태")
+            @Parameter(name = "teamName" , description = "팀 이름", example = "테스트"),
+            @Parameter(name = "teamIntroduce" , description = "팀 설명"),
+            @Parameter(name = "projectStatus" , description = "프로젝트 상태")
     })
     public ResponseEntity<TeamResponseDto> createTeam(
             @RequestParam String teamName,
             @RequestParam(required = false) String teamIntroduce,
-            @RequestParam ProjectStatus projectStatus) {
+            @RequestParam ProjectStatus projectStatus){
         TeamDto teamDto = new TeamDto(teamName, teamIntroduce, projectStatus);
-        System.out.println("값 잘 받아옴?");
-        System.out.println(teamDto);
-        System.out.println("============");
         TeamResponseDto teamResponseDto = teamService.createTeam(teamDto);
-
-        System.out.println("요청 끝");
         return ResponseEntity.status(HttpStatus.OK).body(teamResponseDto);
     }
 
     /**
      * 팀 수정 메소드
-     *
      * @param teamNo        팀 번호
      * @param teamName      팀 이름
      * @param teamIntroduce 팀 정보
@@ -96,10 +89,10 @@ public class TeamController {
     @PutMapping("/{teamNo}/setting/update")
     @Operation(summary = "팀 수정 메서드", description = "팀 수정 메서드 입니다.")
     @Parameters({
-            @Parameter(name = "teamNo", description = "팀 번호", example = "1"),
-            @Parameter(name = "teamName", description = "팀 이름", example = "1"),
-            @Parameter(name = "teamIntroduce", description = "팀 설명"),
-            @Parameter(name = "projectStatus", description = "프로젝트 상태")
+            @Parameter(name = "teamNo" , description = "팀 번호", example = "1"),
+            @Parameter(name = "teamName" , description = "팀 이름", example = "1"),
+            @Parameter(name = "teamIntroduce" , description = "팀 설명"),
+            @Parameter(name = "projectStatus" , description = "프로젝트 상태")
     })
     public ResponseEntity<TeamResponseDto> updateTeam(
             @PathVariable Long teamNo,
@@ -116,7 +109,6 @@ public class TeamController {
 
     /**
      * 모든 팀 조회 메서드
-     *
      * @param userNo        (옵션) 유저 번호
      * @param teamName      (옵션) 팀이름
      * @param teamIntroduce (옵션) 팀 설명
@@ -128,12 +120,12 @@ public class TeamController {
     @GetMapping
     @Operation(summary = "해당 유저의 모든 팀 조회 메서드", description = "유저 번호로 해당 유저의 모든 팀을 조회하는 메서드 입니다.")
     @Parameters({
-            @Parameter(name = "userNo", description = "유저 번호"),
-            @Parameter(name = "teamName", description = "팀 이름"),
-            @Parameter(name = "teamIntroduce", description = "팀 설명"),
-            @Parameter(name = "projectStatus", description = "프로젝트 상태"),
-            @Parameter(name = "page", description = "페이지 번호", example = "0"),
-            @Parameter(name = "size", description = "한 페이지 결과 수", example = "10")
+            @Parameter(name = "userNo" , description = "유저 번호"),
+            @Parameter(name = "teamName" , description = "팀 이름"),
+            @Parameter(name = "teamIntroduce" , description = "팀 설명"),
+            @Parameter(name = "projectStatus" , description = "프로젝트 상태"),
+            @Parameter(name = "page" , description = "페이지 번호", example = "0"),
+            @Parameter(name = "size" , description = "한 페이지 결과 수", example = "10")
     })
     public ResponseEntity<PageImpl<TeamResponseDto>> getUserTeams(
             @RequestParam(required = false) Long userNo,
@@ -141,26 +133,11 @@ public class TeamController {
             @RequestParam(required = false) String teamIntroduce,
             @RequestParam(required = false) ProjectStatus projectStatus,
             @RequestParam int page,
-            @RequestParam int size) {
+            @RequestParam int size){
 
         PageImpl<TeamResponseDto> teamSearch = teamService.filterUserTeams(userNo, teamName, teamIntroduce, projectStatus, page, size);
-
-        return ResponseEntity.status(HttpStatus.OK).body(teamSearch);
+        return ResponseEntity.status(HttpStatus.OK). body(teamSearch);
     }
-    /*
-    @GetMapping({"/{teamNo}/")
-    @Operation(summary = "해당 유저의 모든 팀 조회 메서드", description = "유저 번호로 해당 유저의 모든 팀을 조회하는 메서드 입니다."){
-    public ResponseEntity<PageImpl<TeamResponseDto>> getdams(
-            @RequestParam(required = false) Long userNo,
-            @RequestParam(required = false) String teamName,
-            @RequestParam(required = false) String teamIntroduce,
-            @RequestParam(required = false) ProjectStatus projectStatus, {
-
-        PageImpl<TeamResponseDto> teamSearch = teamService.filterUserTeams(userNo, teamName, teamIntroduce, projectStatus);
-
-        return ResponseEntity.status(HttpStatus.OK).body(teamSearch);
-    }
-     */
 
     /**
      * 팀 삭제 메서드
@@ -174,7 +151,6 @@ public class TeamController {
     public ResponseEntity<String> deleteTeam(@PathVariable Long teamNo) throws Exception {
 
         teamService.deleteTeam(teamNo);
-
         return ResponseEntity.status(HttpStatus.OK).body("정상적으로 삭제되었습니다.");
     }
 
@@ -191,7 +167,6 @@ public class TeamController {
             @PathVariable Long teamNo,
             @RequestParam TeamJoinStatus status) throws Exception {
         List<TeamMemberListDto> teamMemberRequest = teamService.getTeamMemberRequest(teamNo, status);
-
         return ResponseEntity.status(HttpStatus.OK).body(teamMemberRequest);
     }
 
@@ -212,7 +187,6 @@ public class TeamController {
     public ResponseEntity<String> teamAccept (@PathVariable Long teamNo,
                                               @PathVariable Long userNo) throws Exception {
         teamService.teamAccept(teamNo, userNo);
-
         return ResponseEntity.status(HttpStatus.OK).body("정상적으로 수락 되었습니다.");
     }
 
@@ -232,7 +206,6 @@ public class TeamController {
     public ResponseEntity<String> teamDelete(@PathVariable Long teamNo,
                                              @PathVariable Long userNo) throws Exception {
         teamService.teamDelete(teamNo, userNo);
-
         return ResponseEntity.status(HttpStatus.OK).body("정상적으로 처리 되었습니다.");
     }
 
@@ -262,7 +235,6 @@ public class TeamController {
     @Parameters({@Parameter(name = "teamNo" , description = "팀 번호", example = "1")})
     public ResponseEntity<List<TeamMemberListDto>> getUserTeams( @PathVariable Long teamNo ) throws Exception {
         List<TeamMemberListDto> teamMembers = teamService.getTeamMembers(teamNo);
-
         return ResponseEntity.status(HttpStatus.OK).body(teamMembers);
     }
 
@@ -278,9 +250,8 @@ public class TeamController {
     @PostMapping("/{teamNo}/join-request")
     @Operation(summary = "팀원 가입 신청 메서드", description = "팀원 가입 신청 메서드입니다.")
     @Parameters({@Parameter(name = "teamNo" , description = "팀 번호", example = "1"),})
-    public ResponseEntity<String> teamJoinRequest (@PathVariable Long teamNo) throws Exception {
+    public ResponseEntity<String> teamJoinRequest(@PathVariable Long teamNo) throws Exception {
         teamService.teamJoinRequest(teamNo);
-
         return ResponseEntity.status(HttpStatus.OK).body("정상적으로 신청되었습니다.");
     }
 
@@ -293,8 +264,8 @@ public class TeamController {
      */
     @DeleteMapping("/{teamNo}/join-cancel")
     @Operation(summary = "팀원 가입 취소 메서드", description = "팀원 가입 취소  메서드입니다.")
-    @Parameters({@Parameter(name = "teamNo" , description = "팀 번호", example = "1"),})
-    public ResponseEntity<String> teamJoinRequestCancel (@PathVariable Long teamNo) throws Exception {
+    @Parameters({@Parameter(name = "teamNo", description = "팀 번호", example = "1"),})
+    public ResponseEntity<String> teamJoinRequestCancel(@PathVariable Long teamNo) throws Exception {
         teamService.teamJoinRequestCancel(teamNo);
 
         return ResponseEntity.status(HttpStatus.OK).body("정상적으로 취소되었습니다.");
