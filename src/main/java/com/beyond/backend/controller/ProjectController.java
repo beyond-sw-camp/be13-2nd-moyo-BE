@@ -69,20 +69,6 @@ public class ProjectController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "프로젝트 전체 조회")
-    @GetMapping
-    public ResponseEntity<Page<ProjectResponseDto>> getProjects(@PageableDefault(size = 10, page = 0) Pageable pageable,
-                                                                @RequestParam(required = false) ProjectSortOption projectSortOption) {
-
-        Page<ProjectResponseDto> allProjects = projectService.getAllProjects(pageable, projectSortOption);
-
-        if (allProjects.isEmpty())
-            System.out.println("프로젝트가 비어있습니다.");
-
-        return ResponseEntity.ok(allProjects);
-    }
-
-
     @Operation(summary = "프로젝트 단건 조회")
     @GetMapping("/{projectNo}")
     public ResponseEntity<ProjectResponseDto> getProjectByNo(@PathVariable("projectNo") Long projectNo,
@@ -104,10 +90,12 @@ public class ProjectController {
         return ResponseEntity.ok(projectsByUserNo);
     }
 
-    @Operation(summary = "프로젝트 검색 ")
+    @Operation(summary = "프로젝트 검색 및 전체 조회 ")
     @GetMapping("/search")
-    public ResponseEntity<Page<ProjectResponseDto>> searchPosts( @RequestParam String keyword, @RequestParam(required = false) ProjectSearchOption option, // 검색 옵션 (선택)
-        @PageableDefault(size = 10, page = 0) Pageable pageable) {
+    public ResponseEntity<Page<ProjectResponseDto>> searchPosts(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) ProjectSearchOption option, // 검색 옵션 (선택)
+            @PageableDefault(size = 10, page = 0) Pageable pageable) {
 
         Page<ProjectResponseDto> searchResults = projectService.searchProject(keyword, option, pageable);
 
