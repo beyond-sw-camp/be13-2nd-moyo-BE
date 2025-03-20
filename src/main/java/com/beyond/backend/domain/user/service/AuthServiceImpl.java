@@ -9,6 +9,7 @@ import com.beyond.backend.domain.user.dto.JoinRequestDto;
 import com.beyond.backend.domain.user.dto.LoginRequestDto;
 import com.beyond.backend.domain.user.dto.TokenResponseDto;
 import com.beyond.backend.domain.user.entity.User;
+import com.beyond.backend.domain.user.entity.UserRoleType;
 import com.beyond.backend.domain.user.jwt.JwtTokenProvider;
 import com.beyond.backend.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -48,8 +49,12 @@ public class AuthServiceImpl implements AuthService {
 
         String encodedPassword = passwordEncoder.encode(password);
 
-        User user = User.builder().username(username).password(encodedPassword).email(dto.getEmail())
-                .phoneNum(dto.getPhoneNum()).build();
+        User user = User.builder()
+                .username(username)
+                .password(encodedPassword)
+                .email(dto.getEmail())
+                .phoneNum(dto.getPhoneNum())
+                .build();
 
         userRepository.save(user);
     }
@@ -192,6 +197,17 @@ public class AuthServiceImpl implements AuthService {
             authTransactionService.increasePasswordErrorCount(user);
             log.info("Username : {}, PasswordErrorCount :0 {}", user.getUsername(), user.getPasswordErrorCount());
             throw new IllegalArgumentException("패스워드가 일치하지 않습니다");
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public void validateAdminByUsername(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND));
+        if (!user.getRole().equals(UserRoleType.ADMIN)) {
+            throw new AccessDeniedException(
+                    "User is not authorized to perform this action. (username: " + username + ")");
         }
     }
 }

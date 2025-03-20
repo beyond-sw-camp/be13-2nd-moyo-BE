@@ -24,6 +24,8 @@ public interface AuthService {
 
     TokenResponseDto refresh(String bearerToken);
 
+    void validateAdminByUsername(String username);
+
     
 
     

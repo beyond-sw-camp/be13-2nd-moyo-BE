@@ -10,8 +10,8 @@ import com.beyond.backend.domain.project.service.ProjectService;
 import com.beyond.backend.domain.user.dto.*;
 import com.beyond.backend.domain.user.service.AdminService;
 import com.beyond.backend.domain.user.service.AuthService;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,30 +36,10 @@ public class AdminController {
     private final ProjectService projectService;
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, Object>> login(@RequestBody LoginRequestDto dto) {
-        authService.validateAdminAuthorization();
-        try {
-            TokenResponseDto tokenResponse = authService.login(dto);
-            return ResponseEntity.ok(createSuccessResponse("로그인 성공", tokenResponse));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(createErrorResponse(e.getMessage(), dto.getUsername()));
-        }
-    }
-
-    private Map<String, Object> createSuccessResponse(String message, TokenResponseDto tokenResponse) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("message", message);
-        response.put("accessToken", tokenResponse.getAccessToken());
-        response.put("refreshToken", tokenResponse.getRefreshToken());
-        return response;
-    }
-
-    private Map<String, Object> createErrorResponse(String message, String username) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("message", message);
-        response.put("username", username);
-        return response;
+    public ResponseEntity<TokenResponseDto> login(@Valid @RequestBody LoginRequestDto dto) {
+        authService.validateAdminByUsername(dto.getUsername());
+        TokenResponseDto login = authService.login(dto);
+        return ResponseEntity.ok(login);
     }
 
     @PostMapping("/delete/{userNo}")
