@@ -46,7 +46,8 @@ public class ReportController {
     @GetMapping("/reports/{reportNo}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ReportResponseDto> getReport(@PathVariable Long reportNo) {
-
+        CustomUserDetails currentUser = authService.getCurrentUser();
+        System.out.println(currentUser.getUsername());
         authService.validateAdminAuthorization();
 
         ReportResponseDto reportResponseDto = reportService.getReport(reportNo);
@@ -56,11 +57,11 @@ public class ReportController {
 
     @Operation(summary = "유저 받은 신고 전체 조회")
     @PreAuthorize("hasRole('ADMIN')") // role(ADMIN) 추가 예정!
-    @GetMapping("/reports/{userId}")
+    @GetMapping("/reports/user/{userId}")
     public ResponseEntity<Page<ReportResponseDto>> getUserReports(
             @PathVariable String userId,
             @PageableDefault(size = 10, page = 0, sort = "no") Pageable pageable) {
-
+        authService.validateAdminAuthorization();
         Page<ReportResponseDto> reportResponseDto = reportService.getUserReportedList(userId, pageable);
 
         return ResponseEntity.ok(reportResponseDto);
@@ -71,6 +72,9 @@ public class ReportController {
     @GetMapping("/reports-list")
     public ResponseEntity<Page<ReportResponseDto>> getAllReports(
             @PageableDefault(size = 10, page = 0, sort = "no") Pageable pageable) {
+        CustomUserDetails currentUser = authService.getCurrentUser();
+        System.out.println(currentUser.getUsername());
+        authService.validateAdminAuthorization();
 
         Page<ReportResponseDto> reportResponseDto = reportService.getAllReports(pageable);
 
@@ -98,6 +102,7 @@ public class ReportController {
     public ResponseEntity<ReportResponseDto> updateReport(
             @PathVariable Long reportNo,
             @Parameter(description = "no는 신고번호입니다") @RequestBody ReportAdminResDto reportAdminResDto) {
+        authService.validateAdminAuthorization();
         ReportResponseDto reportResponseDto = reportService.processReport(reportNo, reportAdminResDto);
         return ResponseEntity.ok(reportResponseDto);
 

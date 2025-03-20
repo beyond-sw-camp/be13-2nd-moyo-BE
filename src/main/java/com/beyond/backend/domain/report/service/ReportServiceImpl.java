@@ -108,6 +108,7 @@ public class ReportServiceImpl implements ReportService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 신고가 없습니다"));
 
         report.updateComment(reportAdminResDto.getComment()); //생성자
+        System.out.println(reportAdminResDto.getStatus());
         updateReportStatus(report, reportAdminResDto.getStatus());
 
         reportRepository.save(report);
