@@ -14,6 +14,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/project")
 @RequiredArgsConstructor
+@Log4j2
 public class ProjectController {
 
     private final ProjectService projectService;
@@ -57,9 +60,7 @@ public class ProjectController {
     public ResponseEntity<Void> deleteProject(
             @PathVariable("projectNo") Long projectNo) throws Exception {
 
-        authService.validateAdminAuthorization();
         projectService.deleteProject(projectNo);
-
         return ResponseEntity.noContent().build();
     }
 
