@@ -241,7 +241,6 @@ public class ProjectServiceImpl implements ProjectService {
 
 		// 3. user 가 team 에 속하는가
 		boolean existsByUserNoAndTeamNo = teamUserRepository.existsByUserNoAndTeamNo(userDetails.getNo(), project.getTeam().getNo());
-
 		if (!existsByUserNoAndTeamNo) {
 			throw new UserException(ExceptionMessage.USER_ACCESS_DENIED);
 		}
@@ -250,7 +249,6 @@ public class ProjectServiceImpl implements ProjectService {
 		if (!teamUserRepository.isLeader(team.getNo(), userDetails.getNo())) {
 			throw new UserException(ExceptionMessage.USER_ACCESS_DENIED);
 		}
-
 		// 5. 프로젝트 삭제
 		projectRepository.deleteById(projectNo);
 	}
