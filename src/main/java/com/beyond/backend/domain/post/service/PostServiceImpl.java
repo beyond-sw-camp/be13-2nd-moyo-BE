@@ -181,7 +181,7 @@ public class PostServiceImpl implements PostService {
 
         // 게시글 작성자이거나 관리자인 경우만 삭제 가능
 
-        if ( !authService.isUser(post.getUser()) && !authService.isAdmin()) {
+        if (!authService.isUser(post.getUser()) && !authService.isAdmin()) {
 
             throw new PostException(ExceptionMessage.POST_ACCESS_DENIED);
         }

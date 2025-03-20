@@ -24,13 +24,13 @@ import com.beyond.backend.domain.project.entity.ProjectStatus;
 public interface ProjectService {
 
     // 프로젝트 생성
-    ProjectResponseDto createProject(ProjectRequestDto projectRequestDto, Long userNo);
+    ProjectResponseDto createProject(ProjectRequestDto projectRequestDto);
 
     // 프로젝트 수정
-    ProjectResponseDto updateProject(Long projectNo, ProjectStatus projectStatus, ProjectUpdateRequestDto projectRequestDto, Long userNo);
+    ProjectResponseDto updateProject(Long projectNo, ProjectStatus projectStatus, ProjectUpdateRequestDto projectRequestDto);
 
     // 프로젝트 삭제
-    void deleteProject(Long userNo, Long projectNo);
+    void deleteProject(Long projectNo);
 
 
     // 프로젝트 전체 보기

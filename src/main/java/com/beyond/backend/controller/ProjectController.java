@@ -4,19 +4,16 @@ import com.beyond.backend.domain.project.dto.ProjectRequestDto;
 import com.beyond.backend.domain.project.dto.ProjectResponseDto;
 import com.beyond.backend.domain.project.dto.ProjectUpdateRequestDto;
 import com.beyond.backend.domain.project.entity.ProjectSearchOption;
-import com.beyond.backend.domain.project.entity.ProjectSortOption;
 import com.beyond.backend.domain.project.entity.ProjectStatus;
 import com.beyond.backend.domain.project.service.ProjectService;
 import com.beyond.backend.domain.teamUser.repository.TeamUserRepository;
 import com.beyond.backend.domain.user.dto.CustomUserDetails;
-
 import com.beyond.backend.domain.user.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -38,11 +35,9 @@ public class ProjectController {
 
     @Operation(summary = "프로젝트 등록 메서드", description = "프로젝트 등록 메서드입니다.")
     @PostMapping()
-    public ResponseEntity<ProjectResponseDto> createProject(@Valid @RequestBody ProjectRequestDto projectRequestDto,
-                                                            @AuthenticationPrincipal CustomUserDetails userDetails ) {
+    public ResponseEntity<ProjectResponseDto> createProject(@Valid @RequestBody ProjectRequestDto projectRequestDto) {
 
-        ProjectResponseDto projectResponseDto = projectService.createProject(projectRequestDto, userDetails.getUser().getNo());
-
+        ProjectResponseDto projectResponseDto = projectService.createProject(projectRequestDto);
         return ResponseEntity.ok(projectResponseDto);
     }
 
@@ -50,21 +45,20 @@ public class ProjectController {
     @PostMapping("/{projectNo}")
     public ResponseEntity<ProjectResponseDto> updateProject(@RequestParam ProjectStatus projectStatus,
                                                             @PathVariable("projectNo") Long projectNo,
-                                                            @Valid @RequestBody ProjectUpdateRequestDto projectRequestDto,
-                                                            @AuthenticationPrincipal CustomUserDetails userDetails ) {
+                                                            @Valid @RequestBody ProjectUpdateRequestDto projectRequestDto) {
 
-        ProjectResponseDto projectResponseDto = projectService.updateProject(projectNo, projectStatus, projectRequestDto, userDetails.getUser().getNo() );
+        ProjectResponseDto projectResponseDto = projectService.updateProject(projectNo, projectStatus, projectRequestDto);
 
         return ResponseEntity.status(HttpStatus.OK).body(projectResponseDto);
     }
 
     @Operation(summary = "프로젝트 삭제 메서드", description = "프로젝트 삭제 메서드 입니다.")
     @DeleteMapping("/{projectNo}")
-    public ResponseEntity<Void> deleteProject(  @AuthenticationPrincipal CustomUserDetails userDetails ,
-                                                @PathVariable("projectNo") Long projectNo ) throws Exception {
+    public ResponseEntity<Void> deleteProject(
+            @PathVariable("projectNo") Long projectNo) throws Exception {
 
         authService.validateAdminAuthorization();
-        projectService.deleteProject(userDetails.getUser().getNo(), projectNo);
+        projectService.deleteProject(projectNo);
 
         return ResponseEntity.noContent().build();
     }
