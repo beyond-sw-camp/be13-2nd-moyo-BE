@@ -24,15 +24,4 @@ import org.springframework.data.repository.query.Param;
  */
 
 public interface TeamRepository extends JpaRepository<Team, Long> {
-    /**
-     * 팀 상세 정보 조회
-     * @return TeamDetailDto
-
-    @Query("SELECT new com.beyond.backend.domain.team.dto.TeamDetailDto" +
-            "(t.teamName, t.teamIntroduce, t.projectStatus, ) " +
-            "FROM Team t " +
-            "JOIN Project p ON t.no = tu.team.no " +
-            "WHERE (:userNo IS NULL OR tu.user.no = :userNo)")
-    TeamDetailDto findByTeamDetail(@Param("teamNo") Long teamNo);
-     */
 }

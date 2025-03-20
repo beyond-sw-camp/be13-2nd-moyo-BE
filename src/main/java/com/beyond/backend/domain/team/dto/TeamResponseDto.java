@@ -31,10 +31,10 @@ public class TeamResponseDto {
 
     private long no;
 
-    private String teamName;
+    TeamDto team;
 
-    private String teamIntroduce;
-
-    private ProjectStatus projectStatus;
-
+    public TeamResponseDto(Long no, String teamName, String teamIntroduce, ProjectStatus projectStatus) {
+        this.no = no;
+        this.team = new TeamDto(teamName, teamIntroduce, projectStatus);
+    }
 }

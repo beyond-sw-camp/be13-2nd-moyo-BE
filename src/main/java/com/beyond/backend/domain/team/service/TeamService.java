@@ -1,5 +1,6 @@
 package com.beyond.backend.domain.team.service;
 
+import com.beyond.backend.domain.team.dto.TeamDetailDto;
 import com.beyond.backend.domain.team.dto.TeamDto;
 import com.beyond.backend.domain.team.dto.TeamMemberListDto;
 import com.beyond.backend.domain.team.dto.TeamResponseDto;
@@ -44,6 +45,9 @@ public interface TeamService {
 
     // 팀 삭제
     void deleteTeam(Long no) throws Exception;
+    
+    // 팀 상세조회
+    TeamDetailDto getTeamDetailDto(Long teamNo) throws Exception;
 
     // 팀원 목록 조회
     List<TeamMemberListDto> getTeamMembers(Long teamNo) throws Exception;

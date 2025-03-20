@@ -7,7 +7,10 @@ import com.beyond.backend.domain.common.exception.TeamException;
 import com.beyond.backend.domain.common.exception.UserException;
 import com.beyond.backend.domain.common.exception.message.ExceptionMessage;
 import com.beyond.backend.domain.common.service.NotificationService;
+import com.beyond.backend.domain.project.dto.ProjectResponseDto;
+import com.beyond.backend.domain.project.entity.Project;
 import com.beyond.backend.domain.project.entity.ProjectStatus;
+import com.beyond.backend.domain.project.repository.ProjectRepository;
 import com.beyond.backend.domain.team.dto.TeamDetailDto;
 import com.beyond.backend.domain.team.dto.TeamDto;
 import com.beyond.backend.domain.team.dto.TeamMemberListDto;
@@ -65,8 +68,9 @@ public class TeamServiceImpl implements TeamService {
     private final TeamUserRepository teamUserRepository;
     private final AuthService authService;
     private final NotificationService notificationService;
+    private final ProjectRepository projectRepository;
 
-    
+
     // 자주 쓰는 유저 찾는 메소드 분리
     private User findUserByUsername() {
         CustomUserDetails userDetails = authService.getCurrentUser();
@@ -87,7 +91,7 @@ public class TeamServiceImpl implements TeamService {
     // timePeriod 객체 삭제  ->  생성자에서 설정 삭제
     @Override
     public TeamResponseDto createTeam(TeamDto teamDto) {
-        System.out.println("유저 확인시도");
+        // 유저 확인 시도
         User user = findUserByUsername();
 
         // 팀 저장
@@ -107,12 +111,7 @@ public class TeamServiceImpl implements TeamService {
                 .build();
         teamUserRepository.save(teamUser);
 
-        return new TeamResponseDto(
-                team.getNo(),
-                team.getTeamName(),
-                team.getTeamIntroduce(),
-                team.getProjectStatus()
-        );
+        return new TeamResponseDto(user.getNo(),teamDto);
     }
 
     /**
@@ -127,11 +126,7 @@ public class TeamServiceImpl implements TeamService {
         Team searchTeam = teamRepository.findById(teamDto.getNo())
                 .orElseThrow(() -> new BaseException(ExceptionMessage.TEAM_NOT_FOUND));
 
-        searchTeam.updateTeamDetails(
-                teamDto.getTeamName(),
-                teamDto.getTeamIntroduce(),
-                teamDto.getProjectStatus()
-        );
+        searchTeam.updateTeamDetails(teamDto.getTeam());
 
         Team updateTeam = teamRepository.save(searchTeam);
 
@@ -161,9 +156,9 @@ public class TeamServiceImpl implements TeamService {
         Page<TeamResponseDto> teams = teamUserRepository.findByUserNoForUserTeams(userNo, pageable);
 
         List<TeamResponseDto> filteredTeams = teams.stream()
-                .filter(team -> teamName == null || team.getTeamName().contains(teamName))
-                .filter(team -> teamIntroduce == null || team.getTeamIntroduce().contains(teamIntroduce))
-                .filter(team -> projectStatus == null || team.getProjectStatus().equals(projectStatus))
+                .filter(team -> teamName == null || team.getTeam().getTeamName().contains(teamName))
+                .filter(team -> teamIntroduce == null || team.getTeam().getTeamIntroduce().contains(teamIntroduce))
+                .filter(team -> projectStatus == null || team.getTeam().getProjectStatus().equals(projectStatus))
                 .toList();
         return new PageImpl<>(filteredTeams, pageable, teams.getTotalElements());
     }
@@ -192,11 +187,31 @@ public class TeamServiceImpl implements TeamService {
 
     /* --------- 팀 디테일 페이지 ----------*/
 
-    // @Override
-    // public TeamDetailDto getTeamDetailDto(Long teamNo) throws Exception {
-    //     return teamRepository.findByTeamDetail(teamNo)
-    //             .orElseThrow(() -> new BaseException(ExceptionMessage.TEAM_NOT_FOUND));
-    // }
+    @Override
+    public TeamDetailDto getTeamDetailDto(Long teamNo) throws Exception {
+
+        Team team = teamRepository.findById(teamNo).orElseThrow(() -> new TeamException(ExceptionMessage.TEAM_NOT_FOUND));
+        
+        // 팀에 할당된 프로젝트가 없을 수도 있기에 일단 초기화
+        String projectName = null;
+        String projectContent = null;
+        ProjectStatus projectStatus = ProjectStatus.CLOSED;
+
+        // 값이 있다면 할당
+        if (team.getProject() != null) {
+            projectName = team.getProject().getName();
+            projectContent = team.getProject().getContent();
+            projectStatus = team.getProject().getProjectStatus();
+        }
+
+        return new TeamDetailDto(
+                team.getTeamName(),
+                team.getTeamIntroduce(),
+                projectName,
+                projectContent,
+                projectStatus
+        );
+    }
 
     /**
      * 팀원 목록 조회 서비스
