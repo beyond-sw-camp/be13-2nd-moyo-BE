@@ -7,21 +7,14 @@ import com.beyond.backend.domain.common.exception.message.ExceptionMessage;
 import com.beyond.backend.domain.post.dto.PostDto;
 import com.beyond.backend.domain.post.dto.PostResponseDto;
 import com.beyond.backend.domain.post.dto.UserPostResponseDto;
-import com.beyond.backend.domain.post.entity.BoardType;
-import com.beyond.backend.domain.post.entity.Post;
-import com.beyond.backend.domain.post.entity.PostSearchOption;
-import com.beyond.backend.domain.post.entity.PostSortOption;
-import com.beyond.backend.domain.post.entity.PostStatus;
+import com.beyond.backend.domain.post.entity.*;
 import com.beyond.backend.domain.post.repository.PostRepository;
 import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import com.beyond.backend.domain.user.entity.User;
-import com.beyond.backend.domain.user.jwt.JwtTokenProvider;
 import com.beyond.backend.domain.user.repository.UserRepository;
 import com.beyond.backend.domain.user.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,7 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
-import java.util.List;
 
 /**
  * <p>
@@ -58,7 +50,6 @@ public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
-    private final CommentRepository commentRepository;
     private final AuthService authService;
     private final RedisTemplate<String, String> redisTemplate;
 
@@ -69,7 +60,7 @@ public class PostServiceImpl implements PostService {
 
         // 검색어가 있는데 검색 옵션을 선택하지 않은 경우 검색이 안됨
         if (keyword != null && option == null) {
-            throw new IllegalArgumentException("검색 옵션을 선택해주십시오.");
+            throw new IllegalArgumentException("검색 옵션을 선택해 주십시오.");
         }
         
         Page<PostResponseDto> searchResults = postRepository.searchPosts(boardType, option, keyword, pageable, postSortOption);
@@ -190,7 +181,7 @@ public class PostServiceImpl implements PostService {
 
         // 게시글 작성자이거나 관리자인 경우만 삭제 가능
 
-        if ( !authService.isUser(post.getUser()) && !authService.isAdmin()) {
+        if (!authService.isUser(post.getUser()) && !authService.isAdmin()) {
 
             throw new PostException(ExceptionMessage.POST_ACCESS_DENIED);
         }
@@ -227,7 +218,7 @@ public class PostServiceImpl implements PostService {
     @Transactional(readOnly = true)
     public void validatePostAuthority(BoardType boardType) {
         if (boardType == BoardType.NOTICE && !authService.isAdmin()) {
-            throw new IllegalArgumentException("제시글 작성 권한이 없습니다.");
+            throw new PostException(ExceptionMessage.POST_ACCESS_DENIED);
         }
     }
 

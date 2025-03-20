@@ -38,7 +38,7 @@ public class LikeServiceImpl implements LikeService{
     @Transactional
     public String checkCommentLike(Long commentNo, Long userNo) {
 
-        CustomUserDetails userDetails = authService.getCurrentUser();
+
         // 댓글이 존재하는지 확인
         Comment comment = commentRepository.findById(commentNo).orElseThrow(
                 ()-> new PostException(ExceptionMessage.COMMENT_NOT_FOUND));

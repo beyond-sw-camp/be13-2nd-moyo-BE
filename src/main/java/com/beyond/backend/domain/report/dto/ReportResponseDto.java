@@ -3,6 +3,7 @@ package com.beyond.backend.domain.report.dto;
 import com.beyond.backend.domain.report.entity.Report;
 import com.beyond.backend.domain.report.entity.ReportStatus;
 import com.beyond.backend.domain.report.entity.ReportType;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -33,13 +34,15 @@ public class ReportResponseDto {
     private String reportedId;
 
     private ReportType reportType;
-    private ReportStatus status;
+    private ReportStatus reportStatus;
     private String url;
     private String content;
 
     private String comment;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime reportTime;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime commentTime;
 
     public static ReportResponseDto reportFrom(Report report) {

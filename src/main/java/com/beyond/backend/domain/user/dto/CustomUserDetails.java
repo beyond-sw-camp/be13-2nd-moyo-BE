@@ -10,7 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 
-@Getter
+
 @Data
 public class CustomUserDetails implements UserDetails {
 
@@ -25,6 +25,10 @@ public class CustomUserDetails implements UserDetails {
         return Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_" + user.getRole().name())
         );
+    }
+
+    public Long getNo() {
+        return user.getNo();
     }
 
     @Override

@@ -24,10 +24,10 @@ import org.springframework.data.domain.Pageable;
  */public interface CommentService {
 
      // 댓글 생성 (자유게시판에서만 )
-    CommentResponseDto createComment(Long userNo, CommentDto commentDto);
+    CommentResponseDto createComment(CommentDto commentDto);
 
     // 댓글 수정
-    CommentResponseDto updateComment(Long commentNo, CommentDto commentDto, Long userNo);
+    CommentResponseDto updateComment(Long commentNo, CommentDto commentDto);
 
     // 댓글 삭제
     void deleteComment(Long commentNo);
