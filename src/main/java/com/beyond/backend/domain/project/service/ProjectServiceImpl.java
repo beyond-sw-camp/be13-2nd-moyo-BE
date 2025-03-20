@@ -56,7 +56,7 @@ public class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	@Transactional
-	public ProjectResponseDto createProject(ProjectRequestDto projectRequestDto, Long userNo) {
+	public ProjectResponseDto createProject(ProjectRequestDto projectRequestDto) {
 
 		CustomUserDetails userDetails = authService.getCurrentUser();
 
@@ -66,11 +66,7 @@ public class ProjectServiceImpl implements ProjectService {
 
 
 		// 2. 회원이 팀에 속하는지
-		User user = userRepository.findById(userNo).orElseThrow(
-			() ->  new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userNo));
-
-
-		boolean existsByUserNoAndTeamNo = teamUserRepository.existsByUserNoAndTeamNo(user.getNo(), team.getNo());
+		boolean existsByUserNoAndTeamNo = teamUserRepository.existsByUserNoAndTeamNo(userDetails.getNo(), team.getNo());
 
 		if (!existsByUserNoAndTeamNo) {
 			throw new IllegalArgumentException("사용자는 해당 팀에 속하지 않습니다.");
@@ -113,7 +109,7 @@ public class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	@Transactional
-	public ProjectResponseDto updateProject(Long projectNo, ProjectStatus projectStatus, ProjectUpdateRequestDto projectRequestDto, Long userNo ) {
+	public ProjectResponseDto updateProject(Long projectNo, ProjectStatus projectStatus, ProjectUpdateRequestDto projectRequestDto) {
 
 		CustomUserDetails userDetails = authService.getCurrentUser();
 
@@ -124,17 +120,11 @@ public class ProjectServiceImpl implements ProjectService {
 			() -> new ProjectException(ExceptionMessage.PROJECT_NOT_FOUND)
 		);
 
-		// 2. 유저 존재하는지 검증
-		User user = userRepository.findById(userNo).orElseThrow(
-			() ->  new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userNo)
-		);
-
-
 		Team team = project.getTeam();
 
 
 		// 3. user 가 team 에 속하는가
-		boolean existsByUserNoAndTeamNo = teamUserRepository.existsByUserNoAndTeamNo(userNo, team.getNo());
+		boolean existsByUserNoAndTeamNo = teamUserRepository.existsByUserNoAndTeamNo(userDetails.getNo(), team.getNo());
 
 		if (!existsByUserNoAndTeamNo) {
 			throw new UserException(ExceptionMessage.USER_ACCESS_DENIED);
@@ -238,19 +228,9 @@ public class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	@Transactional
-	public void deleteProject(Long userNo, Long projectNo) {
+	public void deleteProject(Long projectNo) {
 
 		CustomUserDetails userDetails = authService.getCurrentUser();
-
-		// 1. user 검증
-		User user = userRepository.findById(userNo).orElseThrow(
-			()->  new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userNo)
-		);
-
-		if (!userDetails.getUser().getNo().equals(userNo)) {
-			//throw new IllegalArgumentException("잘못된 요청입니다. 로그인한 사용자와 일치하지 않습니다.");
-			throw new UserException(ExceptionMessage.USER_ACCESS_DENIED);
-		}
 
 		// 2. project 검증
 		Project project = projectRepository.findById(projectNo).orElseThrow(
@@ -260,16 +240,14 @@ public class ProjectServiceImpl implements ProjectService {
 		Team team = project.getTeam();
 
 		// 3. user 가 team 에 속하는가
-		boolean existsByUserNoAndTeamNo = teamUserRepository.existsByUserNoAndTeamNo(user.getNo(), project.getTeam().getNo());
+		boolean existsByUserNoAndTeamNo = teamUserRepository.existsByUserNoAndTeamNo(userDetails.getNo(), project.getTeam().getNo());
 
 		if (!existsByUserNoAndTeamNo) {
-			//throw new IllegalArgumentException("사용자는 해당 프로젝트를 삭제할 권한이 없습니다.");
 			throw new UserException(ExceptionMessage.USER_ACCESS_DENIED);
 		}
 
-		//  4. 리더가 아니고 관리자가 아니면 예외
-		if (!teamUserRepository.isLeader(team.getNo(), userNo)) {
-			//throw new IllegalArgumentException("사용자는 해당 프로젝트를 삭제할 권한이 없습니다.");
+		//  4. 리더가 아니면 예외
+		if (!teamUserRepository.isLeader(team.getNo(), userDetails.getNo())) {
 			throw new UserException(ExceptionMessage.USER_ACCESS_DENIED);
 		}
 
@@ -312,10 +290,12 @@ public class ProjectServiceImpl implements ProjectService {
 			if (user != null) {
 				//사용자 번호를 해시값으로 변환하여 식별자 생성
 				userIdentifier = "user:" + user.getNo().hashCode();
+				log.info("{} 님이 조회함", user.getUsername());
 			}
 		} else { //비로그인 사용자인 경우(게스트)
 			//IP 주소 가져오기
-			String ipAddress = request.getHeader("X-Forwarded-For");//비회원은 IP 주소와 User-Agent를 사용
+			String ipAddress = request.getRemoteAddr();
+
 
 			if (ipAddress != null && !ipAddress.isEmpty()) {
 				// X-Forwarded-For 헤더가 있는 경우, 첫 번째 IP(클라이언트 실제 IP) 사용
@@ -335,7 +315,10 @@ public class ProjectServiceImpl implements ProjectService {
 				String identifier = ipAddress + userAgent;
 				userIdentifier = "guest:" + (long) identifier.hashCode();
 			}
+			log.info("ip : {} User-Agent : {}인 게스트가 조회함", ipAddress, userAgent);
+
 		}
+
 		return userIdentifier;
 	}
 
