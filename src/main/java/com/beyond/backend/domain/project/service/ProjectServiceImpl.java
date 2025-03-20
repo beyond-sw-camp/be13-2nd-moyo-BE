@@ -186,8 +186,6 @@ public class ProjectServiceImpl implements ProjectService {
 			() -> new ProjectException(ExceptionMessage.PROJECT_NOT_FOUND)
 		);
 
-		// 조회수 증가
-		increaseViewCount(projectNo);
 
 		return new ProjectResponseDto(project);
 	}
