@@ -160,24 +160,6 @@ public class CommentController {
 
 
 
-    // 유저가 좋아요한 댓글 전체 조회
-    @Operation(summary = "유저가 좋아요한 댓글 전체 조회", description = "개인 페이지에서 자신이 좋아요한 댓글 전체 조회 가능")
-    @GetMapping("/me/liked-comments") // 회원 기능이라 userNo이 안들어감
-    public ResponseEntity<Page<CommentResponseDto>> getUserLikedComments(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
-            @PageableDefault(size = 10, page= 0) Pageable pageable){
-
-
-        Page<CommentResponseDto> result = likeService.getUserLikedComments(userDetails.getUser().getNo(), pageable);
-
-        return ResponseEntity.ok(result);
-    }
-
-
-
-
-
-
 
 }
 
