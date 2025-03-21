@@ -1,5 +1,6 @@
 package com.beyond.backend.domain.team.service;
 
+import com.beyond.backend.domain.team.dto.TeamDetailDto;
 import com.beyond.backend.domain.team.dto.TeamDto;
 import com.beyond.backend.domain.team.dto.TeamMemberListDto;
 import com.beyond.backend.domain.team.dto.TeamResponseDto;
@@ -29,6 +30,7 @@ import java.util.List;
  * 2025-02-22        hongjm           팀원 추가/제거 등등 기능 추가
  * 2025-02-24        hongjm           코드 정리
  * 2025-02-26        hongjm           중복 코드 통합
+ * 2025-03-21        hongjm           팀 리더 확인, 상세보기
  */
 
 public interface TeamService {
@@ -44,6 +46,11 @@ public interface TeamService {
 
     // 팀 삭제
     void deleteTeam(Long no) throws Exception;
+    
+    // 팀 상세조회
+    TeamDetailDto getTeamDetailDto(Long teamNo) throws Exception;
+
+    Boolean isTeamLeader(Long teamNo);
 
     // 팀원 목록 조회
     List<TeamMemberListDto> getTeamMembers(Long teamNo) throws Exception;

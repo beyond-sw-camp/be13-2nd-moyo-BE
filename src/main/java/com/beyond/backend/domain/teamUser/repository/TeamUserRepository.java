@@ -1,5 +1,6 @@
 package com.beyond.backend.domain.teamUser.repository;
 
+import com.beyond.backend.domain.team.dto.TeamDetailDto;
 import com.beyond.backend.domain.team.dto.TeamMemberListDto;
 import com.beyond.backend.domain.team.dto.TeamResponseDto;
 import com.beyond.backend.domain.team.entity.TeamJoinStatus;

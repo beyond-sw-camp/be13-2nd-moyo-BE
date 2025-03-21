@@ -1,5 +1,6 @@
 package com.beyond.backend.domain.team.entity;
 
+import com.beyond.backend.domain.team.dto.TeamDto;
 import com.beyond.backend.domain.teamUser.entity.TeamUser;
 import com.beyond.backend.domain.project.entity.Project;
 import com.beyond.backend.domain.project.entity.ProjectStatus;
@@ -53,10 +54,10 @@ public class Team {
         project.setTeam(this);
     }
 
-    public void updateTeamDetails(String teamName, String teamIntroduce, ProjectStatus projectStatus) {
-        this.teamName = teamName;
-        this.teamIntroduce = teamIntroduce;
-        this.projectStatus = projectStatus;
+    public void updateTeamDetails(TeamDto teamDto) {
+        this.teamName = teamDto.getTeamName();
+        this.teamIntroduce = teamDto.getTeamIntroduce();
+        this.projectStatus = teamDto.getProjectStatus();
     }
 
     public void addSchedule(Schedule schedule) {
