@@ -58,12 +58,12 @@ public class PostController {
     @Operation(summary = "게시글 단건 조회", description = "활성화된 게시글 상세 조회")
 
     @GetMapping("/posts/{postNo}/with-comments")
-    public ResponseEntity<PostResponseDto> getPostDetail(@PathVariable Long postNo,
+    public ResponseEntity<UserPostResponseDto> getPostDetail(@PathVariable Long postNo,
                                                          HttpServletRequest request) {
 
         postService.viewPost(postNo, request);
-        PostResponseDto postResponseDto = postService.getPostById(postNo);
-        return ResponseEntity.ok(postResponseDto);
+        UserPostResponseDto userPostResponseDto = postService.getPostById(postNo);
+        return ResponseEntity.ok(userPostResponseDto);
     }
 
 
