@@ -148,16 +148,19 @@ public class CommentController {
     // 댓글 좋아요 / 좋아요 취소
     @Operation(summary = "댓글 좋아요 추가 및 취소", description = "댓글 좋아요 상태 (추가, 취소)")
     @PostMapping("/{commentNo}/like")
-    public ResponseEntity<String> likeComment(
-            @PathVariable Long commentNo,
-            @AuthenticationPrincipal CustomUserDetails userDetails){
-
-        String result = likeService.checkCommentLike(commentNo, userDetails.getUser().getNo());
-
-
+    public ResponseEntity<String> likeComment(@PathVariable Long commentNo) {
+        String result = likeService.toggleCommentLike(commentNo);
         return ResponseEntity.ok(result);
-
     }
+
+    @Operation(summary = "좋아요 갯수 조회", description = "댓그 좋아요 갯수 조회")
+    @GetMapping("/{commentNo}/like-count")
+    public ResponseEntity<Long> getLike(@PathVariable Long commentNo) {
+        Long likeCount = likeService.getLikeCount(commentNo);
+        return ResponseEntity.ok(likeCount);
+    }
+
+
 
     // 유저가 좋아요한 댓글 전체 조회
     @Operation(summary = "유저가 좋아요한 댓글 전체 조회", description = "개인 페이지에서 자신이 좋아요한 댓글 전체 조회 가능")
