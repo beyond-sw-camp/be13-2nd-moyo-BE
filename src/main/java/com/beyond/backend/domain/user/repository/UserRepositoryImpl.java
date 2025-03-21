@@ -37,6 +37,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom{
 
         List<AllUserResponseDto> users = queryFactory
                 .select(Projections.constructor(AllUserResponseDto.class,
+                        user.no,
                         user.username,
                         user.role,
                         user.email,

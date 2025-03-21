@@ -174,7 +174,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 				.select(post.count())
 				.from(post)
 				.leftJoin(post.user, user)
-				.where(user.no.eq(userNo));
+				.where(user.no.eq(userNo), post.boardType.eq(boardType));
 
 
 		return PageableExecutionUtils.getPage(content,pageable, totalCount::fetchOne);
