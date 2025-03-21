@@ -2,6 +2,7 @@ package com.beyond.backend.domain.user.service;
 
 import com.beyond.backend.domain.common.exception.UserException;
 import com.beyond.backend.domain.common.exception.message.ExceptionMessage;
+import com.beyond.backend.domain.user.entity.UserSortOption;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -41,8 +42,8 @@ public class AdminServiceImpl implements AdminService {
 
     ///  모든 사용자 조회 -- ROLE 필터 ..
     @Override
-    public Page<AllUserResponseDto> getUsers(Pageable pageable) {
-        return userRepository.getUsers(pageable);
+    public Page<AllUserResponseDto> getUsers(UserSortOption userSortOption, Pageable pageable) {
+        return userRepository.getUsers(userSortOption, pageable);
     }
 
 

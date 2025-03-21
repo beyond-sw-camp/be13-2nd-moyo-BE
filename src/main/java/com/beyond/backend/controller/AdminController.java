@@ -8,6 +8,8 @@ import com.beyond.backend.domain.post.service.PostService;
 import com.beyond.backend.domain.project.dto.ProjectResponseDto;
 import com.beyond.backend.domain.project.service.ProjectService;
 import com.beyond.backend.domain.user.dto.*;
+import com.beyond.backend.domain.user.entity.UserSearchOption;
+import com.beyond.backend.domain.user.entity.UserSortOption;
 import com.beyond.backend.domain.user.service.AdminService;
 import com.beyond.backend.domain.user.service.AuthService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -51,16 +53,20 @@ public class AdminController {
     }
 
     @GetMapping("/users")
-    public ResponseEntity<Page<AllUserResponseDto>> getUsersByAdmin(@PageableDefault Pageable pageable) {
+    public ResponseEntity<Page<AllUserResponseDto>> getUsersByAdmin(
+            @RequestParam(required = false) UserSortOption sortOption,
+            @PageableDefault(size = 10, page = 0) Pageable pageable) {
 
         authService.validateAdminAuthorization();
-        Page<AllUserResponseDto> users = adminService.getUsers(pageable);
+        Page<AllUserResponseDto> users = adminService.getUsers(sortOption, pageable);
+
         return ResponseEntity.ok(users);
 
     }
 
     @GetMapping("/user/{userNo}")
-    public ResponseEntity<OneUserResponseDto> getOneUserByAdmin(@PathVariable Long userNo) {
+    public ResponseEntity<OneUserResponseDto> getOneUserByAdmin(
+            @PathVariable Long userNo) {
 
         authService.validateAdminAuthorization();
         OneUserResponseDto userResponse = adminService.getOneUser(userNo);

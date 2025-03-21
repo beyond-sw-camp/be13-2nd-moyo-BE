@@ -54,16 +54,12 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 		if (postSortOption == null || postSortOption == PostSortOption.LATEST) {
 			return post.createdAt.desc(); // 기본 최신순
 		}
-		switch (postSortOption) {
-			case BOOKMARK:
-				return post.bookmarkCount.desc();
-			case VIEW:
-				return post.viewCount.desc();
-			case COMMENT:
-				return post.commentCount.desc();
-			default:
-				return post.createdAt.desc(); // 기본값
-		}
+        return switch (postSortOption) {
+            case BOOKMARK -> post.bookmarkCount.desc();
+            case VIEW -> post.viewCount.desc();
+            case COMMENT -> post.commentCount.desc();
+            default -> post.createdAt.desc(); // 기본값
+        };
 
 	}
 
