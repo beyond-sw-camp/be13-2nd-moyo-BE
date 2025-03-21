@@ -46,8 +46,6 @@ public class ReportController {
     @GetMapping("/reports/{reportNo}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ReportResponseDto> getReport(@PathVariable Long reportNo) {
-        CustomUserDetails currentUser = authService.getCurrentUser();
-        System.out.println(currentUser.getUsername());
         authService.validateAdminAuthorization();
 
         ReportResponseDto reportResponseDto = reportService.getReport(reportNo);
@@ -72,8 +70,7 @@ public class ReportController {
     @GetMapping("/reports-list")
     public ResponseEntity<Page<ReportResponseDto>> getAllReports(
             @PageableDefault(size = 10, page = 0, sort = "no") Pageable pageable) {
-        CustomUserDetails currentUser = authService.getCurrentUser();
-        System.out.println(currentUser.getUsername());
+
         authService.validateAdminAuthorization();
 
         Page<ReportResponseDto> reportResponseDto = reportService.getAllReports(pageable);

@@ -57,11 +57,11 @@ public class MessageController {
      * 쪽지 조회 리스트
      */
     @Operation(summary = "쪽지리스트")
-    @GetMapping("/messages/list/{type}")
+    @GetMapping("/messages")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Page<MessageResponseDto>> getMessages(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @Parameter(name = "type", description = "보낸/받은 쪽지리스트 (sent/received)", example = "sent") @PathVariable String type,
+            @Parameter(name = "type", description = "보낸/받은 쪽지리스트 (sent/received)", example = "sent") @RequestParam String type,
             @PageableDefault(size = 10, page = 0, sort = "no") Pageable pageable) {
 
 
