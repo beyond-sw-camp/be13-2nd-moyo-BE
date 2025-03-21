@@ -78,7 +78,6 @@ public class ReportController {
         return ResponseEntity.ok(reportResponseDto);
     }
 
-
     @Operation(summary = "신고 작성", description = "신고를 생성합니다<br> USER_REPORT(유저)<br> POST_REPORT(게시글)<br> MESSAGE_REPORT(쪽지)<br> OTHER(기타)")
     @PostMapping("/reports")
     @PreAuthorize("isAuthenticated()")
