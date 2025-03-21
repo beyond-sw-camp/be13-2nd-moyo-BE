@@ -56,6 +56,9 @@ public class LikeServiceImpl implements LikeService{
             redisTemplate.opsForSet().add(redisKey, userKey); // Redis에 유저 정보 추가
             log.info("User {} liked comment {}", userId, commentNo);
             message = "좋아요 성공적";
+        }
+        return message;
+    }
 
 
     // 좋아요 수 확인
