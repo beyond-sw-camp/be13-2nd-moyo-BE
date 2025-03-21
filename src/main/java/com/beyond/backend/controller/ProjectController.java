@@ -86,7 +86,7 @@ public class ProjectController {
     }
 
     @Operation(summary = "프로젝트 검색 및 전체 조회 ")
-    @GetMapping("/search")
+    @GetMapping()
     public ResponseEntity<Page<ProjectResponseDto>> searchPosts(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) ProjectSearchOption option, // 검색 옵션 (선택)

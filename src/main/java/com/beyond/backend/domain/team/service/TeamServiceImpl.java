@@ -7,8 +7,6 @@ import com.beyond.backend.domain.common.exception.TeamException;
 import com.beyond.backend.domain.common.exception.UserException;
 import com.beyond.backend.domain.common.exception.message.ExceptionMessage;
 import com.beyond.backend.domain.common.service.NotificationService;
-import com.beyond.backend.domain.project.dto.ProjectResponseDto;
-import com.beyond.backend.domain.project.entity.Project;
 import com.beyond.backend.domain.project.entity.ProjectStatus;
 import com.beyond.backend.domain.project.repository.ProjectRepository;
 import com.beyond.backend.domain.team.dto.TeamDetailDto;
@@ -30,6 +28,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -57,6 +56,7 @@ import java.util.List;
  * 2025-02-25        hongjm           TeamJoinStatus 수정
  * 2025-02-26        hongjm           중복 코드 통합
  * 2025-03-06        hongjm           로그인 반영
+ * 2025-03-21        hongjm           팀 리더 확인, 상세보기
  */
 @Slf4j
 @Service
@@ -111,7 +111,7 @@ public class TeamServiceImpl implements TeamService {
                 .build();
         teamUserRepository.save(teamUser);
 
-        return new TeamResponseDto(user.getNo(),teamDto);
+        return new TeamResponseDto(team.getNo(),teamDto);
     }
 
     /**
@@ -123,19 +123,28 @@ public class TeamServiceImpl implements TeamService {
     @Override
     public void updateTeam(TeamResponseDto teamDto) throws Exception {
 
-        Team searchTeam = teamRepository.findById(teamDto.getNo())
-                .orElseThrow(() -> new BaseException(ExceptionMessage.TEAM_NOT_FOUND));
+        User user = findUserByUsername();
 
-        searchTeam.updateTeamDetails(teamDto.getTeam());
+        Boolean isLeader = teamUserRepository.isLeader(teamDto.getNo(), user.getNo());
+        
+        // 권한 확인
+        if (isLeader != null && isLeader) {
+            Team searchTeam = teamRepository.findById(teamDto.getNo())
+                    .orElseThrow(() -> new BaseException(ExceptionMessage.TEAM_NOT_FOUND));
 
-        Team updateTeam = teamRepository.save(searchTeam);
+            searchTeam.updateTeamDetails(teamDto.getTeam());
 
-        new TeamResponseDto(
-                updateTeam.getNo(),
-                updateTeam.getTeamName(),
-                updateTeam.getTeamIntroduce(),
-                updateTeam.getProjectStatus()
-        );
+            Team updateTeam = teamRepository.save(searchTeam);
+
+            new TeamResponseDto(
+                    updateTeam.getNo(),
+                    updateTeam.getTeamName(),
+                    updateTeam.getTeamIntroduce(),
+                    updateTeam.getProjectStatus()
+            );
+        } else {
+            throw new UserException(ExceptionMessage.USER_ACCESS_DENIED);
+        }
     }
 
     /**
@@ -152,7 +161,7 @@ public class TeamServiceImpl implements TeamService {
     @Override
     public PageImpl<TeamResponseDto> filterUserTeams(
             Long userNo, String teamName, String teamIntroduce, ProjectStatus projectStatus, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("no").descending());
         Page<TeamResponseDto> teams = teamUserRepository.findByUserNoForUserTeams(userNo, pageable);
 
         List<TeamResponseDto> filteredTeams = teams.stream()
@@ -193,24 +202,46 @@ public class TeamServiceImpl implements TeamService {
         Team team = teamRepository.findById(teamNo).orElseThrow(() -> new TeamException(ExceptionMessage.TEAM_NOT_FOUND));
         
         // 팀에 할당된 프로젝트가 없을 수도 있기에 일단 초기화
+        Long projectNo = null;
         String projectName = null;
         String projectContent = null;
         ProjectStatus projectStatus = ProjectStatus.CLOSED;
 
-        // 값이 있다면 할당
+        // 할당된 프로젝트가 있다면 할당
         if (team.getProject() != null) {
+            projectNo = team.getProject().getNo();
             projectName = team.getProject().getName();
             projectContent = team.getProject().getContent();
             projectStatus = team.getProject().getProjectStatus();
         }
 
         return new TeamDetailDto(
+                team.getNo(),
                 team.getTeamName(),
                 team.getTeamIntroduce(),
+                team.getProjectStatus(),
                 projectName,
                 projectContent,
+                projectNo,
                 projectStatus
         );
+    }
+
+    /**
+     * 팀장 여부 확인
+     * @param teamNo 팀번호
+     * @return Boolean
+     */
+    @Override
+    public Boolean isTeamLeader(Long teamNo){
+        User user = findUserByUsername();
+        Boolean isLeader = teamUserRepository.isLeader(teamNo, user.getNo());
+
+        if (isLeader != null && isLeader) {
+            return Boolean.TRUE;
+        } else {
+            throw new UserException(ExceptionMessage.USER_ACCESS_DENIED);
+        }
     }
 
     /**
@@ -242,7 +273,7 @@ public class TeamServiceImpl implements TeamService {
                 .orElseThrow(() -> new BaseException(ExceptionMessage.TEAM_NOT_FOUND));
 
         if (teamUserRepository.findByUserNoEquals(teamNo, user.getNo())) {
-            throw new IllegalArgumentException("이미 등록되었거나 요청한 팀 입니다!!");
+            throw new IllegalArgumentException("이미 등록되어 있거나 요청한 팀 입니다!!");
         }
 
         if (team.getProjectStatus() != ProjectStatus.OPEN) {
@@ -258,7 +289,6 @@ public class TeamServiceImpl implements TeamService {
                 break;
             }
         }
-
 
         // 트랜잭션 종료 후가 아니라, 바로 알림 전송
         notificationService.sendNotification(

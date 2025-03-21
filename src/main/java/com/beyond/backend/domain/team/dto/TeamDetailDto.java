@@ -14,28 +14,26 @@ package com.beyond.backend.domain.team.dto;
  * DATE              AUTHOR             NOTE
  * -----------------------------------------------------------
  * 2025-03-16        hongjm           최초 생성
+ * 2025-03-21        hongjm           더 많은 정보를 반환하게 수정
  */
 
+import com.beyond.backend.domain.project.dto.ProjectRequestDto;
+import com.beyond.backend.domain.project.dto.ProjectResponseDto;
 import com.beyond.backend.domain.project.entity.ProjectStatus;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class TeamDetailDto {
-    private String teamName;
 
-    private String teamIntroduce;
+    private TeamResponseDto team;
 
-    private ProjectStatus projectStatus;
+    private ProjectRequestDto project;
 
-    private String name;
-
-    private String content;
-
-    public TeamDetailDto(String teamName, String teamIntroduce,  String name, String content, ProjectStatus projectStatus) {
-        this.teamName = teamName;
-        this.teamIntroduce = teamIntroduce;
-        this.name = name;
-        this.content = content;
-        this.projectStatus = projectStatus;
+    public TeamDetailDto(Long teamNo, String teamName, String teamIntroduce, ProjectStatus teamStatus,
+                         String name, String content, Long projectNo, ProjectStatus projectStatus) {
+        this.team = new TeamResponseDto(teamNo, teamName, teamIntroduce, teamStatus);
+        this.project = new ProjectRequestDto(name, content, projectNo, projectStatus);
     }
 }

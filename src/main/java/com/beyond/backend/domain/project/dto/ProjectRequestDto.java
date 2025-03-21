@@ -25,5 +25,12 @@ public class ProjectRequestDto {
     private ProjectStatus projectStatus;
 
     private List<Long> techsNo;
+
+    public ProjectRequestDto(String name, String content, Long no, ProjectStatus projectStatus) {
+    this.name = name;
+    this.content = content;
+    this.teamNo = no;
+    this.projectStatus = projectStatus;
+    }
 }
 

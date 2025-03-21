@@ -49,6 +49,7 @@ import java.util.List;
  * 2025-02-23        hongjm           기능 추가 및 코드 정리
  * 2025-02-24        hongjm           코드 정리
  * 2025-02-26        hongjm           URL 할당 및 중복 코드 통합
+ * 2025-03-21        hongjm           팀 리더 확인, 상세보기
  */
 @Tag(name = "05 팀 API", description = "팀 API")
 @RestController
@@ -77,7 +78,7 @@ public class TeamController {
      * @param teamDto 팀 정보
      * @return teamResponseDto
      */
-    @PutMapping("/{teamNo}/setting/update")
+    @PutMapping("/{teamNo}")
     @Operation(summary = "팀 수정 메서드", description = "팀 수정 메서드 입니다.")
     public ResponseEntity<TeamResponseDto> updateTeam(
             @PathVariable Long teamNo,
@@ -139,8 +140,8 @@ public class TeamController {
 
     /**
      * 팀 상세 정보
-     * @param teamNo
-     * @return
+     * @param teamNo 팀번호
+     * @return teamDetailDto
      * @throws Exception
      */
     @GetMapping("/{teamNo}")
@@ -164,6 +165,18 @@ public class TeamController {
             @RequestParam TeamJoinStatus status) throws Exception {
         List<TeamMemberListDto> teamMemberRequest = teamService.getTeamMemberRequest(teamNo, status);
         return ResponseEntity.status(HttpStatus.OK).body(teamMemberRequest);
+    }
+
+    /**
+     * 팀 리더 확인
+     * @param teamNo 팀 번호
+     * @return Boolean
+     */
+    @GetMapping("/{teamNo}/leader-role")
+    public ResponseEntity<Boolean> isTeamLeader(
+            @PathVariable Long teamNo) {
+        Boolean isTeamLeader = teamService.isTeamLeader(teamNo);
+        return ResponseEntity.status(HttpStatus.OK).body(isTeamLeader);
     }
 
     /**
