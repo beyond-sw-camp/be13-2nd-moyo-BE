@@ -1,5 +1,6 @@
 package com.beyond.backend.domain.user.service;
 
+import com.beyond.backend.domain.common.exception.PostException;
 import com.beyond.backend.domain.common.exception.UserException;
 import com.beyond.backend.domain.common.exception.message.ExceptionMessage;
 import com.beyond.backend.domain.user.entity.UserSortOption;
@@ -8,9 +9,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.beyond.backend.domain.comment.repository.CommentRepository;
+import com.beyond.backend.domain.post.dto.UserPostResponseDto;
+import com.beyond.backend.domain.post.entity.BoardType;
 import com.beyond.backend.domain.post.repository.PostRepository;
 import com.beyond.backend.domain.project.repository.ProjectRepository;
 import com.beyond.backend.domain.user.dto.AllUserResponseDto;
+import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import com.beyond.backend.domain.user.dto.DeleteUserByAdminRequestDto;
 import com.beyond.backend.domain.user.dto.DeleteUserByAdminResponseDto;
 import com.beyond.backend.domain.user.dto.OneUserResponseDto;
@@ -26,9 +30,8 @@ import lombok.RequiredArgsConstructor;
 public class AdminServiceImpl implements AdminService {
 
     private final UserRepository userRepository;
-    private final ProjectRepository projectRepository;
     private final PostRepository postRepository;
-    private final CommentRepository commentRepository;
+    private final AuthService authService;
 
     @Override
     public DeleteUserByAdminResponseDto delete(Long userNo) {
@@ -59,5 +62,20 @@ public class AdminServiceImpl implements AdminService {
         );
 
         return new OneUserResponseDto(user);
+    }
+
+    @Override
+    public Page<UserPostResponseDto> getUserAllPost(BoardType boardType, Long userNo, Pageable pageable) {
+        // 여기서의 userNo는 받아오고자 하는 UserNo 이다.
+        if (!authService.isAdmin()) {
+            throw new PostException(ExceptionMessage.POST_ACCESS_DENIED);
+        }
+
+        User user = userRepository.findById(userNo)
+                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userNo));
+
+        Page<UserPostResponseDto> userPosts = postRepository.getUserPosts(user.getNo(), boardType, pageable);
+
+        return userPosts;
     }
 }

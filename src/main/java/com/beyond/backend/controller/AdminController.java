@@ -81,7 +81,7 @@ public class AdminController {
             @PathVariable Long userNo) {
 
         authService.validateAdminAuthorization();
-        Page<UserPostResponseDto> userPosts = postService.getUserPosts(boardType, pageable);
+        Page<UserPostResponseDto> userPosts = adminService.getUserAllPost(boardType,userNo, pageable);
         return ResponseEntity.ok(userPosts);
 
     }

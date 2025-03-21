@@ -12,7 +12,7 @@ public enum ExceptionMessage {
     POST_NOT_FOUND("POST_001", "해당 게시글이 존재하지 않습니다.", HttpStatus.NOT_FOUND),
     // 게시글 비활성
     POST_ACCESS_DENIED("POST_002", "게시글에 접근할 권한이 없습니다.", HttpStatus.FORBIDDEN),
-    COMMENT_NOT_FOUND("POST_003", "댓글이 존재하지 않습니다.", HttpStatus.FORBIDDEN),
+    COMMENT_NOT_FOUND("POST_003", "댓글이 존재하지 않습니다.", HttpStatus.NOT_FOUND),
 
 
     // 프로젝트 관련

@@ -117,7 +117,7 @@ public class FeedbackServiceImpl implements FeedbackService {
 
 		// 1. user가 존재하는지
 		User user = userRepository.findById(userNo).orElseThrow(
-			() -> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userNo)
+			() -> new UserException(ExceptionMessage.USER_NOT_FOUND)
 		);
 
 		// 2. user의 feedback 가져오기

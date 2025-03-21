@@ -26,6 +26,7 @@ import com.beyond.backend.domain.user.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,9 +58,11 @@ public class CommentServiceImpl implements CommentService {
     private final UserRepository userRepository;
     private final AuthService authService;
 
+    
+    // 댓글 생성
     @Override
     @Transactional
-    public CommentResponseDto createComment(Long userNo, CommentDto commentDto) {
+    public CommentResponseDto createComment(CommentDto commentDto) {
 
         CustomUserDetails userDetails = authService.getCurrentUser();
         // 게시글이 존재하는지 확인
@@ -84,21 +87,11 @@ public class CommentServiceImpl implements CommentService {
 
         // 댓글 작성자가 로그인한 유저인지 확인
 
-        User sender = userRepository.findById(userNo)
-                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userNo));
 
-
-        if (sender.getUserStatus() != UserStatus.ACTIVE) {
-            throw new IllegalArgumentException("비활성화 상태거나 삭제된 회원은 댓글을 달 수 없습니다.");
-        }
-
-        if (!sender.getNo().equals(userDetails.getUser().getNo())) {
-            throw new BaseException(ExceptionMessage.INVALID_REQUEST); // bad request
-        }
-
+        authService.validateUser(userDetails.getUser());
 
         // 댓글 저장
-        Comment comment = new Comment(commentDto.getContent(), post, sender);
+        Comment comment = new Comment(commentDto.getContent(), post, userDetails.getUser());
         commentRepository.save(comment);
 
         // 댓글 개수 증가 (오류 처리 추가)
@@ -112,7 +105,7 @@ public class CommentServiceImpl implements CommentService {
         // 트랜잭션 종료 후가 아니라, 바로 알림 전송
         notificationService.sendNotification(
                 new RequestNotificationDto(
-                        sender.getUsername(),
+                        userDetails.getUsername(),
                         receiver.getUsername(),
                         NotificationType.COMMENT,
                         "새 댓글 등록 완료")
@@ -126,9 +119,7 @@ public class CommentServiceImpl implements CommentService {
     // 댓글 수정
     @Override
     @Transactional
-    public CommentResponseDto updateComment(Long commentNo, CommentDto commentDto, Long userNo) {
-
-        CustomUserDetails userDetails = authService.getCurrentUser();
+    public CommentResponseDto updateComment(Long commentNo, CommentDto commentDto) {
 
         // 게시글이 존재하는지 확인
         Post post  = postRepository.findById(commentDto.getPostNo())
@@ -139,13 +130,9 @@ public class CommentServiceImpl implements CommentService {
                 .orElseThrow(()-> new PostException(ExceptionMessage.COMMENT_NOT_FOUND));
 
 
-
-        User user = userRepository.findById(comment.getUser().getNo())
-                .orElseThrow(()-> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + comment.getUser().getNo()));
-
         // 댓글 작성자가 로그인한 회원과 같은지 비교 userNo로
         // 댓글을 수정하려는 유저가 댓글을 작성한 유저인지 확인
-        authService.validateUser(user);
+        authService.validateUser(comment.getUser());
 
         // 댓글 수정 (update 메서드 사용)
         comment.update(commentDto.getContent());
@@ -162,8 +149,6 @@ public class CommentServiceImpl implements CommentService {
         // 댓글이 존재하는 지 검증
         Comment comment  = commentRepository.findById(commentNo)
                 .orElseThrow(()-> new PostException(ExceptionMessage.COMMENT_NOT_FOUND));
-
-        authService.validateUser(comment.getUser());
 
         // 댓글 작성자이거나 관리자인 경우만 삭제 가능
 
@@ -228,7 +213,6 @@ public class CommentServiceImpl implements CommentService {
     // 유저가 작성한 댓글이 있는 게시글 전체 조회
     @Override
     public Page<PostResponseDto> getUserCommentPosts(Long userNo, Pageable pageable) {
-
 
         Page<PostResponseDto> commentPost = commentRepository.getUserCommentPosts(userNo, pageable);
 

@@ -102,6 +102,7 @@ public class JwtTokenProvider {
      * @return 생성된 JWT 문자열
      */
     private String createToken(Map<String, String> claims, long tokenExp) {
+
         return Jwts.builder()
                 .header().add("typ", "JWT").and() // JWT 헤더에 typ 추가
                 .claims(claims) // 클레임 추가

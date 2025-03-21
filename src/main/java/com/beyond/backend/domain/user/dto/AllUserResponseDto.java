@@ -8,7 +8,7 @@ import lombok.Data;
 @AllArgsConstructor
 @Data
 public class AllUserResponseDto {
-
+    private Long userNo;
     private String username;
     private UserRoleType role;
     private String email;

@@ -1,5 +1,6 @@
 package com.beyond.backend.controller;
 
+import com.beyond.backend.domain.team.dto.TeamDetailDto;
 import com.beyond.backend.domain.team.dto.TeamDto;
 import com.beyond.backend.domain.team.dto.TeamMemberListDto;
 import com.beyond.backend.domain.team.dto.TeamResponseDto;
@@ -10,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -46,6 +49,7 @@ import java.util.List;
  * 2025-02-23        hongjm           기능 추가 및 코드 정리
  * 2025-02-24        hongjm           코드 정리
  * 2025-02-26        hongjm           URL 할당 및 중복 코드 통합
+ * 2025-03-21        hongjm           팀 리더 확인, 상세보기
  */
 @Tag(name = "05 팀 API", description = "팀 API")
 @RestController
@@ -56,55 +60,35 @@ public class TeamController {
     private final TeamService teamService;
 
     /**
-     * 팀 생성 메소드
-     * @param teamName 팀 이름
-     * @param teamIntroduce 팀 설명
-     * @param projectStatus 프로젝트 상태
+     * 팀 생성 메서드
+     * @param teamDto 팀 정보
      * @return teamResponseDto
      */
     @PostMapping
     @Operation(summary = "팀 생성 메서드", description = "팀 생성 메서드입니다.")
-    @Parameters({
-            @Parameter(name = "teamName" , description = "팀 이름", example = "테스트"),
-            @Parameter(name = "teamIntroduce" , description = "팀 설명"),
-            @Parameter(name = "projectStatus" , description = "프로젝트 상태")
-    })
     public ResponseEntity<TeamResponseDto> createTeam(
-            @RequestParam String teamName,
-            @RequestParam(required = false) String teamIntroduce,
-            @RequestParam ProjectStatus projectStatus){
-        TeamDto teamDto = new TeamDto(teamName, teamIntroduce, projectStatus);
+            @Valid @RequestBody TeamDto teamDto) {
         TeamResponseDto teamResponseDto = teamService.createTeam(teamDto);
         return ResponseEntity.status(HttpStatus.OK).body(teamResponseDto);
     }
 
     /**
      * 팀 수정 메소드
-     * @param teamNo        팀 번호
-     * @param teamName      팀 이름
-     * @param teamIntroduce 팀 정보
-     * @param projectStatus 팀 상태
-     * @return teamDto
+     * @param teamNo 팀 번호
+     * @param teamDto 팀 정보
+     * @return teamResponseDto
      */
-    @PutMapping("/{teamNo}/setting/update")
+    @PutMapping("/{teamNo}")
     @Operation(summary = "팀 수정 메서드", description = "팀 수정 메서드 입니다.")
-    @Parameters({
-            @Parameter(name = "teamNo" , description = "팀 번호", example = "1"),
-            @Parameter(name = "teamName" , description = "팀 이름", example = "1"),
-            @Parameter(name = "teamIntroduce" , description = "팀 설명"),
-            @Parameter(name = "projectStatus" , description = "프로젝트 상태")
-    })
     public ResponseEntity<TeamResponseDto> updateTeam(
             @PathVariable Long teamNo,
-            @RequestParam String teamName,
-            @RequestParam(required = false) String teamIntroduce,
-            @RequestParam ProjectStatus projectStatus) throws Exception {
+            @Valid @RequestBody TeamDto teamDto) throws Exception {
 
-        TeamResponseDto teamDto = new TeamResponseDto(teamNo, teamName, teamIntroduce, projectStatus);
+        TeamResponseDto teamResponseDto = new TeamResponseDto(teamNo, teamDto);
 
-        teamService.updateTeam(teamDto);
+        teamService.updateTeam(teamResponseDto);
 
-        return ResponseEntity.status(HttpStatus.OK).body(teamDto);
+        return ResponseEntity.status(HttpStatus.OK).body(teamResponseDto);
     }
 
     /**
@@ -145,13 +129,26 @@ public class TeamController {
      * @return 없음
      * @throws Exception 팀이 존재하지 않습니다.
      */
-    @DeleteMapping("/{teamNo}/setting/delete")
+    @DeleteMapping("/{teamNo}")
     @Operation(summary = "팀 삭제 메서드", description = "팀 삭제 메서드입니다.")
     @Parameters({ @Parameter(name = "teamNo" , description = "삭제할 팀 번호") })
     public ResponseEntity<String> deleteTeam(@PathVariable Long teamNo) throws Exception {
 
         teamService.deleteTeam(teamNo);
         return ResponseEntity.status(HttpStatus.OK).body("정상적으로 삭제되었습니다.");
+    }
+
+    /**
+     * 팀 상세 정보
+     * @param teamNo 팀번호
+     * @return teamDetailDto
+     * @throws Exception
+     */
+    @GetMapping("/{teamNo}")
+    public ResponseEntity<TeamDetailDto> getTeamDetails(
+            @PathVariable Long teamNo) throws Exception {
+        TeamDetailDto teamDetailDto = teamService.getTeamDetailDto(teamNo);
+        return ResponseEntity.status(HttpStatus.OK).body(teamDetailDto);
     }
 
     /**
@@ -168,6 +165,18 @@ public class TeamController {
             @RequestParam TeamJoinStatus status) throws Exception {
         List<TeamMemberListDto> teamMemberRequest = teamService.getTeamMemberRequest(teamNo, status);
         return ResponseEntity.status(HttpStatus.OK).body(teamMemberRequest);
+    }
+
+    /**
+     * 팀 리더 확인
+     * @param teamNo 팀 번호
+     * @return Boolean
+     */
+    @GetMapping("/{teamNo}/leader-role")
+    public ResponseEntity<Boolean> isTeamLeader(
+            @PathVariable Long teamNo) {
+        Boolean isTeamLeader = teamService.isTeamLeader(teamNo);
+        return ResponseEntity.status(HttpStatus.OK).body(isTeamLeader);
     }
 
     /**

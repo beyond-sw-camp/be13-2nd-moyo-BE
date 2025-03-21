@@ -54,23 +54,21 @@ public class CommentController {
     @Operation(summary = "댓글 생성", description = "댓글 등록")
     @PostMapping("/posts/{postNo}/comments")
     public ResponseEntity<CommentResponseDto> createComment(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody CommentDto commentDto) {
 
-        CommentResponseDto commentResponseDto = commentService.createComment( userDetails.getUser().getNo(), commentDto);
+        CommentResponseDto commentResponseDto = commentService.createComment(commentDto);
         return ResponseEntity.ok(commentResponseDto);
     }
 
 
-    // 로그인한 유저만 가능하게 하기
+    // 댓글 수정
     @Operation(summary = "댓글 수정", description = "댓글 내용 수정")
     @PostMapping("/comments/{commentNo}/update")
     public ResponseEntity<CommentResponseDto> updateComment(
             @PathVariable Long commentNo,
-            @Valid @RequestBody CommentDto commentDto,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
+            @Valid @RequestBody CommentDto commentDto) {
 
-        CommentResponseDto updateComment = commentService.updateComment(commentNo, commentDto,  userDetails.getUser().getNo());
+        CommentResponseDto updateComment = commentService.updateComment(commentNo, commentDto);
 
         return ResponseEntity.ok(updateComment);
     }
@@ -84,7 +82,7 @@ public class CommentController {
      * 비활성화된 게시글에서 내 댓글을 지우고 싶은 경우 내가 댓글을 쓴 게시글 리스트에서는 비활성화된 게시글이라고 알려주고
      * 내가 쓴 댓글 전체 조회에서 삭제 가능하게 하자
      *
-     * 게시글 활성화 상태에서는 내가 쓴 댓글 전체 조회에서 삭제 할 수 있고
+     * 게시글 활성화 상태에서는 게시글에 직접 들어가서 삭제하거나 내가 쓴 댓글 전체 조회에서 삭제 할 수 있음
      * */
     @Operation(summary = "댓글 삭제", description = "댓글 삭제")
     @DeleteMapping("/comments/{commentNo}")

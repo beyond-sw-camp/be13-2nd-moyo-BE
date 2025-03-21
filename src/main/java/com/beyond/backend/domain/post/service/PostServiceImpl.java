@@ -60,7 +60,7 @@ public class PostServiceImpl implements PostService {
 
         // 검색어가 있는데 검색 옵션을 선택하지 않은 경우 검색이 안됨
         if (keyword != null && option == null) {
-            throw new IllegalArgumentException("검색 옵션을 선택해주십시오.");
+            throw new IllegalArgumentException("검색 옵션을 선택해 주십시오.");
         }
         
         Page<PostResponseDto> searchResults = postRepository.searchPosts(boardType, option, keyword, pageable, postSortOption);
@@ -218,7 +218,7 @@ public class PostServiceImpl implements PostService {
     @Transactional(readOnly = true)
     public void validatePostAuthority(BoardType boardType) {
         if (boardType == BoardType.NOTICE && !authService.isAdmin()) {
-            throw new IllegalArgumentException("제시글 작성 권한이 없습니다.");
+            throw new PostException(ExceptionMessage.POST_ACCESS_DENIED);
         }
     }
 
