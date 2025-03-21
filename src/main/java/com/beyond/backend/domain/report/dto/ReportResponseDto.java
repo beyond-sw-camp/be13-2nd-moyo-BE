@@ -54,7 +54,7 @@ public class ReportResponseDto {
                 reporterId,
                 receiverId,
                 report.getReportType(),
-                ReportStatus.PENDING,
+                report.getReportStatus(),
                 report.getUrl(),
                 report.getContent(),
                 report.getComment(),

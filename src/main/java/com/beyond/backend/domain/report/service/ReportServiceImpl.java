@@ -50,25 +50,6 @@ public class ReportServiceImpl implements ReportService {
     private final PostRepository postRepository;
     private final NotificationService notificationService;
 
-
-    @Override // role(ADMIN) 추가 예정!
-    public Page<ReportResponseDto> getUserReportedList(String userId, Pageable pageable) {
-
-        User user = userRepository.findByUsername(userId).orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND));
-        Page<Report> reported = reportRepository.findAllByReported_No(user.getNo(), pageable);
-
-        return reported.map(ReportResponseDto::reportFrom);
-
-
-    }
-
-    @Override
-    public Page<ReportResponseDto> getAllReports(Pageable pageable) {
-
-        Page<Report> reports = reportRepository.findAll(pageable);
-        return reports.map(ReportResponseDto::reportFrom);
-    }
-
     @Override
     public ReportResponseDto getReport(Long reportNo) {
 
@@ -76,7 +57,25 @@ public class ReportServiceImpl implements ReportService {
         return reportFrom(report);
     }
 
+    // 유저가 신고당한 내역 조회
+    @Override // role(ADMIN) 추가 예정!
+    public Page<ReportResponseDto> getUserReportedList(String userId, Pageable pageable) {
 
+        User user = userRepository.findByUsername(userId).orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND));
+        Page<Report> reported = reportRepository.findAllByReported_No(user.getNo(), pageable);
+
+        return reported.map(ReportResponseDto::reportFrom);
+    }
+
+    // 모든 신고 조회
+    @Override
+    public Page<ReportResponseDto> getAllReports(Pageable pageable) {
+
+        Page<Report> reports = reportRepository.findAll(pageable);
+        return reports.map(ReportResponseDto::reportFrom);
+    }
+
+    // 신고 작성
     @Override
     @Transactional
     public ReportResponseDto createReport(User reporter, ReportDto reportDto) {
@@ -99,6 +98,7 @@ public class ReportServiceImpl implements ReportService {
         return reportFrom(report);
     }
 
+    // 신고 처리
     @Override
     @Transactional
     public ReportResponseDto processReport(Long reportNo, ReportAdminResDto reportAdminResDto) {
@@ -108,7 +108,7 @@ public class ReportServiceImpl implements ReportService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 신고가 없습니다"));
 
         report.updateComment(reportAdminResDto.getComment()); //생성자
-        System.out.println(reportAdminResDto.getStatus());
+        System.out.println(reportAdminResDto.getStatus() + "klfajdsklfjasdl;kfjadslk;f");
         updateReportStatus(report, reportAdminResDto.getStatus());
 
         reportRepository.save(report);
@@ -124,6 +124,10 @@ public class ReportServiceImpl implements ReportService {
         return reportFrom(report);
     }
 
+
+    /**
+     * 아래부터는 메서드
+     */
     // 신고 처리 로직
     public void updateReportStatus(Report report, ReportStatus status) {
         report.updateReportStatus(status);
