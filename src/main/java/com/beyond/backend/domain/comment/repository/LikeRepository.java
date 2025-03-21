@@ -1,8 +1,6 @@
 package com.beyond.backend.domain.comment.repository;
 
-import com.beyond.backend.domain.comment.entity.Comment;
 import com.beyond.backend.domain.comment.entity.Like;
-import com.beyond.backend.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
@@ -19,7 +17,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * DATE              AUTHOR             NOTE
  * -----------------------------------------------------------
  * 25. 3. 6.        hyunjo             최초 생성
- */public interface LikeRepository extends JpaRepository<Like, Long>, LikeRepositoryCustom {
+ */public interface LikeRepository extends JpaRepository<Like, Long> {
 
-    Like findByCommentAndUser(Comment comment, User user);
+
 }
