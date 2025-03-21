@@ -34,7 +34,7 @@ import org.springframework.data.domain.Pageable;
     Page<PostResponseDto> searchPosts(BoardType boardType, PostSearchOption option, PostSortOption postSortOption, String keyword, Pageable pageable);
 
     //게시글 단건 조회
-    PostResponseDto getPostById(Long postNo);
+    UserPostResponseDto getPostById(Long postNo);
 
     // 게시글 생성
     PostResponseDto createPost(BoardType boardType, PostDto postDto);
