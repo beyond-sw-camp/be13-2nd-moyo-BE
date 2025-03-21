@@ -12,7 +12,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class OneUserResponseDto {
-
+	private Long userNo;
 	private String username;
 	private UserRoleType role;
 	private String email;
@@ -26,6 +26,7 @@ public class OneUserResponseDto {
 	private UserStatus status;
 
 	public OneUserResponseDto(User user) {
+		this.userNo = user.getNo();
 		this.username = user.getUsername();
 		this.role = user.getRole();
 		this.email = user.getEmail();

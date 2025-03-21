@@ -84,9 +84,12 @@ public class SecurityConfig {
                                 "/posts/search",             // 게시글 검색
                                 "/project",                  // 프로젝트 전체 조회
                                 "/project/{projectNo}",      // 프로젝트 상세 조회
-                                "/project/search"            // 프로젝트 검색
+                                "/project/search",            // 프로젝트 검색
+                                "/admin/login"
+
 
                         ).permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 );
         return http.build();

@@ -191,12 +191,6 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 
-	@Transactional
-	public void increaseViewCount(Long projectNo) {
-		projectRepository.increaseViewCount(projectNo); // JPQL or QueryDSL 사용 가능
-	}
-
-
 	// 유저가 참여한 모든 프로젝트 표시
 	@Override
 	@Transactional(readOnly = true)

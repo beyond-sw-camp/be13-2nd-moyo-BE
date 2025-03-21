@@ -1,5 +1,7 @@
 package com.beyond.backend.domain.user.service;
 
+import com.beyond.backend.domain.post.dto.UserPostResponseDto;
+import com.beyond.backend.domain.post.entity.BoardType;
 import com.beyond.backend.domain.user.dto.AllUserResponseDto;
 import com.beyond.backend.domain.user.dto.DeleteUserByAdminResponseDto;
 import com.beyond.backend.domain.user.dto.OneUserResponseDto;
@@ -13,4 +15,7 @@ public interface AdminService {
     Page<AllUserResponseDto> getUsers(Pageable pageable);
 
     OneUserResponseDto getOneUser(Long userNo);
+
+    Page<UserPostResponseDto> getUserAllPost(BoardType boardType, Long userNo,  Pageable pageable);
+
 }
