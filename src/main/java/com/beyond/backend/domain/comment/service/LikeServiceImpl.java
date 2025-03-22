@@ -38,6 +38,11 @@ public class LikeServiceImpl implements LikeService{
     @Override
     @Transactional
     public String toggleCommentLike(Long commentNo) {
+
+        Comment comment = commentRepository.findById(commentNo).orElseThrow(
+                () -> new PostException(ExceptionMessage.COMMENT_NOT_FOUND)
+        );
+
         CustomUserDetails userDetails = authService.getCurrentUser();
         Long userId = userDetails.getNo(); // 현재 유저 아이디 가져오기
         String redisKey = "likes:" + commentNo; // Redis Key 생성
@@ -68,16 +73,5 @@ public class LikeServiceImpl implements LikeService{
         return redisTemplate.opsForSet().size(redisKey);
     }
 
-    // 유저가 좋아요한 댓글 전체 조회
-    @Override
-    public Page<CommentResponseDto> getUserLikedComments(Long userNo, Pageable pageable) {
 
-        Page<CommentResponseDto> likedComment = likeRepository.getUserLikedComments(userNo,pageable);
-
-        if (likedComment.isEmpty()) {
-            throw new PostException(ExceptionMessage.COMMENT_NOT_FOUND);
-        }
-
-        return likedComment;
-    }
 }

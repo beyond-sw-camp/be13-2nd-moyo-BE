@@ -77,7 +77,7 @@ public class PostServiceImpl implements PostService {
 
     // 게시글 단 건 조회(게시글 비활성화해도 관리자와 작성자는 조회 가능
     @Override
-    public PostResponseDto getPostById(Long postNo) {
+    public UserPostResponseDto getPostById(Long postNo) {
 
         // 로그인한 유저 정보 가져오기
         CustomUserDetails userDetails = authService.getCurrentUser();
@@ -97,7 +97,7 @@ public class PostServiceImpl implements PostService {
             // 비활성 게시글은 조회수 증가 제외( 최신 댓글 수만 조회하고 바로 돌려줌 )
             int latestCommentCount = postRepository.getLatestCommentCount(postNo);
 
-            return new PostResponseDto(prePost, latestCommentCount);
+            return new UserPostResponseDto(prePost, latestCommentCount);
         }
         // 활성화된 게시글인 경우
 
@@ -107,7 +107,7 @@ public class PostServiceImpl implements PostService {
         Post post= postRepository.findById(postNo)
                 .orElseThrow(() -> new PostException(ExceptionMessage.POST_NOT_FOUND, "ID: " + postNo));
 
-        return new PostResponseDto(post, latestCommentCount);
+        return new UserPostResponseDto(post, latestCommentCount);
     }
 
 

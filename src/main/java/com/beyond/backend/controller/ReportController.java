@@ -46,8 +46,6 @@ public class ReportController {
     @GetMapping("/reports/{reportNo}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ReportResponseDto> getReport(@PathVariable Long reportNo) {
-        CustomUserDetails currentUser = authService.getCurrentUser();
-        System.out.println(currentUser.getUsername());
         authService.validateAdminAuthorization();
 
         ReportResponseDto reportResponseDto = reportService.getReport(reportNo);
@@ -69,18 +67,16 @@ public class ReportController {
 
     @Operation(summary = "신고 전체 조회")
     @PreAuthorize("hasRole('ADMIN')") // role(ADMIN) 추가  예정!
-    @GetMapping("/reports-list")
+    @GetMapping("/reports")
     public ResponseEntity<Page<ReportResponseDto>> getAllReports(
             @PageableDefault(size = 10, page = 0, sort = "no") Pageable pageable) {
-        CustomUserDetails currentUser = authService.getCurrentUser();
-        System.out.println(currentUser.getUsername());
+
         authService.validateAdminAuthorization();
 
         Page<ReportResponseDto> reportResponseDto = reportService.getAllReports(pageable);
 
         return ResponseEntity.ok(reportResponseDto);
     }
-
 
     @Operation(summary = "신고 작성", description = "신고를 생성합니다<br> USER_REPORT(유저)<br> POST_REPORT(게시글)<br> MESSAGE_REPORT(쪽지)<br> OTHER(기타)")
     @PostMapping("/reports")

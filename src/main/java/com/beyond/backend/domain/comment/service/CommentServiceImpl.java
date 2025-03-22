@@ -7,8 +7,6 @@ import com.beyond.backend.domain.comment.entity.CommentSortOption;
 import com.beyond.backend.domain.comment.repository.CommentRepository;
 import com.beyond.backend.domain.common.dto.RequestNotificationDto;
 import com.beyond.backend.domain.common.entity.NotificationType;
-import com.beyond.backend.domain.common.entity.UserStatus;
-import com.beyond.backend.domain.common.exception.BaseException;
 import com.beyond.backend.domain.common.exception.PostException;
 import com.beyond.backend.domain.common.exception.UserException;
 import com.beyond.backend.domain.common.exception.message.ExceptionMessage;
@@ -26,7 +24,6 @@ import com.beyond.backend.domain.user.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

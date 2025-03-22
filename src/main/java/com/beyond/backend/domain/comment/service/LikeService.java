@@ -10,7 +10,4 @@ public interface LikeService {
 
     Long getLikeCount(Long commentNo);
 
-
-    // 유저가 좋아요한 댓글 전체 조회
-    Page<CommentResponseDto> getUserLikedComments(Long userNo, Pageable pageable);
 }
