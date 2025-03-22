@@ -23,4 +23,7 @@ public interface FeedbackService {
 	// 2. 팀 프로젝트 에서 피드백 조회
 	Page<FeedbackResponseDto> getFeedbackByProjectNo(Long userNo,Long projectNo, Pageable pageable);
 
+	// 3. 모든 피드백 조회 // 관리자용
+	Page<FeedbackResponseDto> getAllFeedback(Pageable pageable);
+
 }

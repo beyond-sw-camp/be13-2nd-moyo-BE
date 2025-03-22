@@ -145,4 +145,12 @@ public class FeedbackServiceImpl implements FeedbackService {
 
 		return feedbackByProjectId;
 	}
+
+	@Override
+	public Page<FeedbackResponseDto> getAllFeedback(Pageable pageable) {
+
+		Page<FeedbackResponseDto> allFeedback = feedbackRepository.findAllFeedback(pageable);
+
+		return allFeedback;
+	}
 }
