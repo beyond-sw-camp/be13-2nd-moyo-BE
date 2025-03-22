@@ -186,7 +186,6 @@ public class ProjectServiceImpl implements ProjectService {
 			() -> new ProjectException(ExceptionMessage.PROJECT_NOT_FOUND)
 		);
 
-
 		return new ProjectResponseDto(project);
 	}
 
@@ -214,7 +213,6 @@ public class ProjectServiceImpl implements ProjectService {
 
 		// 검증할 게 없음. 바로 검색결과 리턴해주기
 		Page<ProjectResponseDto> projectSearchList = projectRepository.searchProject(keyword, searchOption, pageable);
-
 		return projectSearchList;
 	}
 
@@ -308,7 +306,6 @@ public class ProjectServiceImpl implements ProjectService {
 			log.info("ip : {} User-Agent : {}인 게스트가 조회함", ipAddress, userAgent);
 
 		}
-
 		return userIdentifier;
 	}
 

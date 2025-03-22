@@ -195,7 +195,6 @@ public class TeamServiceImpl implements TeamService {
     }
 
     /* --------- 팀 디테일 페이지 ----------*/
-
     @Override
     public TeamDetailDto getTeamDetailDto(Long teamNo) throws Exception {
 
@@ -439,26 +438,5 @@ public class TeamServiceImpl implements TeamService {
                 .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID : " + user.getNo()));
         teamUser.setLeader(false);
         teamUserRepository.save(teamUser);
-
     }
-
-
-    /**
-     * 팀 탈퇴
-     * @param teamNo 팀번호
-     * @param userNo 신청한 유저의 유저번호
-     * @throws Exception 신청한 유저가 없습니다!
-    @Override
-    public void teamDelete(Long teamNo, Long userNo) throws Exception {
-        Long teamUserNo = teamUserRepository.findByUserNoForTeamUserNo(teamNo, userNo);
-
-        TeamUser teamUser = teamUserRepository.findById(teamUserNo)
-                .orElseThrow(() -> new IllegalArgumentException("신청한 유저가 없습니다!"));
-
-        boolean status = teamUser.isStatus();
-        if (!status) {
-            teamUserRepository.deleteById(teamUserNo);
-        }
-    }
-    */
 }
