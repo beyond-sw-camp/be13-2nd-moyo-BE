@@ -6,10 +6,14 @@ import com.beyond.backend.domain.feedback.dto.FeedbackUpdateRequestDto;
 import com.beyond.backend.domain.feedback.entity.FeedbackType;
 import com.beyond.backend.domain.feedback.service.FeedbackService;
 import com.beyond.backend.domain.user.dto.CustomUserDetails;
+import com.beyond.backend.domain.user.service.AuthService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -22,9 +26,12 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/feedback")
 @RequiredArgsConstructor
+@Log4j2
 public class FeedbackController {
 
 	private final FeedbackService feedbackService;
+	private final AuthService authService;
+
 	@Operation(summary = "피드백 생성 메서드", description = "피드백 생성 메서드입니다.")
 	@PostMapping("/project/{projectNo}/createFeedback")
 		public ResponseEntity<FeedbackResponseDto> createFeedback(@PathVariable Long projectNo,
