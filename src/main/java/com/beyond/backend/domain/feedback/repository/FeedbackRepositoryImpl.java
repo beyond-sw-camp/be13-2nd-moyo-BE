@@ -12,7 +12,6 @@ import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
 import com.beyond.backend.domain.feedback.dto.FeedbackResponseDto;
-import com.beyond.backend.domain.feedback.repository.FeedbackRepositoryCustom;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -84,5 +83,28 @@ public class FeedbackRepositoryImpl implements FeedbackRepositoryCustom {
 			.where(feedback.project.no.eq(projectNo));
 
 		return PageableExecutionUtils.getPage(feedbackList, pageable, totalCount::fetchOne);
+	}
+
+	@Override
+	public Page<FeedbackResponseDto> findAllFeedback(Pageable pageable) {
+		List<FeedbackResponseDto> feedbackList = queryFactory
+			.select(Projections.constructor(FeedbackResponseDto.class,
+				feedback.no,
+				feedback.content,
+				feedback.feedbackType,
+				user.username,
+				project.name
+			))
+			.from(feedback)
+			.offset(pageable.getOffset())
+			.limit(pageable.getPageSize())
+			.fetch();
+
+
+		JPAQuery<Long> totalCount = queryFactory
+			.select(feedback.count())
+			.from(feedback);
+
+		return PageableExecutionUtils.getPage(feedbackList, pageable, totalCount::fetchOne );
 	}
 }

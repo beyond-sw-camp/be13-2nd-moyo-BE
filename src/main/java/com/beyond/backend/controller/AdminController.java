@@ -2,6 +2,8 @@ package com.beyond.backend.controller;
 
 import com.beyond.backend.domain.comment.dto.CommentResponseDto;
 import com.beyond.backend.domain.comment.service.CommentService;
+import com.beyond.backend.domain.feedback.dto.FeedbackResponseDto;
+import com.beyond.backend.domain.feedback.service.FeedbackService;
 import com.beyond.backend.domain.post.dto.UserPostResponseDto;
 import com.beyond.backend.domain.post.entity.BoardType;
 import com.beyond.backend.domain.post.service.PostService;
@@ -36,6 +38,7 @@ public class AdminController {
     private final PostService postService;
     private final CommentService commentService;
     private final ProjectService projectService;
+    private final FeedbackService feedbackService;
 
     @PostMapping("/login")
     public ResponseEntity<TokenResponseDto> login(@Valid @RequestBody LoginRequestDto dto) {
@@ -48,7 +51,7 @@ public class AdminController {
     public ResponseEntity<DeleteUserByAdminResponseDto> delete(@PathVariable Long userNo) {
         authService.validateAdminAuthorization();
         adminService.delete(userNo);
-        DeleteUserByAdminResponseDto response = new DeleteUserByAdminResponseDto("User deleted successfully.");
+        DeleteUserByAdminResponseDto response = new DeleteUserByAdminResponseDto("삭제가 완료되었습니다.");
         return ResponseEntity.ok(response);
     }
 
@@ -104,5 +107,12 @@ public class AdminController {
         authService.validateAdminAuthorization();
         Page<ProjectResponseDto> projectList = projectService.getProjectsByUserNo(userNo, pageable);
         return ResponseEntity.ok(projectList);
+    }
+
+    @GetMapping("/feedbacks")
+    public ResponseEntity<Page<FeedbackResponseDto>> getFeedback(@PageableDefault(size = 10, page = 0) Pageable pageable) {
+        authService.validateAdminAuthorization();
+        Page<FeedbackResponseDto> feedbackList = feedbackService.getAllFeedback(pageable);
+        return ResponseEntity.ok(feedbackList);
     }
 }
