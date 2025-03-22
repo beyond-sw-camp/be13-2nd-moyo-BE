@@ -33,7 +33,6 @@ public class AdminController {
 
     private final AuthService authService;
     private final AdminService adminService;
-    private final PostService postService;
     private final CommentService commentService;
     private final ProjectService projectService;
 
@@ -61,7 +60,6 @@ public class AdminController {
         Page<AllUserResponseDto> users = adminService.getUsers(sortOption, pageable);
 
         return ResponseEntity.ok(users);
-
     }
 
     @GetMapping("/user/{userNo}")
@@ -83,7 +81,6 @@ public class AdminController {
         authService.validateAdminAuthorization();
         Page<UserPostResponseDto> userPosts = adminService.getUserAllPost(boardType,userNo, pageable);
         return ResponseEntity.ok(userPosts);
-
     }
 
     // 유저의 댓글 가져오기
@@ -95,7 +92,6 @@ public class AdminController {
         Page<CommentResponseDto> commentList = commentService.getUserComments(userNo, pageable);
         return ResponseEntity.ok(commentList);
     }
-
 
     // 유저의 프로젝트 가져오기
     @GetMapping("/user/{userNo}/projects")

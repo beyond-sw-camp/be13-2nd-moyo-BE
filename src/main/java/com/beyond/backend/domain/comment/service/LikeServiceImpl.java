@@ -74,7 +74,6 @@ public class LikeServiceImpl implements LikeService{
 
         Page<CommentResponseDto> likedComment = likeRepository.getUserLikedComments(userNo,pageable);
 
-
         if (likedComment.isEmpty()) {
             throw new PostException(ExceptionMessage.COMMENT_NOT_FOUND);
         }
