@@ -111,7 +111,12 @@ public class SecurityConfig {
         configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+
+        // 모든 URL에 대해 CORS 설정 적용
+        source.registerCorsConfiguration("/v3/api-docs/**", configuration);
+        source.registerCorsConfiguration("/swagger-ui/**", configuration);
         source.registerCorsConfiguration("/**", configuration);
+
         return source;
     }
 }
