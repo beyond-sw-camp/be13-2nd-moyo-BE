@@ -3,6 +3,8 @@ package com.beyond.backend.domain.user.service;
 import com.beyond.backend.domain.common.exception.PostException;
 import com.beyond.backend.domain.common.exception.UserException;
 import com.beyond.backend.domain.common.exception.message.ExceptionMessage;
+import com.beyond.backend.domain.team.entity.Team;
+import com.beyond.backend.domain.team.repository.TeamRepository;
 import com.beyond.backend.domain.user.entity.UserSortOption;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,7 +35,8 @@ public class AdminServiceImpl implements AdminService {
     private final PostRepository postRepository;
     private final AuthService authService;
     private final ProjectRepository projectRepository;
-
+    private final TeamRepository teamRepository;
+  
     @Override
     public DeleteUserByAdminResponseDto delete(Long userNo) {
 
@@ -50,8 +53,6 @@ public class AdminServiceImpl implements AdminService {
         return userRepository.getUsers(userSortOption, pageable);
     }
 
-
-
     @Override
     public OneUserResponseDto getOneUser(Long userNo) {
 
@@ -67,6 +68,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public Page<UserPostResponseDto> getUserAllPost(BoardType boardType, Long userNo, Pageable pageable) {
+
         // 여기서의 userNo는 받아오고자 하는 UserNo 이다.
         if (!authService.isAdmin()) {
             throw new PostException(ExceptionMessage.POST_ACCESS_DENIED);
@@ -80,4 +82,7 @@ public class AdminServiceImpl implements AdminService {
         return userPosts;
     }
 
+
+
 }
+
