@@ -229,6 +229,11 @@ public class ProjectServiceImpl implements ProjectService {
 			() -> new ProjectException(ExceptionMessage.PROJECT_NOT_FOUND)
 		);
 
+		if ( authService.isAdmin() ){
+			projectRepository.deleteById(projectNo);
+			return;
+		}
+
 		Team team = project.getTeam();
 
 		// 3. user 가 team 에 속하는가

@@ -32,6 +32,7 @@ public class AdminServiceImpl implements AdminService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final AuthService authService;
+    private final ProjectRepository projectRepository;
 
     @Override
     public DeleteUserByAdminResponseDto delete(Long userNo) {
@@ -78,4 +79,5 @@ public class AdminServiceImpl implements AdminService {
 
         return userPosts;
     }
+
 }
