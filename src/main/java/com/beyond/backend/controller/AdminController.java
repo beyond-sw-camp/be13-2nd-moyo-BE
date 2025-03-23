@@ -8,6 +8,8 @@ import com.beyond.backend.domain.post.dto.UserPostResponseDto;
 import com.beyond.backend.domain.post.entity.BoardType;
 import com.beyond.backend.domain.post.service.PostService;
 import com.beyond.backend.domain.project.dto.ProjectResponseDto;
+import com.beyond.backend.domain.project.entity.ProjectSortOption;
+import com.beyond.backend.domain.project.entity.ProjectStatus;
 import com.beyond.backend.domain.project.service.ProjectService;
 import com.beyond.backend.domain.user.dto.*;
 import com.beyond.backend.domain.user.entity.UserSearchOption;
@@ -73,7 +75,7 @@ public class AdminController {
     }
 
     // 유저의 게시글 가져오기
-    @GetMapping("/user/{userNo}/post")
+    @GetMapping("/user/{userNo}/posts")
     public ResponseEntity<Page<UserPostResponseDto>> getUserPosts(
             @RequestParam BoardType boardType,
             @PageableDefault(size = 10, page = 0) Pageable pageable,
@@ -102,9 +104,21 @@ public class AdminController {
         return ResponseEntity.ok(projectList);
     }
 
+
     @GetMapping("/feedbacks")
     public ResponseEntity<Page<FeedbackResponseDto>> getFeedback(@PageableDefault(size = 10, page = 0) Pageable pageable) {
         Page<FeedbackResponseDto> feedbackList = feedbackService.getAllFeedback(pageable);
         return ResponseEntity.ok(feedbackList);
     }
+
+    @GetMapping("/projects")
+    public ResponseEntity<Page<ProjectResponseDto>> getProject(
+                                                                @RequestParam ProjectSortOption projectSortOption,
+                                                                @PageableDefault(size = 10, page = 0) Pageable pageable) {
+        authService.validateAdminAuthorization();
+        Page<ProjectResponseDto> projectList = projectService.getAllProjects(pageable, projectSortOption);
+        return ResponseEntity.ok(projectList);
+    }
+
+
 }

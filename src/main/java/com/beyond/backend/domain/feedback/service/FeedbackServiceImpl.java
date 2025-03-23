@@ -1,5 +1,7 @@
 package com.beyond.backend.domain.feedback.service;
 
+import java.util.Optional;
+
 import com.beyond.backend.domain.common.exception.PostException;
 import com.beyond.backend.domain.common.exception.ProjectException;
 import com.beyond.backend.domain.common.exception.UserException;
@@ -18,6 +20,8 @@ import com.beyond.backend.domain.user.entity.User;
 import com.beyond.backend.domain.user.repository.UserRepository;
 import com.beyond.backend.domain.user.service.AuthService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
+@Log4j2
 public class FeedbackServiceImpl implements FeedbackService {
 
 	private final UserRepository userRepository;
@@ -101,16 +106,20 @@ public class FeedbackServiceImpl implements FeedbackService {
 				() ->  new PostException(ExceptionMessage.FEEDBACK_NOT_FOUND)
 		);
 
-		authService.validateUser(feedback.getUser());
+		if ( !authService.isAdmin() ) {
+			authService.validateUser(feedback.getUser());
+		}
+
 		Long userNo = authService.getCurrentUser().getUser().getNo();
 
 		if (!teamUserRepository.isLeader(feedback.getProject().getTeam().getNo(), userNo)) {
 			throw new IllegalArgumentException("삭제할 권한이 없습니다.");
 		}
 
+
 		feedbackRepository.deleteById(feedbackNo);
 	}
-
+  
 
 	@Override
 	public Page<FeedbackResponseDto> getFeedbackByUserNo(Long userNo, Pageable pageable) {
