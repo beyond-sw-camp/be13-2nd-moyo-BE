@@ -114,6 +114,7 @@ public class ReportServiceImpl implements ReportService {
         reportRepository.save(report);
 
         User receiver = report.getReported();
+
         notificationService.sendNotification(
                 new RequestNotificationDto(
                         "SYSTEM",
@@ -153,6 +154,4 @@ public class ReportServiceImpl implements ReportService {
         // 해당 사용자가 작성한 모든 댓글 삭제
         commentRepository.deleteByUserNo(reported.getNo());
     }
-
-
 }
