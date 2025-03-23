@@ -5,13 +5,13 @@ import com.beyond.backend.domain.comment.dto.CommentResponseDto;
 import com.beyond.backend.domain.comment.entity.Comment;
 import com.beyond.backend.domain.comment.entity.CommentSortOption;
 import com.beyond.backend.domain.comment.repository.CommentRepository;
+import com.beyond.backend.domain.comment.repository.LikeRepository;
 import com.beyond.backend.domain.common.dto.RequestNotificationDto;
 import com.beyond.backend.domain.common.entity.NotificationType;
 import com.beyond.backend.domain.common.exception.PostException;
 import com.beyond.backend.domain.common.exception.UserException;
 import com.beyond.backend.domain.common.exception.message.ExceptionMessage;
 import com.beyond.backend.domain.common.service.NotificationService;
-import com.beyond.backend.domain.comment.repository.LikeRepository;
 import com.beyond.backend.domain.post.dto.PostResponseDto;
 import com.beyond.backend.domain.post.entity.BoardType;
 import com.beyond.backend.domain.post.entity.Post;
@@ -149,7 +149,7 @@ public class CommentServiceImpl implements CommentService {
 
         // 댓글 작성자이거나 관리자인 경우만 삭제 가능
 
-        if ( !authService.isUser(comment.getUser()) && !authService.isAdmin()) {
+        if ( !authService.isUser(comment.getUser())) {
 
             throw new UserException(ExceptionMessage.USER_ACCESS_DENIED);
         }

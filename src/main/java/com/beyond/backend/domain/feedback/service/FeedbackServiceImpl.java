@@ -112,15 +112,14 @@ public class FeedbackServiceImpl implements FeedbackService {
 
 		Long userNo = authService.getCurrentUser().getUser().getNo();
 
-		// 관리자거나, 작성자거나, 팀장이면 삭제 허용
-		if (! (feedback.getUser().getNo().equals(userNo) ||authService.isAdmin()) ) {
+		if (!teamUserRepository.isLeader(feedback.getProject().getTeam().getNo(), userNo)) {
 			throw new IllegalArgumentException("삭제할 권한이 없습니다.");
 		}
 
 
 		feedbackRepository.deleteById(feedbackNo);
 	}
-
+  
 
 	@Override
 	public Page<FeedbackResponseDto> getFeedbackByUserNo(Long userNo, Pageable pageable) {

@@ -10,16 +10,15 @@ import org.springframework.data.domain.Pageable;
 
 public interface ScheduleService {
 
-    ScheduleResponseDto createSchedule(Long userNo, ScheduleRequestDto dto);
+    ScheduleResponseDto createSchedule(ScheduleRequestDto dto);
 
-    ScheduleResponseDto updateSchedule(Long scheduleId, Long userNo, ScheduleRequestDto dto);
+    ScheduleResponseDto updateSchedule(Long scheduleId, ScheduleRequestDto dto);
 
-    void deleteSchedule(Long scheduleId, Long userNo);
+    void deleteSchedule(Long scheduleId);
 
-    ScheduleResponseDto getSchedule(Long scheduleId, Long userNo);
+    ScheduleResponseDto getSchedule(Long scheduleId);
 
-    Page<ScheduleResponseDto> getSchedulesByTeam(Long teamNo, Long userNo, Pageable pageable, ScheduleSortOption scheduleSortOption );
+    Page<ScheduleResponseDto> getSchedulesByTeam(Long teamNo, Pageable pageable, ScheduleSortOption scheduleSortOption);
 
     void sendAlert();
-
 }

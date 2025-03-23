@@ -10,11 +10,7 @@ public interface AuthService {
 
     void validateUser(User user);
 
-    void validateAdminAuthorization();
-
     boolean isUser(User user);
-
-    boolean isAdmin();
 
     void join(JoinRequestDto dto);
 
@@ -23,10 +19,4 @@ public interface AuthService {
     void logout(String bearerToken);
 
     TokenResponseDto refresh(String bearerToken);
-
-    void validateAdminByUsername(String username);
-
-    
-
-    
 }

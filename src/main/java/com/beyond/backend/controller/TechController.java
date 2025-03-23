@@ -38,7 +38,6 @@ public class TechController {
 	@PostMapping("/create")
 	public ResponseEntity<TechResponseDto> createTech(HttpServletRequest request,
 													 @Valid @RequestBody TechRequestDto dto) {
-		authService.validateAdminAuthorization();
 		TechResponseDto response = techService.createTech(request, dto);
 
 		return ResponseEntity.ok(response);
@@ -46,7 +45,6 @@ public class TechController {
 
 	@GetMapping("/get")
 	public ResponseEntity<List<TechResponseDto>> getAllTechs() {
-		authService.validateAdminAuthorization();
 		List<TechResponseDto> techList = techService.findAllTech();
 		return ResponseEntity.ok(techList);
 	}
@@ -59,7 +57,6 @@ public class TechController {
 	 */
 	@DeleteMapping("/{id}")
 	public ResponseEntity<String> deleteTech(HttpServletRequest request, @PathVariable Long id) {
-		authService.validateAdminAuthorization();
 		techService.deleteTech(request, id);
 		return ResponseEntity.ok("기술이 성공적으로 삭제되었습니다.");
 	}
