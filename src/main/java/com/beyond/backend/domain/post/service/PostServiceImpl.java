@@ -156,11 +156,6 @@ public class PostServiceImpl implements PostService {
         Post post= postRepository.findById(postNo)
                 .orElseThrow(() -> new PostException(ExceptionMessage.POST_NOT_FOUND, "ID: " + postNo));
 
-        // 게시글을 작성한 유저가 로그인한 유저와 같은지 검증
-
-        authService.validateUser(post.getUser());
-
-
         // 게시글 수정
         post.update(postDto.getTitle(), postDto.getContent(), postDto.getPostStatus());
         
