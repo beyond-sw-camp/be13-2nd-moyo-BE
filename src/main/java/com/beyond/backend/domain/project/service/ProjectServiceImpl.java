@@ -64,7 +64,6 @@ public class ProjectServiceImpl implements ProjectService {
 		Team team = teamRepository.findById(projectRequestDto.getTeamNo()).orElseThrow(
 			() -> new TeamException(ExceptionMessage.TEAM_NOT_FOUND));
 
-
 		// 2. 회원이 팀에 속하는지
 		boolean existsByUserNoAndTeamNo = teamUserRepository.existsByUserNoAndTeamNo(userDetails.getNo(), team.getNo());
 

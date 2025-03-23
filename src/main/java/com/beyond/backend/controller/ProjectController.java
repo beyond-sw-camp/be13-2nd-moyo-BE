@@ -39,7 +39,6 @@ public class ProjectController {
     @Operation(summary = "프로젝트 등록 메서드", description = "프로젝트 등록 메서드입니다.")
     @PostMapping()
     public ResponseEntity<ProjectResponseDto> createProject(@Valid @RequestBody ProjectRequestDto projectRequestDto) {
-
         ProjectResponseDto projectResponseDto = projectService.createProject(projectRequestDto);
         return ResponseEntity.ok(projectResponseDto);
     }
