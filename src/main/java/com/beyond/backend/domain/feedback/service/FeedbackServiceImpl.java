@@ -104,7 +104,7 @@ public class FeedbackServiceImpl implements FeedbackService {
 		authService.validateUser(feedback.getUser());
 		Long userNo = authService.getCurrentUser().getUser().getNo();
 
-		if (!teamUserRepository.isLeader(feedback.getProject().getTeam().getNo(), userNo) || !authService.isAdmin()) {
+		if (!teamUserRepository.isLeader(feedback.getProject().getTeam().getNo(), userNo)) {
 			throw new IllegalArgumentException("삭제할 권한이 없습니다.");
 		}
 

@@ -46,10 +46,7 @@ public class ReportController {
     @GetMapping("/reports/{reportNo}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ReportResponseDto> getReport(@PathVariable Long reportNo) {
-        authService.validateAdminAuthorization();
-
         ReportResponseDto reportResponseDto = reportService.getReport(reportNo);
-
         return ResponseEntity.status(HttpStatus.OK).body(reportResponseDto);
     }
 
@@ -59,7 +56,6 @@ public class ReportController {
     public ResponseEntity<Page<ReportResponseDto>> getUserReports(
             @PathVariable String userId,
             @PageableDefault(size = 10, page = 0, sort = "no") Pageable pageable) {
-        authService.validateAdminAuthorization();
         Page<ReportResponseDto> reportResponseDto = reportService.getUserReportedList(userId, pageable);
 
         return ResponseEntity.ok(reportResponseDto);
@@ -71,10 +67,7 @@ public class ReportController {
     public ResponseEntity<Page<ReportResponseDto>> getAllReports(
             @PageableDefault(size = 10, page = 0, sort = "no") Pageable pageable) {
 
-        authService.validateAdminAuthorization();
-
         Page<ReportResponseDto> reportResponseDto = reportService.getAllReports(pageable);
-
         return ResponseEntity.ok(reportResponseDto);
     }
 
@@ -82,10 +75,10 @@ public class ReportController {
     @PostMapping("/reports")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ReportResponseDto> createReport(
-            @Parameter(name = "reporterNo", description = "신고하는사람 no") @AuthenticationPrincipal CustomUserDetails reporterNo,
+            @Parameter(name = "reporterNo", description = "신고하는사람 no")
+            @AuthenticationPrincipal CustomUserDetails reporterNo,
             @Valid @RequestBody ReportDto reportDto) {
         ReportResponseDto reportResponseDto = reportService.createReport(reporterNo.getUser(), reportDto);
-
         return ResponseEntity.ok(reportResponseDto);
     }
 
@@ -97,20 +90,9 @@ public class ReportController {
     @PutMapping("/reports/{reportNo}")
     public ResponseEntity<ReportResponseDto> updateReport(
             @PathVariable Long reportNo,
-            @Parameter(description = "no는 신고번호입니다") @RequestBody ReportAdminResDto reportAdminResDto) {
-        authService.validateAdminAuthorization();
+            @Parameter(description = "no는 신고번호입니다")
+            @RequestBody ReportAdminResDto reportAdminResDto) {
         ReportResponseDto reportResponseDto = reportService.processReport(reportNo, reportAdminResDto);
         return ResponseEntity.ok(reportResponseDto);
-
     }
 }
-
-
-
-
-
-
-
-
-
-

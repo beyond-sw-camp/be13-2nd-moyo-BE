@@ -1,9 +1,7 @@
 package com.beyond.backend.domain.user.service;
 
-import com.beyond.backend.domain.common.dto.EmailAuthRequestDto;
 import com.beyond.backend.domain.common.exception.UserException;
 import com.beyond.backend.domain.common.exception.message.ExceptionMessage;
-import com.beyond.backend.domain.common.service.EmailService;
 import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import com.beyond.backend.domain.user.dto.JoinRequestDto;
 import com.beyond.backend.domain.user.dto.LoginRequestDto;
@@ -16,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -169,45 +166,12 @@ public class AuthServiceImpl implements AuthService {
         return currentUser.getUser().getNo().equals(savedUser.getNo());
     }
 
-
-    @Override
-    @Transactional(readOnly = true)
-    public void validateAdminAuthorization() {
-        CustomUserDetails currentUser = getCurrentUser();
-        boolean result = currentUser.getAuthorities().stream().map(GrantedAuthority::getAuthority)
-                .anyMatch(role -> role.equals("ROLE_ADMIN"));
-
-        if (!result) {
-            throw new AccessDeniedException("권한이 없습니다.");
-        }
-    }
-    
-    @Override
-    @Transactional(readOnly = true)
-    public boolean isAdmin() {
-        CustomUserDetails currentUser = getCurrentUser();
-        return currentUser.getAuthorities().stream().map(GrantedAuthority::getAuthority)
-                .anyMatch(role -> role.equals("ROLE_ADMIN"));
-    }
-
     // 비밀번호 검증 로직 (login 메서드 내에서 호출)
     public void validPwd(String password, User user) {
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            // passwordErrorCount 를 별도의 트랜잭션에서 업데이트
             authTransactionService.increasePasswordErrorCount(user);
             log.info("Username : {}, PasswordErrorCount :0 {}", user.getUsername(), user.getPasswordErrorCount());
             throw new IllegalArgumentException("패스워드가 일치하지 않습니다");
-        }
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public void validateAdminByUsername(String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND));
-        if (!user.getRole().equals(UserRoleType.ADMIN)) {
-            throw new AccessDeniedException(
-                    "User is not authorized to perform this action. (username: " + username + ")");
         }
     }
 }

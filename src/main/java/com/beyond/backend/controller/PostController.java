@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -84,7 +85,6 @@ public class PostController {
 
         return ResponseEntity.ok(searchPosts);
     }
-    
 
 
     //게시글 생성
@@ -92,7 +92,8 @@ public class PostController {
     @PostMapping("/posts")
     public ResponseEntity<PostResponseDto> createPost(
             @Valid @RequestBody PostDto postDto) {
-           //게시글 작성할 보드 타입을 지정해야 함
+
+        //게시글 작성할 보드 타입을 지정해야 함
 
         // 게시글이 notice인 경우 관리자인지 검증
         postService.validatePostAuthority(postDto.getBoardType());

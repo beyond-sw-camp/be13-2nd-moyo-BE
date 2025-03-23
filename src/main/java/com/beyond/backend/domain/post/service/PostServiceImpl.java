@@ -90,7 +90,7 @@ public class PostServiceImpl implements PostService {
         if (prePost.getPostStatus() == PostStatus.INACTIVE) {
             //authService.isUser(post.getUser())
             // 관리자나 작성자가 아닌 경우 예외 처리
-            if (!authService.isAdmin() && !prePost.getUser().equals(userDetails.getUser())) {
+            if (!prePost.getUser().equals(userDetails.getUser())) {
                 throw new PostException(ExceptionMessage.POST_ACCESS_DENIED);
             }
 
@@ -152,9 +152,6 @@ public class PostServiceImpl implements PostService {
     @Transactional
     public PostResponseDto updatePost(Long postNo, PostDto postDto) {
 
-        // 로그인한 유저 정보 가져옴
-        CustomUserDetails userDetails = authService.getCurrentUser();
-
         // 게시글 찾기
         Post post= postRepository.findById(postNo)
                 .orElseThrow(() -> new PostException(ExceptionMessage.POST_NOT_FOUND, "ID: " + postNo));
@@ -181,13 +178,12 @@ public class PostServiceImpl implements PostService {
 
         // 게시글 작성자이거나 관리자인 경우만 삭제 가능
 
-        if (!authService.isUser(post.getUser()) && !authService.isAdmin()) {
+        if (!authService.isUser(post.getUser())) {
 
             throw new PostException(ExceptionMessage.POST_ACCESS_DENIED);
         }
 
         postRepository.deleteById(postNo);
-
     }
 
     
@@ -217,7 +213,7 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional(readOnly = true)
     public void validatePostAuthority(BoardType boardType) {
-        if (boardType == BoardType.NOTICE && !authService.isAdmin()) {
+        if (boardType == BoardType.NOTICE) {
             throw new PostException(ExceptionMessage.POST_ACCESS_DENIED);
         }
     }
@@ -269,7 +265,6 @@ public class PostServiceImpl implements PostService {
         } else { //비로그인 사용자인 경우(게스트)
             //IP 주소 가져오기
             String ipAddress = request.getRemoteAddr();
-
 
             if (ipAddress != null && !ipAddress.isEmpty()) {
                 // X-Forwarded-For 헤더가 있는 경우, 첫 번째 IP(클라이언트 실제 IP) 사용

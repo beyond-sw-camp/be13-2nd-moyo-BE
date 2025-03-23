@@ -42,14 +42,12 @@ public class AdminController {
 
     @PostMapping("/login")
     public ResponseEntity<TokenResponseDto> login(@Valid @RequestBody LoginRequestDto dto) {
-        authService.validateAdminByUsername(dto.getUsername());
         TokenResponseDto login = authService.login(dto);
         return ResponseEntity.ok(login);
     }
 
     @PostMapping("/delete/{userNo}")
     public ResponseEntity<DeleteUserByAdminResponseDto> delete(@PathVariable Long userNo) {
-        authService.validateAdminAuthorization();
         adminService.delete(userNo);
         DeleteUserByAdminResponseDto response = new DeleteUserByAdminResponseDto("삭제가 완료되었습니다.");
         return ResponseEntity.ok(response);
@@ -60,7 +58,6 @@ public class AdminController {
             @RequestParam(required = false) UserSortOption sortOption,
             @PageableDefault(size = 10, page = 0) Pageable pageable) {
 
-        authService.validateAdminAuthorization();
         Page<AllUserResponseDto> users = adminService.getUsers(sortOption, pageable);
 
         return ResponseEntity.ok(users);
@@ -71,7 +68,6 @@ public class AdminController {
     public ResponseEntity<OneUserResponseDto> getOneUserByAdmin(
             @PathVariable Long userNo) {
 
-        authService.validateAdminAuthorization();
         OneUserResponseDto userResponse = adminService.getOneUser(userNo);
         return ResponseEntity.ok(userResponse);
     }
@@ -83,7 +79,6 @@ public class AdminController {
             @PageableDefault(size = 10, page = 0) Pageable pageable,
             @PathVariable Long userNo) {
 
-        authService.validateAdminAuthorization();
         Page<UserPostResponseDto> userPosts = adminService.getUserAllPost(boardType,userNo, pageable);
         return ResponseEntity.ok(userPosts);
 
@@ -94,7 +89,6 @@ public class AdminController {
     public ResponseEntity<Page<CommentResponseDto>> getUserComments(@PageableDefault(size = 10, page = 0) Pageable pageable,
                                                                     @PathVariable Long userNo) {
 
-        authService.validateAdminAuthorization();
         Page<CommentResponseDto> commentList = commentService.getUserComments(userNo, pageable);
         return ResponseEntity.ok(commentList);
     }
@@ -104,14 +98,12 @@ public class AdminController {
     @GetMapping("/user/{userNo}/projects")
     public ResponseEntity<Page<ProjectResponseDto>> getProject(@PageableDefault(size = 10, page = 0) Pageable pageable,
                                                                @PathVariable Long userNo) {
-        authService.validateAdminAuthorization();
         Page<ProjectResponseDto> projectList = projectService.getProjectsByUserNo(userNo, pageable);
         return ResponseEntity.ok(projectList);
     }
 
     @GetMapping("/feedbacks")
     public ResponseEntity<Page<FeedbackResponseDto>> getFeedback(@PageableDefault(size = 10, page = 0) Pageable pageable) {
-        authService.validateAdminAuthorization();
         Page<FeedbackResponseDto> feedbackList = feedbackService.getAllFeedback(pageable);
         return ResponseEntity.ok(feedbackList);
     }

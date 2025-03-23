@@ -33,8 +33,6 @@ public class AdminServiceImpl implements AdminService {
 
     private final UserRepository userRepository;
     private final PostRepository postRepository;
-    private final AuthService authService;
-    private final TeamRepository teamRepository;
 
     @Override
     public DeleteUserByAdminResponseDto delete(Long userNo) {
@@ -67,11 +65,6 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public Page<UserPostResponseDto> getUserAllPost(BoardType boardType, Long userNo, Pageable pageable) {
-
-        // 여기서의 userNo는 받아오고자 하는 UserNo 이다.
-        if (!authService.isAdmin()) {
-            throw new PostException(ExceptionMessage.POST_ACCESS_DENIED);
-        }
 
         User user = userRepository.findById(userNo)
                 .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userNo));
