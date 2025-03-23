@@ -85,7 +85,7 @@ public class CommentServiceImpl implements CommentService {
         // 댓글 작성자가 로그인한 유저인지 확인
 
 
-        authService.validateUser(userDetails.getUser());
+//        authService.validateUser(userDetails.getUser());
 
         // 댓글 저장
         Comment comment = new Comment(commentDto.getContent(), post, userDetails.getUser());
@@ -129,7 +129,9 @@ public class CommentServiceImpl implements CommentService {
 
         // 댓글 작성자가 로그인한 회원과 같은지 비교 userNo로
         // 댓글을 수정하려는 유저가 댓글을 작성한 유저인지 확인
-        authService.validateUser(comment.getUser());
+//        authService.validateUser(comment.getUser());
+
+        // validateUSer지워야되는거 아냐  ??
 
         // 댓글 수정 (update 메서드 사용)
         comment.update(commentDto.getContent());
@@ -149,10 +151,10 @@ public class CommentServiceImpl implements CommentService {
 
         // 댓글 작성자이거나 관리자인 경우만 삭제 가능
 
-        if ( !authService.isUser(comment.getUser())) {
-
-            throw new UserException(ExceptionMessage.USER_ACCESS_DENIED);
-        }
+//        if ( !authService.isUser(comment.getUser())) {
+//
+//            throw new UserException(ExceptionMessage.USER_ACCESS_DENIED);
+//        }
 
 
         Post post = comment.getPost();

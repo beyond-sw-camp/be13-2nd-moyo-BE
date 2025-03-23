@@ -90,7 +90,7 @@ public class FeedbackServiceImpl implements FeedbackService {
 		);
 
 		// 5. 본인의 피드백인지 검증
-		authService.validateUser(feedback.getUser());
+		//authService.validateUser(feedback.getUser());
 
 		feedback.updateFeedback(dto.getContent(), feedbackType);
 
@@ -106,9 +106,8 @@ public class FeedbackServiceImpl implements FeedbackService {
 				() ->  new PostException(ExceptionMessage.FEEDBACK_NOT_FOUND)
 		);
 
-		if ( !authService.isAdmin() ) {
-			authService.validateUser(feedback.getUser());
-		}
+		// 사용자 검증
+		// authService.validateUser(feedback.getUser());
 
 		Long userNo = authService.getCurrentUser().getUser().getNo();
 

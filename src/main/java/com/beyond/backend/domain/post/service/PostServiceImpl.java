@@ -166,17 +166,18 @@ public class PostServiceImpl implements PostService {
     // 게시글 삭제
     @Override
     @Transactional
-    public void deletePost(Long postNo){
+    public void deletePost(Long postNo, Long userNo){
 
         Post post = postRepository.findById(postNo)
                 .orElseThrow(() -> new PostException(ExceptionMessage.POST_NOT_FOUND, "ID: " + postNo));
 
         // 게시글 작성자이거나 관리자인 경우만 삭제 가능
 
-        if (!authService.isUser(post.getUser())) {
 
-            throw new PostException(ExceptionMessage.POST_ACCESS_DENIED);
-        }
+//        if (!authService.isUser(post.getUser())) {
+//
+//            throw new PostException(ExceptionMessage.POST_ACCESS_DENIED);
+//        }
 
         postRepository.deleteById(postNo);
     }

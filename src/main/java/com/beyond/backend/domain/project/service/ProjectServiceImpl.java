@@ -227,10 +227,10 @@ public class ProjectServiceImpl implements ProjectService {
 			() -> new ProjectException(ExceptionMessage.PROJECT_NOT_FOUND)
 		);
 
-		if ( authService.isAdmin() ){
-			projectRepository.deleteById(projectNo);
-			return;
-		}
+//		if ( authService.isAdmin() ){
+//			projectRepository.deleteById(projectNo);
+//			return;
+//		}
 
 		Team team = project.getTeam();
 

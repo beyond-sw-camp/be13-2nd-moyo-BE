@@ -24,6 +24,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -33,6 +35,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/admin")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('ROLE_ADMIN')")
 public class AdminController {
 
     private final AuthService authService;
@@ -49,7 +52,9 @@ public class AdminController {
     }
 
     @PostMapping("/delete/{userNo}")
-    public ResponseEntity<DeleteUserByAdminResponseDto> delete(@PathVariable Long userNo) {
+
+    public ResponseEntity<DeleteUserByAdminResponseDto> delete(@PathVariable Long userNo,
+                                                               @AuthenticationPrincipal CustomUserDetails userDetails) {
         adminService.delete(userNo);
         DeleteUserByAdminResponseDto response = new DeleteUserByAdminResponseDto("삭제가 완료되었습니다.");
         return ResponseEntity.ok(response);
@@ -58,7 +63,8 @@ public class AdminController {
     @GetMapping("/users")
     public ResponseEntity<Page<AllUserResponseDto>> getUsersByAdmin(
             @RequestParam(required = false) UserSortOption sortOption,
-            @PageableDefault(size = 10, page = 0) Pageable pageable) {
+            @PageableDefault(size = 10, page = 0) Pageable pageable,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Page<AllUserResponseDto> users = adminService.getUsers(sortOption, pageable);
 
@@ -68,7 +74,8 @@ public class AdminController {
 
     @GetMapping("/user/{userNo}")
     public ResponseEntity<OneUserResponseDto> getOneUserByAdmin(
-            @PathVariable Long userNo) {
+            @PathVariable Long userNo,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         OneUserResponseDto userResponse = adminService.getOneUser(userNo);
         return ResponseEntity.ok(userResponse);
@@ -79,7 +86,8 @@ public class AdminController {
     public ResponseEntity<Page<UserPostResponseDto>> getUserPosts(
             @RequestParam BoardType boardType,
             @PageableDefault(size = 10, page = 0) Pageable pageable,
-            @PathVariable Long userNo) {
+            @PathVariable Long userNo,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Page<UserPostResponseDto> userPosts = adminService.getUserAllPost(boardType,userNo, pageable);
         return ResponseEntity.ok(userPosts);
@@ -89,7 +97,8 @@ public class AdminController {
     // 유저의 댓글 가져오기
     @GetMapping("/user/{userNo}/comments")
     public ResponseEntity<Page<CommentResponseDto>> getUserComments(@PageableDefault(size = 10, page = 0) Pageable pageable,
-                                                                    @PathVariable Long userNo) {
+                                                                    @PathVariable Long userNo,
+                                                                    @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Page<CommentResponseDto> commentList = commentService.getUserComments(userNo, pageable);
         return ResponseEntity.ok(commentList);
@@ -99,14 +108,16 @@ public class AdminController {
     // 유저의 프로젝트 가져오기
     @GetMapping("/user/{userNo}/projects")
     public ResponseEntity<Page<ProjectResponseDto>> getProject(@PageableDefault(size = 10, page = 0) Pageable pageable,
-                                                               @PathVariable Long userNo) {
+                                                               @PathVariable Long userNo,
+                                                               @AuthenticationPrincipal CustomUserDetails userDetails) {
         Page<ProjectResponseDto> projectList = projectService.getProjectsByUserNo(userNo, pageable);
         return ResponseEntity.ok(projectList);
     }
 
 
     @GetMapping("/feedbacks")
-    public ResponseEntity<Page<FeedbackResponseDto>> getFeedback(@PageableDefault(size = 10, page = 0) Pageable pageable) {
+    public ResponseEntity<Page<FeedbackResponseDto>> getFeedback(@PageableDefault(size = 10, page = 0) Pageable pageable,
+                                                                 @AuthenticationPrincipal CustomUserDetails userDetails) {
         Page<FeedbackResponseDto> feedbackList = feedbackService.getAllFeedback(pageable);
         return ResponseEntity.ok(feedbackList);
     }
@@ -114,8 +125,9 @@ public class AdminController {
     @GetMapping("/projects")
     public ResponseEntity<Page<ProjectResponseDto>> getProject(
                                                                 @RequestParam ProjectSortOption projectSortOption,
-                                                                @PageableDefault(size = 10, page = 0) Pageable pageable) {
-        authService.validateAdminAuthorization();
+                                                                @PageableDefault(size = 10, page = 0) Pageable pageable,
+                                                                @AuthenticationPrincipal CustomUserDetails userDetails) {
+
         Page<ProjectResponseDto> projectList = projectService.getAllProjects(pageable, projectSortOption);
         return ResponseEntity.ok(projectList);
     }
