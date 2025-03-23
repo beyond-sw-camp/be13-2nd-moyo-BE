@@ -3,7 +3,6 @@ package com.beyond.backend.controller;
 import com.beyond.backend.domain.message.dto.MessageDto;
 import com.beyond.backend.domain.message.dto.MessageResponseDto;
 import com.beyond.backend.domain.message.service.MessageService;
-import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import com.beyond.backend.domain.user.repository.UserRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -16,7 +15,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "09 쪽지 API", description = "쪽지 API")
@@ -34,8 +32,8 @@ public class MessageController {
     @Operation(summary = "쪽지 단일 조회", description = "쪽지를 조회합니다.")
     @GetMapping("/messages/{messageNo}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<MessageResponseDto> getMessage(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable Long messageNo) {
-        MessageResponseDto messageResponseDto = messageService.getMessage(userDetails.getUser().getNo(), messageNo);
+    public ResponseEntity<MessageResponseDto> getMessage(@PathVariable Long messageNo) {
+        MessageResponseDto messageResponseDto = messageService.getMessage(messageNo);
 
         return ResponseEntity.status(HttpStatus.OK).body(messageResponseDto);
     }
@@ -47,8 +45,8 @@ public class MessageController {
     @Operation(summary = "쪽지 전송", description = "쪽지를 전송(저장)합니다")
     @PostMapping("/messages")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<MessageResponseDto> sendMessage(@AuthenticationPrincipal CustomUserDetails userDetails, @Valid @RequestBody MessageDto messageDto) { // senderNo는 토큰으로 어찌저찌 하기
-        MessageResponseDto messageResponseDto = messageService.messageWrite(userDetails.getUser(), messageDto);
+    public ResponseEntity<MessageResponseDto> sendMessage(@Valid @RequestBody MessageDto messageDto) { // senderNo는 토큰으로 어찌저찌 하기
+        MessageResponseDto messageResponseDto = messageService.messageWrite(messageDto);
 
         return ResponseEntity.status(HttpStatus.OK).body(messageResponseDto);
     }
@@ -60,19 +58,11 @@ public class MessageController {
     @GetMapping("/messages")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Page<MessageResponseDto>> getMessages(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
-            @Parameter(name = "type", description = "보낸/받은 쪽지리스트 (sent/received)", example = "sent") @RequestParam String type,
+            @Parameter(name = "type", description = "보낸/받은 쪽지리스트 (sent/received)", example = "sent")
+            @RequestParam String type,
             @PageableDefault(size = 10, page = 0, sort = "no") Pageable pageable) {
 
-
-        Page<MessageResponseDto> messageResponseDto;
-
-        if ("sent".equalsIgnoreCase(type)) {
-            messageResponseDto = messageService.getSentMessageList(userDetails.getUser().getNo(), pageable);
-        } else {
-            messageResponseDto = messageService.getReceivedMessageList(userDetails.getUser().getNo(), pageable);
-        }
-
+        Page<MessageResponseDto> messageResponseDto = messageService.getMessageList(type, pageable);
         return ResponseEntity.ok(messageResponseDto);
     }
 
@@ -83,8 +73,8 @@ public class MessageController {
     @DeleteMapping("/messages/{messageNo}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<MessageResponseDto> deleteMessage
-    (@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable Long messageNo) {
-        messageService.deleteMessage(userDetails.getUser().getNo(), messageNo);
+    (@PathVariable Long messageNo) {
+        messageService.deleteMessage(messageNo);
 
         MessageResponseDto responseDto = new MessageResponseDto("삭제되었습니다");
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
@@ -96,9 +86,9 @@ public class MessageController {
     @Operation(summary = "안 읽은 쪽지 개수", description = "안 읽은 쪽지 개수를 확인합니다")
     @GetMapping("/messages-unread")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Long> getUnreadMessage(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<Long> getUnreadMessage() {
 
-        long unreadCount = messageService.getUnreadMessageCount(userDetails.getUser().getNo());
+        long unreadCount = messageService.getUnreadMessageCount();
         return ResponseEntity.ok(unreadCount);
     }
 

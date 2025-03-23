@@ -40,7 +40,7 @@ public class SecurityConfig {
     private final CustomPermissionEvaluator customPermissionEvaluator;
 
     private final JwtTokenProvider jwtTokenProvider;
-    
+
     // 프로퍼티에서 값을 가져옴
     @Value("${cors.allowed-origins}")
     private String allowedOrigins;
@@ -54,7 +54,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtTokenProvider jwtTokenProvider) throws Exception{
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtTokenProvider jwtTokenProvider) throws Exception {
 
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -101,7 +101,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
@@ -118,6 +118,7 @@ public class SecurityConfig {
         configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+
 
         source.registerCorsConfiguration("/**", configuration);
         return source;

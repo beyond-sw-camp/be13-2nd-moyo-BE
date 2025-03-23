@@ -47,12 +47,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
 
-
-    private final LikeRepository likeRepository;
     private final NotificationService notificationService;
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
-    private final UserRepository userRepository;
     private final AuthService authService;
 
     
