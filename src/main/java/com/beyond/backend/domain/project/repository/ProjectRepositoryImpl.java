@@ -6,11 +6,16 @@ import static com.beyond.backend.domain.project.entity.QProjectTech.*;
 import static com.beyond.backend.domain.team.entity.QTeam.*;
 import static com.beyond.backend.domain.teamUser.entity.QTeamUser.*;
 
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.beyond.backend.domain.project.entity.QProject;
+import com.beyond.backend.domain.team.entity.QTeam;
+import com.beyond.backend.domain.team.entity.TeamJoinStatus;
+import com.beyond.backend.domain.teamUser.entity.QTeamUser;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
@@ -149,6 +154,8 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
 				Collectors.mapping(tuple -> tuple.get(projectTech.tech.techName), Collectors.toList()) // techName 리스트 매핑
 			));
 	}
+
+	// 프로젝트
 
 
 	private BooleanExpression searchOption(String keyword, ProjectSearchOption option){
