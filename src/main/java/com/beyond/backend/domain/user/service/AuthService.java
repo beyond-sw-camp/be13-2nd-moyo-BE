@@ -8,9 +8,9 @@ public interface AuthService {
 
     CustomUserDetails getCurrentUser();
 
-    void validateUser(User user);
+    //void validateUser(User user);
 
-    boolean isUser(User user);
+    //boolean isUser(User user);
 
     void join(JoinRequestDto dto);
 

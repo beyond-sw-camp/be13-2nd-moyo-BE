@@ -2,11 +2,13 @@ package com.beyond.backend.controller;
 
 import java.util.List;
 
+import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import com.beyond.backend.domain.user.service.AuthService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,7 +30,6 @@ import lombok.RequiredArgsConstructor;
 public class TechController {
 
 	private final TechService techService;
-	private final AuthService authService;
 
 	/**
 	 * 기술 생성 API
@@ -37,14 +38,15 @@ public class TechController {
 	 */
 	@PostMapping("/create")
 	public ResponseEntity<TechResponseDto> createTech(HttpServletRequest request,
-													 @Valid @RequestBody TechRequestDto dto) {
+													  @Valid @RequestBody TechRequestDto dto,
+													  @AuthenticationPrincipal CustomUserDetails userDetails) {
 		TechResponseDto response = techService.createTech(request, dto);
 
 		return ResponseEntity.ok(response);
 	}
 
 	@GetMapping("/get")
-	public ResponseEntity<List<TechResponseDto>> getAllTechs() {
+	public ResponseEntity<List<TechResponseDto>> getAllTechs(@AuthenticationPrincipal CustomUserDetails userDetails) {
 		List<TechResponseDto> techList = techService.findAllTech();
 		return ResponseEntity.ok(techList);
 	}
@@ -56,7 +58,9 @@ public class TechController {
 	 * @return 성공 메시지
 	 */
 	@DeleteMapping("/{id}")
-	public ResponseEntity<String> deleteTech(HttpServletRequest request, @PathVariable Long id) {
+	public ResponseEntity<String> deleteTech(HttpServletRequest request,
+											 @PathVariable Long id,
+											 @AuthenticationPrincipal CustomUserDetails userDetails) {
 		techService.deleteTech(request, id);
 		return ResponseEntity.ok("기술이 성공적으로 삭제되었습니다.");
 	}

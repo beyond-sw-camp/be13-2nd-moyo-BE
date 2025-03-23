@@ -33,12 +33,13 @@ public class ProjectController {
 
     private final ProjectService projectService;
     private final TeamUserRepository teamUserRepository;
-    private final AuthService authService;
 
 
     @Operation(summary = "프로젝트 등록 메서드", description = "프로젝트 등록 메서드입니다.")
     @PostMapping()
-    public ResponseEntity<ProjectResponseDto> createProject(@Valid @RequestBody ProjectRequestDto projectRequestDto) {
+    public ResponseEntity<ProjectResponseDto> createProject(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody ProjectRequestDto projectRequestDto) {
 
         ProjectResponseDto projectResponseDto = projectService.createProject(projectRequestDto);
         return ResponseEntity.ok(projectResponseDto);
@@ -48,7 +49,8 @@ public class ProjectController {
     @PostMapping("/{projectNo}")
     public ResponseEntity<ProjectResponseDto> updateProject(@RequestParam ProjectStatus projectStatus,
                                                             @PathVariable("projectNo") Long projectNo,
-                                                            @Valid @RequestBody ProjectUpdateRequestDto projectRequestDto) {
+                                                            @Valid @RequestBody ProjectUpdateRequestDto projectRequestDto,
+                                                            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         ProjectResponseDto projectResponseDto = projectService.updateProject(projectNo, projectStatus, projectRequestDto);
 
@@ -58,7 +60,8 @@ public class ProjectController {
     @Operation(summary = "프로젝트 삭제 메서드", description = "프로젝트 삭제 메서드 입니다.")
     @DeleteMapping("/{projectNo}")
     public ResponseEntity<Void> deleteProject(
-            @PathVariable("projectNo") Long projectNo) throws Exception {
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable("projectNo") Long projectNo) {
 
         projectService.deleteProject(projectNo);
         return ResponseEntity.noContent().build();
@@ -78,7 +81,7 @@ public class ProjectController {
     @Operation(summary = "사용자의 모든 프로젝트 조회")
     @GetMapping("/user")
     public ResponseEntity<Page<ProjectResponseDto>> getProject( @AuthenticationPrincipal CustomUserDetails userDetails ,
-                                                                @PageableDefault(size = 10, page = 0) Pageable pageable ){
+                                                                @PageableDefault(size = 10, page = 0) Pageable pageable){
 
         Page<ProjectResponseDto> projectsByUserNo = projectService.getProjectsByUserNo(userDetails.getUser().getNo(), pageable);
 

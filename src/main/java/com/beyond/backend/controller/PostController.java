@@ -9,6 +9,7 @@ import com.beyond.backend.domain.post.entity.PostSortOption;
 import com.beyond.backend.domain.post.entity.PostStatus;
 import com.beyond.backend.domain.post.service.BookMarkService;
 import com.beyond.backend.domain.post.service.PostService;
+import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import com.beyond.backend.domain.user.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,6 +22,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -91,6 +93,7 @@ public class PostController {
     @Operation(summary = "게시글 등록", description = "게시글 등록 ")
     @PostMapping("/posts")
     public ResponseEntity<PostResponseDto> createPost(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody PostDto postDto) {
 
         //게시글 작성할 보드 타입을 지정해야 함
@@ -107,6 +110,7 @@ public class PostController {
     public ResponseEntity<PostResponseDto> updatePost(
             // 게시글 생성 시에는 무조건 활성 상태로 만들어지고 게시글 수정 시 활성/비활성 가능
             @PathVariable Long postNo,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody PostDto postDto){
 
         postService.validatePostAuthority(postDto.getBoardType());
@@ -117,24 +121,28 @@ public class PostController {
 
    
     // 게시글 삭제 (작성자,관리자)
+
+    @PreAuthorize("@postPermissionEvaluator.isOwner(#postNo, authentication)")
     @Operation(summary = "게시글 삭제", description = "게시글 삭제")
     @DeleteMapping( "/posts/{postNo}")
     public ResponseEntity<String> deletePost(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long postNo) {
 
 
         // 게시글 삭제 시 댓글도 자동으로 삭제됨
-        postService.deletePost(postNo);
+        postService.deletePost(postNo, userDetails.getUser().getNo());
         return ResponseEntity.status(HttpStatus.OK).body("게시물이 삭제되었습니다.");
     }
 
 
     // 유저가 작성한 게시글 전체 조회 (비활성화 상태인 게시글도 보임)
     @Operation(summary = "유저가 작성한 게시글 전체 조회", description = "개인 페이지에서 자신의 게시글 전체 조회")
-    @GetMapping("/users/{userNo}/posts")
+    @GetMapping("/user-page/posts")
     public ResponseEntity<Page<UserPostResponseDto>> getMyPost(
             // 내가 쓴 게시글을 게시판 종류를 나눠서 볼 수 있음
             @RequestParam BoardType boardType,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PageableDefault(size = 10, page= 0)Pageable pageable){
 
         Page<UserPostResponseDto> userPosts = postService.getUserPosts(boardType, pageable);
@@ -147,6 +155,7 @@ public class PostController {
     @Operation(summary = "게시글 북마크 추가 및 취소", description = "게시글 북마크 상태 (추가, 취소)")
     @PostMapping("/posts/{postNo}/bookmark")
     public ResponseEntity<String> checkBookMark(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long postNo) {
 
         String bookMarkResult = bookMarkService.checkBookMark(postNo);
@@ -156,9 +165,10 @@ public class PostController {
 
     // 유저가 북마크한 게시글 전체 조회
     @Operation(summary = "북마크한 게시글 조회", description = "유저가 북마크한 게시글을 게시판 타입별로 조회. 타입이 없으면 전체 조회.")
-    @GetMapping("/users/{userNo}bookmark")
+    @GetMapping("/user-page/bookmark")
     public ResponseEntity<Page<UserPostResponseDto>> getBookmarkedPosts(
             @RequestParam(required = false) BoardType boardType,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PageableDefault(size = 10, page = 0) Pageable pageable) {
 
         Page<UserPostResponseDto> result = bookMarkService.getBookmarkedPosts(boardType, pageable);

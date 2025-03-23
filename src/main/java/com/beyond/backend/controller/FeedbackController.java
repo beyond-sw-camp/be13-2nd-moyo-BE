@@ -36,6 +36,7 @@ public class FeedbackController {
 	@PostMapping("/project/{projectNo}/createFeedback")
 		public ResponseEntity<FeedbackResponseDto> createFeedback(@PathVariable Long projectNo,
 																  @RequestParam FeedbackType feedbackType,
+																  @AuthenticationPrincipal CustomUserDetails userDetails,
 																  @Valid @RequestBody FeedbackRequestDto dto) {
 
 		FeedbackResponseDto feedbackResponseDto = feedbackService.createFeedback(projectNo,feedbackType, dto);
@@ -46,6 +47,7 @@ public class FeedbackController {
 	public ResponseEntity<FeedbackResponseDto> updateFeedback(@PathVariable Long projectNo,
 															  @PathVariable Long feedbackNo,
 															  @RequestParam FeedbackType feedbackType,
+															  @AuthenticationPrincipal CustomUserDetails userDetails,
 															  @Valid @RequestBody FeedbackUpdateRequestDto dto) {
 
 		FeedbackResponseDto feedbackResponseDto = feedbackService.updateFeedback(projectNo, feedbackNo, feedbackType, dto);
@@ -55,7 +57,9 @@ public class FeedbackController {
 
 	@Operation(summary = "피드백 삭제 메서드", description = "피드백 삭제 메서드입니다.")
 	@DeleteMapping("/{feedbackNo}")
-	public ResponseEntity<String> deleteFeedback(@PathVariable Long feedbackNo) {
+	public ResponseEntity<String> deleteFeedback(
+			@PathVariable Long feedbackNo,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
 		feedbackService.deleteFeedback(feedbackNo);
 		return ResponseEntity.status(HttpStatus.OK).body("정상적으로 삭제되었습니다.");

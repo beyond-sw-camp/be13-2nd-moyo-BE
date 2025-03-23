@@ -40,7 +40,7 @@ public class BookMarkServiceImpl implements BookMarkService {
         CustomUserDetails userDetails = authService.getCurrentUser();
 
         // 로그인한 유저인지 검증
-        authService.validateUser(userDetails.getUser());
+        //authService.validateUser(userDetails.getUser());
 
         BookMarkNo bookMarkNo = new BookMarkNo(postNo, userDetails.getUser().getNo());
 
