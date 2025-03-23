@@ -4,7 +4,6 @@ import com.beyond.backend.domain.report.dto.ReportAdminResDto;
 import com.beyond.backend.domain.report.dto.ReportDto;
 import com.beyond.backend.domain.report.dto.ReportResponseDto;
 import com.beyond.backend.domain.report.service.ReportService;
-import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import com.beyond.backend.domain.user.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -17,7 +16,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -75,10 +73,8 @@ public class ReportController {
     @PostMapping("/reports")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ReportResponseDto> createReport(
-            @Parameter(name = "reporterNo", description = "신고하는사람 no")
-            @AuthenticationPrincipal CustomUserDetails reporterNo,
             @Valid @RequestBody ReportDto reportDto) {
-        ReportResponseDto reportResponseDto = reportService.createReport(reporterNo.getUser(), reportDto);
+        ReportResponseDto reportResponseDto = reportService.createReport(reportDto);
         return ResponseEntity.ok(reportResponseDto);
     }
 
