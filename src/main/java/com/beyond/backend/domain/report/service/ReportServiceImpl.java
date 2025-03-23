@@ -78,8 +78,9 @@ public class ReportServiceImpl implements ReportService {
     // 신고 작성
     @Override
     @Transactional
-    public ReportResponseDto createReport(User reporter, ReportDto reportDto) {
-        User reported = userRepository.findByUsername(reportDto.getReportedId())
+    public ReportResponseDto createReport(ReportDto reportDto) {
+        User reporter = authService.getCurrentUser().getUser();
+        User reported = userRepository.findByUsername(reportDto.getReportedUsername())
                 .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND));
         if (reported.getNo().equals(reporter.getNo())) {
             throw new IllegalArgumentException("자신에게 신고를 할 수 없습니다.");
@@ -108,7 +109,6 @@ public class ReportServiceImpl implements ReportService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 신고가 없습니다"));
 
         report.updateComment(reportAdminResDto.getComment()); //생성자
-        System.out.println(reportAdminResDto.getStatus() + "klfajdsklfjasdl;kfjadslk;f");
         updateReportStatus(report, reportAdminResDto.getStatus());
 
         reportRepository.save(report);

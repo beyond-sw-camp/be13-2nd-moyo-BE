@@ -2,6 +2,7 @@ package com.beyond.backend.config;
 
 import com.beyond.backend.domain.common.service.RedisSubscriber;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +15,7 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
+@Slf4j
 @Configuration
 @RequiredArgsConstructor
 public class RedisConfig {
@@ -55,12 +57,24 @@ public class RedisConfig {
     public RedisMessageListenerContainer redisContainer(RedisConnectionFactory connectionFactory,
                                                         RedisSubscriber redisSubscriber) {
 
+
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
-        container.addMessageListener((message, pattern) ->
-                        redisSubscriber.onMessage(new String(message.getChannel()), new String(message.getBody())),
-                new PatternTopic("NotificationChannel")
+
+        // 로그 찍기 - 채널 등록 시점
+        log.info("✅ Redis 리스너 등록됨 - 채널: notificationChannel");
+
+        // commentNotification 채널만 구독
+        container.addMessageListener(
+                (message, pattern) -> {
+                    String channel = new String(message.getChannel());
+                    String body = new String(message.getBody());
+                    log.info("📥 [RedisListener] 수신된 채널: {}, 메시지: {}", channel, body);
+                    redisSubscriber.onMessage(channel, body);
+                },
+                new PatternTopic("notificationChannel")
         );
+
         return container;
     }
 }

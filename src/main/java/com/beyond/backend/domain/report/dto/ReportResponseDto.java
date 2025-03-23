@@ -30,8 +30,8 @@ DATE              AUTHOR             NOTE
 public class ReportResponseDto {
     private Long no; // 신고 번호
 
-    private String reporterId;
-    private String reportedId;
+    private String reporterUsername;
+    private String reportedUsername;
 
     private ReportType reportType;
     private ReportStatus reportStatus;
@@ -46,13 +46,13 @@ public class ReportResponseDto {
     private LocalDateTime commentTime;
 
     public static ReportResponseDto reportFrom(Report report) {
-        String reporterId = (report.getReporter() != null) ? report.getReporter().getUsername() : "탈퇴한 회원입니다";
-        String receiverId = (report.getReported() != null) ? report.getReported().getUsername() : "탈퇴한 회원입니다";
+        String reporterUsername = (report.getReporter() != null) ? report.getReporter().getUsername() : "탈퇴한 회원입니다";
+        String receiverUsername = (report.getReported() != null) ? report.getReported().getUsername() : "탈퇴한 회원입니다";
 
         return new ReportResponseDto(
                 report.getNo(),
-                reporterId,
-                receiverId,
+                reporterUsername,
+                receiverUsername,
                 report.getReportType(),
                 report.getReportStatus(),
                 report.getUrl(),
