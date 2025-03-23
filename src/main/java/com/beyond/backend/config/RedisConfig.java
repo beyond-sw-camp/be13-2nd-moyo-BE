@@ -59,7 +59,7 @@ public class RedisConfig {
         container.setConnectionFactory(connectionFactory);
         container.addMessageListener((message, pattern) ->
                         redisSubscriber.onMessage(new String(message.getChannel()), new String(message.getBody())),
-                new PatternTopic("commentNotification")
+                new PatternTopic("NotificationChannel")
         );
         return container;
     }
