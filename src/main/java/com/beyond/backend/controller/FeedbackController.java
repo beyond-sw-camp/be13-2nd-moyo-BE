@@ -19,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,15 +40,17 @@ public class FeedbackController {
 																  @AuthenticationPrincipal CustomUserDetails userDetails,
 																  @Valid @RequestBody FeedbackRequestDto dto) {
 
-		FeedbackResponseDto feedbackResponseDto = feedbackService.createFeedback(projectNo,feedbackType, dto);
+		FeedbackResponseDto feedbackResponseDto = feedbackService.createFeedback(projectNo,feedbackType, dto, userDetails.getUser().getNo());
 		return ResponseEntity.ok(feedbackResponseDto);
 	}
+	// 팀원들만 수정 가능
+	// feedbackNo로
 	@Operation(summary = "피드백 수정 메서드", description = "피드백 수정 메서드입니다.")
+	@PreAuthorize("hasPermission(#feedbackNo, 'FEEDBACK')")
 	@PostMapping("/project/{projectNo}/update/{feedbackNo}")
 	public ResponseEntity<FeedbackResponseDto> updateFeedback(@PathVariable Long projectNo,
 															  @PathVariable Long feedbackNo,
 															  @RequestParam FeedbackType feedbackType,
-															  @AuthenticationPrincipal CustomUserDetails userDetails,
 															  @Valid @RequestBody FeedbackUpdateRequestDto dto) {
 
 		FeedbackResponseDto feedbackResponseDto = feedbackService.updateFeedback(projectNo, feedbackNo, feedbackType, dto);
@@ -57,9 +60,9 @@ public class FeedbackController {
 
 	@Operation(summary = "피드백 삭제 메서드", description = "피드백 삭제 메서드입니다.")
 	@DeleteMapping("/{feedbackNo}")
+	@PreAuthorize("hasRole('ADMIN') or hasPermission(#feedbackNo, 'FEEDBACK_DELETE')")
 	public ResponseEntity<String> deleteFeedback(
-			@PathVariable Long feedbackNo,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
+			@PathVariable Long feedbackNo) {
 
 		feedbackService.deleteFeedback(feedbackNo);
 		return ResponseEntity.status(HttpStatus.OK).body("정상적으로 삭제되었습니다.");

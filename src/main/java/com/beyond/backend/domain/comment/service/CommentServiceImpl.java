@@ -50,6 +50,7 @@ public class CommentServiceImpl implements CommentService {
     private final NotificationService notificationService;
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
+    private final UserRepository userRepository;
     private final AuthService authService;
     private final UserRepository userRepository;
 
