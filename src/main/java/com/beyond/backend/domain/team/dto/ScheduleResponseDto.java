@@ -16,7 +16,7 @@ public class ScheduleResponseDto {
 
     private String title;
 
-    private Long createdBy;
+    private String createdBy;
 
     private LocalDateTime startDate;
 
@@ -26,7 +26,7 @@ public class ScheduleResponseDto {
 
     private ScheduleStatus status;
 
-    public ScheduleResponseDto(Long scheduleNo, String title, LocalDateTime startDate, LocalDateTime endDate, String description, ScheduleStatus status, Long createdBy) {
+    public ScheduleResponseDto(Long scheduleNo, String title, LocalDateTime startDate, LocalDateTime endDate, String description, ScheduleStatus status, String createdBy) {
         this.scheduleNo = scheduleNo;
         this.title = title;
         this.startDate = startDate;

@@ -11,5 +11,5 @@ import org.springframework.data.annotation.CreatedBy;
 public class AuditableEntity extends BaseEntity{
 
     @CreatedBy
-    private Long createdBy;
+    private String createdBy;
 }

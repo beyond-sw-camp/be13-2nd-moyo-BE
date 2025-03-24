@@ -12,7 +12,7 @@ public class JpaAuditingConfiguration {
 
 
 	@Bean
-	public AuditorAware<Long> auditorProvider() {
+	public AuditorAware<String> auditorProvider() {
 		return new AuditorAwareImpl();
 	}
 }
