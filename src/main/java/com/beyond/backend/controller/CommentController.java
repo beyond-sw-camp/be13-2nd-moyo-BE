@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -57,7 +58,7 @@ public class CommentController {
             @Valid @RequestBody CommentDto commentDto,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        CommentResponseDto commentResponseDto = commentService.createComment(commentDto);
+        CommentResponseDto commentResponseDto = commentService.createComment(commentDto, userDetails.getUser().getNo());
         return ResponseEntity.ok(commentResponseDto);
     }
 
@@ -65,10 +66,10 @@ public class CommentController {
     // 댓글 수정
     @Operation(summary = "댓글 수정", description = "댓글 내용 수정")
     @PostMapping("/comments/{commentNo}/update")
+    @PreAuthorize("hasPermission(#commentNo, 'COMMENT')")
     public ResponseEntity<CommentResponseDto> updateComment(
             @PathVariable Long commentNo,
-            @Valid @RequestBody CommentDto commentDto,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
+            @Valid @RequestBody CommentDto commentDto) {
 
         CommentResponseDto updateComment = commentService.updateComment(commentNo, commentDto);
 
@@ -88,9 +89,9 @@ public class CommentController {
      * */
     @Operation(summary = "댓글 삭제", description = "댓글 삭제")
     @DeleteMapping("/comments/{commentNo}")
+    @PreAuthorize("hasRole('ADMIN') or hasPermission(#commentNo, 'COMMENT')")
     public ResponseEntity<String> deleteComment(
-            @PathVariable Long commentNo,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
+            @PathVariable Long commentNo) {
 
         commentService.deleteComment(commentNo);
 
@@ -153,15 +154,14 @@ public class CommentController {
             @PathVariable Long commentNo,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        String result = likeService.toggleCommentLike(commentNo);
+        String result = likeService.toggleCommentLike(commentNo,userDetails.getUser().getNo());
         return ResponseEntity.ok(result);
     }
 
     @Operation(summary = "좋아요 갯수 조회", description = "댓글 좋아요 갯수 조회")
     @GetMapping("/comments/{commentNo}/like-count")
     public ResponseEntity<Long> getLike(
-            @PathVariable Long commentNo,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
+            @PathVariable Long commentNo) {
 
         Long likeCount = likeService.getLikeCount(commentNo);
         return ResponseEntity.ok(likeCount);

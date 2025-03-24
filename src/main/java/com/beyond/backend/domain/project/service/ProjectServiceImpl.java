@@ -2,8 +2,6 @@ package com.beyond.backend.domain.project.service;
 
 import com.beyond.backend.domain.common.exception.*;
 import com.beyond.backend.domain.common.exception.message.ExceptionMessage;
-import com.beyond.backend.domain.post.repository.PostRepository;
-import com.beyond.backend.domain.post.service.PostService;
 import com.beyond.backend.domain.project.dto.ProjectRequestDto;
 import com.beyond.backend.domain.project.dto.ProjectResponseDto;
 import com.beyond.backend.domain.project.dto.ProjectUpdateRequestDto;
@@ -24,9 +22,7 @@ import com.beyond.backend.domain.user.entity.User;
 import com.beyond.backend.domain.user.repository.UserRepository;
 import com.beyond.backend.domain.user.service.AuthService;
 
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -56,9 +52,9 @@ public class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	@Transactional
-	public ProjectResponseDto createProject(ProjectRequestDto projectRequestDto) {
+	public ProjectResponseDto createProject(ProjectRequestDto projectRequestDto, Long userNo) {
 
-		CustomUserDetails userDetails = authService.getCurrentUser();
+		//CustomUserDetails userDetails = authService.getCurrentUser();
 
 		// 1. 팀이 존재하는지 검증
 		Team team = teamRepository.findById(projectRequestDto.getTeamNo()).orElseThrow(
@@ -66,7 +62,7 @@ public class ProjectServiceImpl implements ProjectService {
 
 
 		// 2. 회원이 팀에 속하는지
-		boolean existsByUserNoAndTeamNo = teamUserRepository.existsByUserNoAndTeamNo(userDetails.getNo(), team.getNo());
+		boolean existsByUserNoAndTeamNo = teamUserRepository.existsByUserNoAndTeamNo(userNo, team.getNo());
 
 		if (!existsByUserNoAndTeamNo) {
 			throw new IllegalArgumentException("사용자는 해당 팀에 속하지 않습니다.");
@@ -111,7 +107,7 @@ public class ProjectServiceImpl implements ProjectService {
 	@Transactional
 	public ProjectResponseDto updateProject(Long projectNo, ProjectStatus projectStatus, ProjectUpdateRequestDto projectRequestDto) {
 
-		CustomUserDetails userDetails = authService.getCurrentUser();
+		//CustomUserDetails userDetails = authService.getCurrentUser();
 
 
 		// 1. 프로젝트 있는지 검증
@@ -124,12 +120,12 @@ public class ProjectServiceImpl implements ProjectService {
 
 
 		// 3. user 가 team 에 속하는가
-		boolean existsByUserNoAndTeamNo = teamUserRepository.existsByUserNoAndTeamNo(userDetails.getNo(), team.getNo());
-
-		if (!existsByUserNoAndTeamNo) {
-			throw new UserException(ExceptionMessage.USER_ACCESS_DENIED);
-			// "사용자는 해당 프로젝트를 수정할 권한이 없습니다."
-		}
+//		boolean existsByUserNoAndTeamNo = teamUserRepository.existsByUserNoAndTeamNo(userDetails.getNo(), team.getNo());
+//
+//		if (!existsByUserNoAndTeamNo) {
+//			throw new UserException(ExceptionMessage.USER_ACCESS_DENIED);
+//			// "사용자는 해당 프로젝트를 수정할 권한이 없습니다."
+//		}
 
 		// 4. 기존 ProjectTech 리스트 삭제 (중복 데이터 방지)
 		deleteProjectTechs(project);
@@ -216,11 +212,12 @@ public class ProjectServiceImpl implements ProjectService {
 		return projectSearchList;
 	}
 
+	// 관리자와 팀장만 삭제 가능
 	@Override
 	@Transactional
 	public void deleteProject(Long projectNo) {
 
-		CustomUserDetails userDetails = authService.getCurrentUser();
+		//CustomUserDetails userDetails = authService.getCurrentUser();
 
 		// 2. project 검증
 		Project project = projectRepository.findById(projectNo).orElseThrow(
@@ -235,15 +232,15 @@ public class ProjectServiceImpl implements ProjectService {
 		Team team = project.getTeam();
 
 		// 3. user 가 team 에 속하는가
-		boolean existsByUserNoAndTeamNo = teamUserRepository.existsByUserNoAndTeamNo(userDetails.getNo(), project.getTeam().getNo());
-		if (!existsByUserNoAndTeamNo) {
-			throw new UserException(ExceptionMessage.USER_ACCESS_DENIED);
-		}
-
-		//  4. 리더가 아니면 예외
-		if (!teamUserRepository.isLeader(team.getNo(), userDetails.getNo())) {
-			throw new UserException(ExceptionMessage.USER_ACCESS_DENIED);
-		}
+//		boolean existsByUserNoAndTeamNo = teamUserRepository.existsByUserNoAndTeamNo(userDetails.getNo(), project.getTeam().getNo());
+//		if (!existsByUserNoAndTeamNo) {
+//			throw new UserException(ExceptionMessage.USER_ACCESS_DENIED);
+//		}
+//
+//		//  4. 리더가 아니면 예외
+//		if (!teamUserRepository.isLeader(team.getNo(), userDetails.getNo())) {
+//			throw new UserException(ExceptionMessage.USER_ACCESS_DENIED);
+//		}
 		// 5. 프로젝트 삭제
 		projectRepository.deleteById(projectNo);
 	}
