@@ -39,8 +39,6 @@ public class SecurityConfig {
     // PreAuthorize 쓰기 위해 추가
     private final CustomPermissionEvaluator customPermissionEvaluator;
 
-    private final CustomPermissionEvaluator customPermissionEvaluator;
-
     private final JwtTokenProvider jwtTokenProvider;
 
     // 프로퍼티에서 값을 가져옴
