@@ -11,7 +11,7 @@ import com.beyond.backend.domain.feedback.entity.FeedbackType;
 public interface FeedbackService {
 
 
-	FeedbackResponseDto createFeedback(Long projectNo, FeedbackType feedbackType, FeedbackRequestDto feedbackDto);
+	FeedbackResponseDto createFeedback(Long projectNo, FeedbackType feedbackType, FeedbackRequestDto feedbackDto, Long userNo);
 
 	FeedbackResponseDto updateFeedback(Long projectNo, Long feedbackNo, FeedbackType feedbackType, FeedbackUpdateRequestDto dto);
 

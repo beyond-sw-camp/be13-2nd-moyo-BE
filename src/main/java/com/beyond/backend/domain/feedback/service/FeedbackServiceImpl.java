@@ -1,7 +1,5 @@
 package com.beyond.backend.domain.feedback.service;
 
-import java.util.Optional;
-
 import com.beyond.backend.domain.common.exception.PostException;
 import com.beyond.backend.domain.common.exception.ProjectException;
 import com.beyond.backend.domain.common.exception.UserException;
@@ -15,7 +13,6 @@ import com.beyond.backend.domain.feedback.repository.FeedbackRepository;
 import com.beyond.backend.domain.project.entity.Project;
 import com.beyond.backend.domain.project.repository.ProjectRepository;
 import com.beyond.backend.domain.teamUser.repository.TeamUserRepository;
-import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import com.beyond.backend.domain.user.entity.User;
 import com.beyond.backend.domain.user.repository.UserRepository;
 import com.beyond.backend.domain.user.service.AuthService;
@@ -42,18 +39,22 @@ public class FeedbackServiceImpl implements FeedbackService {
 	// 1. feedback 팀원만 가능?? yes
 
 	@Transactional
-	public FeedbackResponseDto createFeedback(Long projectNo, FeedbackType feedbackType, FeedbackRequestDto feedbackDto) {
+	public FeedbackResponseDto createFeedback(Long projectNo, FeedbackType feedbackType, FeedbackRequestDto feedbackDto, Long userNo) {
 
 		// 로그인한 사용자 정보 가져오기
-		User user = authService.getCurrentUser().getUser();
+		//User user = authService.getCurrentUser().getUser();
 
 		// 1. 프로젝트가 존재하는지
 		Project project = projectRepository.findById(projectNo).orElseThrow(
 			() -> new ProjectException(ExceptionMessage.PROJECT_NOT_FOUND)
 		);
 
+		User user = userRepository.findById(userNo).orElseThrow(
+				() -> new UserException(ExceptionMessage.USER_NOT_FOUND)
+		);
+
 		// 3. user 가 팀에 속하는지
-		if (!teamUserRepository.existsByUserNoAndTeamNo(user.getNo(), project.getTeam().getNo())){
+		if (!teamUserRepository.existsByUserNoAndTeamNo(userNo, project.getTeam().getNo())){
 			throw new IllegalArgumentException("해당 프로젝트에 피드백을 작성할 권한이 없습니다.");
 		}
 
@@ -73,16 +74,16 @@ public class FeedbackServiceImpl implements FeedbackService {
 	@Transactional
 	public FeedbackResponseDto updateFeedback(Long projectNo, Long feedbackNo, FeedbackType feedbackType, FeedbackUpdateRequestDto dto){
 
-		User user = authService.getCurrentUser().getUser();
+		//User user = authService.getCurrentUser().getUser();
 		// 2. 프로젝트 존재 여부
 		Project project = projectRepository.findById(projectNo).orElseThrow(
 			() -> new ProjectException(ExceptionMessage.PROJECT_NOT_FOUND)
 		);
 
 		// 3. user 가 팀에 속하는지
-		if (!teamUserRepository.existsByUserNoAndTeamNo(user.getNo(), project.getTeam().getNo())){
-			throw new IllegalArgumentException("해당 프로젝트에 피드백을 작성할 권한이 없습니다.");
-		}
+//		if (!teamUserRepository.existsByUserNoAndTeamNo(user.getNo(), project.getTeam().getNo())){
+//			throw new IllegalArgumentException("해당 프로젝트에 피드백을 작성할 권한이 없습니다.");
+//		}
 
 		// 4. 피드백 존재 여부
 		Feedback feedback = feedbackRepository.findById(feedbackNo).orElseThrow(
@@ -109,11 +110,11 @@ public class FeedbackServiceImpl implements FeedbackService {
 		// 사용자 검증
 		// authService.validateUser(feedback.getUser());
 
-		Long userNo = authService.getCurrentUser().getUser().getNo();
+//		Long userNo = authService.getCurrentUser().getUser().getNo();
 
-		if (!teamUserRepository.isLeader(feedback.getProject().getTeam().getNo(), userNo)) {
-			throw new IllegalArgumentException("삭제할 권한이 없습니다.");
-		}
+//		if (!teamUserRepository.isLeader(feedback.getProject().getTeam().getNo(), userNo)) {
+//			throw new IllegalArgumentException("삭제할 권한이 없습니다.");
+//		}
 
 
 		feedbackRepository.deleteById(feedbackNo);
