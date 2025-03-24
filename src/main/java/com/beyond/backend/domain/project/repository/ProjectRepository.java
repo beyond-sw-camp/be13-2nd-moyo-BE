@@ -2,6 +2,7 @@ package com.beyond.backend.domain.project.repository;
 
 import com.beyond.backend.domain.project.entity.Project;
 import com.beyond.backend.domain.team.entity.TeamJoinStatus;
+import com.beyond.backend.domain.team.entity.Team;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -18,4 +19,8 @@ public interface ProjectRepository extends JpaRepository<Project, Long>, Project
 	void increaseViewCount(Long projectNo);
 
 
+	List<Project> getTeamByTeam_No(Long teamNo);
+
+
 }
+

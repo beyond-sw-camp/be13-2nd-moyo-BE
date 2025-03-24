@@ -111,6 +111,7 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
     }
 
     // 비활성화된 게시글 작성자 접근 검증 ( 게시글 단 건 조회 시 사용 )
+
     private boolean canAccessPost(Long postNo, Authentication authentication) {
         Post post = postRepository.findById(postNo)
                 .orElseThrow(() -> new PostException(ExceptionMessage.POST_NOT_FOUND, "ID: " + postNo));
@@ -120,7 +121,9 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
             return true;
         }
 
+
         // 비활성화된 경우 작성자 접근 허용
+
         return isOwner(post.getUser(), authentication);
     }
 
@@ -132,7 +135,7 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
     }
 
 
-    // 피드백 작성자 검증
+  // 피드백 작성자 검증
     private boolean isFeedbackOwner(Long feedbackNo, Authentication authentication) {
         Feedback feedback = feedbackRepository.findById(feedbackNo)
                 .orElseThrow(() -> new ProjectException(ExceptionMessage.FEEDBACK_NOT_FOUND, "ID: " + feedbackNo));
@@ -151,10 +154,7 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
                 })
                 .orElse(false);  // 피드백이 존재하지 않으면 false
     }
-
-
-
-
+  
     // 쪽지 작성자 검증
     private boolean isMessageOwner(Long messageNo, Authentication authentication) {
         return messageRepository.findById(messageNo)
@@ -231,7 +231,6 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
         return teamUserRepository.existsByUserNoAndTeamNo(teamNo, currentUser.getUser().getNo());
     }
 
-
     //---------------------------------
 
     // **신고** 작성자 검증
@@ -241,7 +240,9 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
                 .orElse(false);
     }
 
+
     // 유저(작성자) 검증 로직
+
     private boolean isOwner(User user, Authentication authentication) {
         // 유저 또는 인증 객체가 비어있을 경우 false 반환
         if (ObjectUtils.isEmpty(user) || ObjectUtils.isEmpty(authentication)) {
@@ -255,6 +256,7 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
         }
 
         CustomUserDetails currentUser = (CustomUserDetails) principal;
+
 
         // 사용자 본인 여부 확인
         return user.getNo().equals(currentUser.getUser().getNo());

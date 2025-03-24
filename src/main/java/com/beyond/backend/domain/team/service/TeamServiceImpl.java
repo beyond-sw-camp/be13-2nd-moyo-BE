@@ -3,14 +3,17 @@ package com.beyond.backend.domain.team.service;
 import com.beyond.backend.domain.common.dto.RequestNotificationDto;
 import com.beyond.backend.domain.common.entity.NotificationType;
 import com.beyond.backend.domain.common.exception.BaseException;
+import com.beyond.backend.domain.common.exception.ProjectException;
 import com.beyond.backend.domain.common.exception.TeamException;
 import com.beyond.backend.domain.common.exception.UserException;
 import com.beyond.backend.domain.common.exception.message.ExceptionMessage;
 import com.beyond.backend.domain.common.service.NotificationService;
+import com.beyond.backend.domain.project.entity.Project;
 import com.beyond.backend.domain.project.entity.ProjectStatus;
 import com.beyond.backend.domain.project.repository.ProjectRepository;
 import com.beyond.backend.domain.team.dto.TeamDetailDto;
 import com.beyond.backend.domain.team.dto.TeamDto;
+import com.beyond.backend.domain.team.dto.TeamLeaderDto;
 import com.beyond.backend.domain.team.dto.TeamMemberListDto;
 import com.beyond.backend.domain.team.dto.TeamResponseDto;
 import com.beyond.backend.domain.team.entity.Team;
@@ -228,16 +231,38 @@ public class TeamServiceImpl implements TeamService {
 
     /**
      * 팀장 여부 확인
-     * @param teamNo 팀번호
-     * @return Boolean
+     * @return TeamLeaderDto
      */
     @Override
-    public Boolean isTeamLeader(Long teamNo){
+    public TeamLeaderDto isTeamLeader(Long teamNo, Long projectNo){
         User user = findUserByUsername();
+
+        System.out.println("팀번호"+teamNo);
+        System.out.println("플젝번호"+projectNo);
+        // 둘다 빈값이면 오류
+        if (teamNo == null && projectNo == null ){
+            throw new BaseException(ExceptionMessage.INVALID_REQUEST);
+        }
+
+        // 먼저 팀장인지 확인
+        // 팀번호가 없으면 플젝에서 추출
+        if (teamNo == null ) {
+            Project project = projectRepository.findById(projectNo).orElseThrow(() -> new ProjectException(ExceptionMessage.PROJECT_NOT_FOUND));
+            teamNo = project.getTeam().getNo();
+        } else {
+            List<Project> project = projectRepository.getTeamByTeam_No(teamNo);
+            System.out.println(project);
+        }
+
         Boolean isLeader = teamUserRepository.isLeader(teamNo, user.getNo());
 
         if (isLeader != null && isLeader) {
-            return Boolean.TRUE;
+
+            return TeamLeaderDto.builder()
+                    .Leader(true)
+                    .TeamNo(teamNo)
+                    .ProjectNo(projectNo)
+                    .build();
         } else {
             throw new UserException(ExceptionMessage.USER_ACCESS_DENIED);
         }

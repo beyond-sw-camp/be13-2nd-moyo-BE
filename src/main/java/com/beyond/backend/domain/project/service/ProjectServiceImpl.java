@@ -60,7 +60,6 @@ public class ProjectServiceImpl implements ProjectService {
 		Team team = teamRepository.findById(projectRequestDto.getTeamNo()).orElseThrow(
 			() -> new TeamException(ExceptionMessage.TEAM_NOT_FOUND));
 
-
 		// 2. 회원이 팀에 속하는지
 		boolean existsByUserNoAndTeamNo = teamUserRepository.existsByUserNoAndTeamNo(userNo, team.getNo());
 
@@ -205,10 +204,10 @@ public class ProjectServiceImpl implements ProjectService {
 	// 검색 결과 페이징 조회
 	@Override
 	@Transactional(readOnly = true)
-	public Page<ProjectResponseDto> searchProject(String keyword, ProjectSearchOption searchOption, Pageable pageable) {
+	public Page<ProjectResponseDto> searchProject(String keyword, ProjectSearchOption projectSearchOption, ProjectSortOption projectSortOption, Pageable pageable) {
 
 		// 검증할 게 없음. 바로 검색결과 리턴해주기
-		Page<ProjectResponseDto> projectSearchList = projectRepository.searchProject(keyword, searchOption, pageable);
+		Page<ProjectResponseDto> projectSearchList = projectRepository.searchProject(keyword,  projectSearchOption, projectSortOption, pageable);
 		return projectSearchList;
 	}
 

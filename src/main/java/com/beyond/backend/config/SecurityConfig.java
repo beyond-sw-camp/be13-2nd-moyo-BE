@@ -1,7 +1,6 @@
 package com.beyond.backend.config;
 
 import com.beyond.backend.domain.common.CustomPermissionEvaluator;
-import com.beyond.backend.domain.common.CustomPermissionEvaluator;
 import com.beyond.backend.domain.user.entity.UserRoleType;
 import com.beyond.backend.domain.user.handler.AuthenticationEntryPointImpl;
 import com.beyond.backend.domain.user.jwt.JwtAuthenticationFilter;
@@ -10,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
@@ -39,6 +37,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SecurityConfig {
     // PreAuthorize 쓰기 위해 추가
+    private final CustomPermissionEvaluator customPermissionEvaluator;
+
     private final CustomPermissionEvaluator customPermissionEvaluator;
 
     private final JwtTokenProvider jwtTokenProvider;
@@ -121,7 +121,7 @@ public class SecurityConfig {
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
-        // 누락된 부분 ❗
+
         source.registerCorsConfiguration("/**", configuration);
 
         return source;
