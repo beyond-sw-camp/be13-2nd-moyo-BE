@@ -436,7 +436,6 @@ public class TeamServiceImpl implements TeamService {
 
         TeamUser teamUser = teamUserRepository.findById(teamUserNo)
                 .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID : " + teamUserNo));
-                //.orElseThrow(() -> new IllegalArgumentException("신청한 유저가 없습니다!"));
 
         teamUser.setStatus(TeamJoinStatus.Rejected);
         teamUserRepository.save(teamUser);
