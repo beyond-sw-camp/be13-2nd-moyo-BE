@@ -35,14 +35,14 @@ public class BookMarkServiceImpl implements BookMarkService {
     // 게시글 북마크
     @Override
     @Transactional
-    public String checkBookMark(Long postNo) {
+    public String checkBookMark(Long postNo, Long userNo) {
 
-        CustomUserDetails userDetails = authService.getCurrentUser();
+        //CustomUserDetails userDetails = authService.getCurrentUser();
 
         // 로그인한 유저인지 검증
-        authService.validateUser(userDetails.getUser());
+        //authService.validateUser(userDetails.getUser());
 
-        BookMarkNo bookMarkNo = new BookMarkNo(postNo, userDetails.getUser().getNo());
+        BookMarkNo bookMarkNo = new BookMarkNo(postNo,userNo);
 
         // 게시글 비활성화 상태이면 북마크 추가 불가능 ( 비활성 상태인 게시글은 전체 게시글에서 보이지 않음 )
         // 내 게시글이어도 북마크 추가 못함
@@ -73,11 +73,11 @@ public class BookMarkServiceImpl implements BookMarkService {
         Post post = postRepository.findById(postNo)
                 .orElseThrow(() -> new PostException(ExceptionMessage.POST_NOT_FOUND, "ID: " + postNo));
 
-        User user = userRepository.findById(userDetails.getUser().getNo())
-                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userDetails.getUser().getNo()));
+        User user = userRepository.findById(userNo)
+                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userNo));
 
         // 로그인한 유저만 북마크 가능
-        if (!user.getNo().equals(userDetails.getUser().getNo())) {
+        if (!user.getNo().equals(userNo)) {
             throw new UserException(ExceptionMessage.USER_ACCESS_DENIED);
         }
 
@@ -100,15 +100,15 @@ public class BookMarkServiceImpl implements BookMarkService {
 
     // 북마크된 게시글 전체 조회
     @Override
-    public Page<UserPostResponseDto> getBookmarkedPosts(BoardType boardType, Pageable pageable) {
+    public Page<UserPostResponseDto> getBookmarkedPosts(BoardType boardType, Pageable pageable, Long userNo) {
 
-        CustomUserDetails userDetails = authService.getCurrentUser();
+        //CustomUserDetails userDetails = authService.getCurrentUser();
         // 유저 존재 확인
-        User user = userRepository.findById(userDetails.getUser().getNo())
-                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userDetails.getUser().getNo()));
+        User user = userRepository.findById(userNo)
+                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userNo));
 
         // 북마크한 게시글 조회
-        Page<UserPostResponseDto> bookmarkedPosts = bookMarkRepository.getBookmarkedPosts(userDetails.getUser().getNo(), boardType, pageable);
+        Page<UserPostResponseDto> bookmarkedPosts = bookMarkRepository.getBookmarkedPosts(userNo, boardType, pageable);
 
         if (bookmarkedPosts.isEmpty()) {
             throw new PostException(ExceptionMessage.POST_NOT_FOUND);

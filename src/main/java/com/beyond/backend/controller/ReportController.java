@@ -4,7 +4,6 @@ import com.beyond.backend.domain.report.dto.ReportAdminResDto;
 import com.beyond.backend.domain.report.dto.ReportDto;
 import com.beyond.backend.domain.report.dto.ReportResponseDto;
 import com.beyond.backend.domain.report.service.ReportService;
-import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import com.beyond.backend.domain.user.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -17,7 +16,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -46,10 +44,7 @@ public class ReportController {
     @GetMapping("/reports/{reportNo}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ReportResponseDto> getReport(@PathVariable Long reportNo) {
-        authService.validateAdminAuthorization();
-
         ReportResponseDto reportResponseDto = reportService.getReport(reportNo);
-
         return ResponseEntity.status(HttpStatus.OK).body(reportResponseDto);
     }
 
@@ -59,7 +54,6 @@ public class ReportController {
     public ResponseEntity<Page<ReportResponseDto>> getUserReports(
             @PathVariable String userId,
             @PageableDefault(size = 10, page = 0, sort = "no") Pageable pageable) {
-        authService.validateAdminAuthorization();
         Page<ReportResponseDto> reportResponseDto = reportService.getUserReportedList(userId, pageable);
 
         return ResponseEntity.ok(reportResponseDto);
@@ -71,10 +65,7 @@ public class ReportController {
     public ResponseEntity<Page<ReportResponseDto>> getAllReports(
             @PageableDefault(size = 10, page = 0, sort = "no") Pageable pageable) {
 
-        authService.validateAdminAuthorization();
-
         Page<ReportResponseDto> reportResponseDto = reportService.getAllReports(pageable);
-
         return ResponseEntity.ok(reportResponseDto);
     }
 
@@ -82,10 +73,8 @@ public class ReportController {
     @PostMapping("/reports")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ReportResponseDto> createReport(
-            @Parameter(name = "reporterNo", description = "신고하는사람 no") @AuthenticationPrincipal CustomUserDetails reporterNo,
             @Valid @RequestBody ReportDto reportDto) {
-        ReportResponseDto reportResponseDto = reportService.createReport(reporterNo.getUser(), reportDto);
-
+        ReportResponseDto reportResponseDto = reportService.createReport(reportDto);
         return ResponseEntity.ok(reportResponseDto);
     }
 
@@ -97,20 +86,9 @@ public class ReportController {
     @PutMapping("/reports/{reportNo}")
     public ResponseEntity<ReportResponseDto> updateReport(
             @PathVariable Long reportNo,
-            @Parameter(description = "no는 신고번호입니다") @RequestBody ReportAdminResDto reportAdminResDto) {
-        authService.validateAdminAuthorization();
+            @Parameter(description = "no는 신고번호입니다")
+            @RequestBody ReportAdminResDto reportAdminResDto) {
         ReportResponseDto reportResponseDto = reportService.processReport(reportNo, reportAdminResDto);
         return ResponseEntity.ok(reportResponseDto);
-
     }
 }
-
-
-
-
-
-
-
-
-
-

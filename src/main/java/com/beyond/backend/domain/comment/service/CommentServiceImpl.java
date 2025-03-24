@@ -5,13 +5,13 @@ import com.beyond.backend.domain.comment.dto.CommentResponseDto;
 import com.beyond.backend.domain.comment.entity.Comment;
 import com.beyond.backend.domain.comment.entity.CommentSortOption;
 import com.beyond.backend.domain.comment.repository.CommentRepository;
+import com.beyond.backend.domain.comment.repository.LikeRepository;
 import com.beyond.backend.domain.common.dto.RequestNotificationDto;
 import com.beyond.backend.domain.common.entity.NotificationType;
 import com.beyond.backend.domain.common.exception.PostException;
 import com.beyond.backend.domain.common.exception.UserException;
 import com.beyond.backend.domain.common.exception.message.ExceptionMessage;
 import com.beyond.backend.domain.common.service.NotificationService;
-import com.beyond.backend.domain.comment.repository.LikeRepository;
 import com.beyond.backend.domain.post.dto.PostResponseDto;
 import com.beyond.backend.domain.post.entity.BoardType;
 import com.beyond.backend.domain.post.entity.Post;
@@ -47,26 +47,25 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
 
-
-    private final LikeRepository likeRepository;
     private final NotificationService notificationService;
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
-    private final UserRepository userRepository;
     private final AuthService authService;
 
     
     // 댓글 생성
     @Override
     @Transactional
-    public CommentResponseDto createComment(CommentDto commentDto) {
+    public CommentResponseDto createComment(CommentDto commentDto, Long userNo) {
 
-        CustomUserDetails userDetails = authService.getCurrentUser();
+        //CustomUserDetails userDetails = authService.getCurrentUser();
         // 게시글이 존재하는지 확인
         Post post = postRepository.findById(commentDto.getPostNo())
                 .orElseThrow(() -> new PostException(ExceptionMessage.POST_NOT_FOUND, "ID: " + commentDto.getPostNo())
                 );
 
+        User user = userRepository.findById(userNo)
+                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userNo));
         // 비활성화된 게시글은 애초에 상세 조회가 안됨 == 댓글도 못 씀
 
         // postNo을 넘겨받아서 게시글의 타입이 Free인지 확인
@@ -85,10 +84,10 @@ public class CommentServiceImpl implements CommentService {
         // 댓글 작성자가 로그인한 유저인지 확인
 
 
-        authService.validateUser(userDetails.getUser());
+//        authService.validateUser(userDetails.getUser());
 
         // 댓글 저장
-        Comment comment = new Comment(commentDto.getContent(), post, userDetails.getUser());
+        Comment comment = new Comment(commentDto.getContent(), post, user);
         commentRepository.save(comment);
 
         // 댓글 개수 증가 (오류 처리 추가)
@@ -102,7 +101,7 @@ public class CommentServiceImpl implements CommentService {
         // 트랜잭션 종료 후가 아니라, 바로 알림 전송
         notificationService.sendNotification(
                 new RequestNotificationDto(
-                        userDetails.getUsername(),
+                        user.getUsername(),
                         receiver.getUsername(),
                         NotificationType.COMMENT,
                         "새 댓글 등록 완료")
@@ -129,7 +128,9 @@ public class CommentServiceImpl implements CommentService {
 
         // 댓글 작성자가 로그인한 회원과 같은지 비교 userNo로
         // 댓글을 수정하려는 유저가 댓글을 작성한 유저인지 확인
-        authService.validateUser(comment.getUser());
+//        authService.validateUser(comment.getUser());
+
+        // validateUSer지워야되는거 아냐  ??
 
         // 댓글 수정 (update 메서드 사용)
         comment.update(commentDto.getContent());
@@ -149,10 +150,10 @@ public class CommentServiceImpl implements CommentService {
 
         // 댓글 작성자이거나 관리자인 경우만 삭제 가능
 
-        if ( !authService.isUser(comment.getUser()) && !authService.isAdmin()) {
-
-            throw new UserException(ExceptionMessage.USER_ACCESS_DENIED);
-        }
+//        if ( !authService.isUser(comment.getUser())) {
+//
+//            throw new UserException(ExceptionMessage.USER_ACCESS_DENIED);
+//        }
 
 
         Post post = comment.getPost();
@@ -218,10 +219,6 @@ public class CommentServiceImpl implements CommentService {
         }
         return commentPost;
     }
-
-
-
-
 
 
 

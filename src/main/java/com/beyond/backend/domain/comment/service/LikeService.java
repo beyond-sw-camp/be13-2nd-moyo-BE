@@ -6,7 +6,7 @@ import org.springframework.data.domain.Pageable;
 
 public interface LikeService {
 
-    String toggleCommentLike(Long commentNo);
+    String toggleCommentLike(Long commentNo, Long userNo);
 
     Long getLikeCount(Long commentNo);
 

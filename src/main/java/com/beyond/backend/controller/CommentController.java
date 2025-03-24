@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -54,9 +55,10 @@ public class CommentController {
     @Operation(summary = "댓글 생성", description = "댓글 등록")
     @PostMapping("/posts/{postNo}/comments")
     public ResponseEntity<CommentResponseDto> createComment(
-            @Valid @RequestBody CommentDto commentDto) {
+            @Valid @RequestBody CommentDto commentDto,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        CommentResponseDto commentResponseDto = commentService.createComment(commentDto);
+        CommentResponseDto commentResponseDto = commentService.createComment(commentDto, userDetails.getUser().getNo());
         return ResponseEntity.ok(commentResponseDto);
     }
 
@@ -64,6 +66,7 @@ public class CommentController {
     // 댓글 수정
     @Operation(summary = "댓글 수정", description = "댓글 내용 수정")
     @PostMapping("/comments/{commentNo}/update")
+    @PreAuthorize("hasPermission(#commentNo, 'COMMENT')")
     public ResponseEntity<CommentResponseDto> updateComment(
             @PathVariable Long commentNo,
             @Valid @RequestBody CommentDto commentDto) {
@@ -86,6 +89,7 @@ public class CommentController {
      * */
     @Operation(summary = "댓글 삭제", description = "댓글 삭제")
     @DeleteMapping("/comments/{commentNo}")
+    @PreAuthorize("hasRole('ADMIN') or hasPermission(#commentNo, 'COMMENT')")
     public ResponseEntity<String> deleteComment(
             @PathVariable Long commentNo) {
 
@@ -103,8 +107,8 @@ public class CommentController {
     @GetMapping("/posts/{postNo}/comments")
     public ResponseEntity<Page<CommentResponseDto>> getPostComments(
             @PathVariable Long postNo,
-            @RequestParam(required = false) CommentSortOption commentSortOption,
-            @PageableDefault(size = 10, page= 0) Pageable pageable){
+            @PageableDefault(size = 10, page= 0) Pageable pageable,
+            @RequestParam(required = false) CommentSortOption commentSortOption){
 
         Page<CommentResponseDto> result = commentService.getPostComments(postNo, commentSortOption, pageable);
 
@@ -116,7 +120,7 @@ public class CommentController {
 
     // 내가 쓴 댓글 전체 조회
     @Operation(summary = "유저의 댓글 전체 조회", description = "개인 페이지에서 자신의 댓글을 전체 조회 가능")
-    @GetMapping("/users/{userNo}/comments")
+    @GetMapping("/user-page/comments")
     public ResponseEntity<Page<CommentResponseDto>> getUserComments(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PageableDefault(size = 10, page= 0) Pageable pageable){
@@ -146,14 +150,19 @@ public class CommentController {
     // 댓글 좋아요 / 좋아요 취소
     @Operation(summary = "댓글 좋아요 추가 및 취소", description = "댓글 좋아요 상태 (추가, 취소)")
     @PostMapping("/comments/{commentNo}/like")
-    public ResponseEntity<String> likeComment(@PathVariable Long commentNo) {
-        String result = likeService.toggleCommentLike(commentNo);
+    public ResponseEntity<String> likeComment(
+            @PathVariable Long commentNo,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        String result = likeService.toggleCommentLike(commentNo,userDetails.getUser().getNo());
         return ResponseEntity.ok(result);
     }
 
-    @Operation(summary = "좋아요 갯수 조회", description = "댓그 좋아요 갯수 조회")
+    @Operation(summary = "좋아요 갯수 조회", description = "댓글 좋아요 갯수 조회")
     @GetMapping("/comments/{commentNo}/like-count")
-    public ResponseEntity<Long> getLike(@PathVariable Long commentNo) {
+    public ResponseEntity<Long> getLike(
+            @PathVariable Long commentNo) {
+
         Long likeCount = likeService.getLikeCount(commentNo);
         return ResponseEntity.ok(likeCount);
     }

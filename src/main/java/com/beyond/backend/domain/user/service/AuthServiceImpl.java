@@ -1,22 +1,17 @@
 package com.beyond.backend.domain.user.service;
 
-import com.beyond.backend.domain.common.dto.EmailAuthRequestDto;
 import com.beyond.backend.domain.common.exception.UserException;
 import com.beyond.backend.domain.common.exception.message.ExceptionMessage;
-import com.beyond.backend.domain.common.service.EmailService;
 import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import com.beyond.backend.domain.user.dto.JoinRequestDto;
 import com.beyond.backend.domain.user.dto.LoginRequestDto;
 import com.beyond.backend.domain.user.dto.TokenResponseDto;
 import com.beyond.backend.domain.user.entity.User;
-import com.beyond.backend.domain.user.entity.UserRoleType;
 import com.beyond.backend.domain.user.jwt.JwtTokenProvider;
 import com.beyond.backend.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -132,82 +127,49 @@ public class AuthServiceImpl implements AuthService {
         }
         return null;
     }
-
-    @Override
-    @Transactional(readOnly = true)
-    public void validateUser(User user) {
-
-        CustomUserDetails currentUser = getCurrentUser();
-
-        //트랜잭션이 닫히거나, 프록시가 적절히 초기화되지 않으면 getUsername()을 호출해도 프록시에서 원하는 값을 가져오지 못할 수 있음
-        User savedUser = userRepository.findById(user.getNo())
-                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND));
-
-        if (!currentUser.getUser().getNo().equals(savedUser.getNo())) {
-            throw new IllegalArgumentException(
-                    "User is not authorized to perform this action. (username: " + currentUser.getUsername() + ")"
-            );
-        }
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public boolean isUser(User user) {
-        CustomUserDetails currentUser = getCurrentUser();
-
-        // 유저가 null인 경우 false 반환
-        if (user == null || currentUser == null) {
-            return false;
-        }
-        User savedUser = userRepository.findById(user.getNo())
-                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND));
-
-        if (savedUser == null) {
-            return false;
-        }
-
-        return currentUser.getUser().getNo().equals(savedUser.getNo());
-    }
-
-
-    @Override
-    @Transactional(readOnly = true)
-    public void validateAdminAuthorization() {
-        CustomUserDetails currentUser = getCurrentUser();
-        boolean result = currentUser.getAuthorities().stream().map(GrantedAuthority::getAuthority)
-                .anyMatch(role -> role.equals("ROLE_ADMIN"));
-
-        if (!result) {
-            throw new AccessDeniedException("권한이 없습니다.");
-        }
-    }
-    
-    @Override
-    @Transactional(readOnly = true)
-    public boolean isAdmin() {
-        CustomUserDetails currentUser = getCurrentUser();
-        return currentUser.getAuthorities().stream().map(GrantedAuthority::getAuthority)
-                .anyMatch(role -> role.equals("ROLE_ADMIN"));
-    }
+//
+//    @Override
+//    @Transactional(readOnly = true)
+//    public void validateUser(User user) {
+//
+//        CustomUserDetails currentUser = getCurrentUser();
+//
+//        //트랜잭션이 닫히거나, 프록시가 적절히 초기화되지 않으면 getUsername()을 호출해도 프록시에서 원하는 값을 가져오지 못할 수 있음
+//        User savedUser = userRepository.findById(user.getNo())
+//                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND));
+//
+//        if (!currentUser.getUser().getNo().equals(savedUser.getNo())) {
+//            throw new IllegalArgumentException(
+//                    "User is not authorized to perform this action. (username: " + currentUser.getUsername() + ")"
+//            );
+//        }
+//    }
+//
+//    @Override
+//    @Transactional(readOnly = true)
+//    public boolean isUser(User user) {
+//        CustomUserDetails currentUser = getCurrentUser();
+//
+//        // 유저가 null인 경우 false 반환
+//        if (user == null || currentUser == null) {
+//            return false;
+//        }
+//        User savedUser = userRepository.findById(user.getNo())
+//                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND));
+//
+//        if (savedUser == null) {
+//            return false;
+//        }
+//
+//        return currentUser.getUser().getNo().equals(savedUser.getNo());
+//    }
 
     // 비밀번호 검증 로직 (login 메서드 내에서 호출)
     public void validPwd(String password, User user) {
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            // passwordErrorCount 를 별도의 트랜잭션에서 업데이트
             authTransactionService.increasePasswordErrorCount(user);
             log.info("Username : {}, PasswordErrorCount :0 {}", user.getUsername(), user.getPasswordErrorCount());
             throw new IllegalArgumentException("패스워드가 일치하지 않습니다");
-        }
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public void validateAdminByUsername(String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND));
-        if (!user.getRole().equals(UserRoleType.ADMIN)) {
-            throw new AccessDeniedException(
-                    "User is not authorized to perform this action. (username: " + username + ")");
         }
     }
 }

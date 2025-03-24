@@ -2,11 +2,14 @@ package com.beyond.backend.controller;
 
 import java.util.List;
 
+import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import com.beyond.backend.domain.user.service.AuthService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,7 +31,6 @@ import lombok.RequiredArgsConstructor;
 public class TechController {
 
 	private final TechService techService;
-	private final AuthService authService;
 
 	/**
 	 * 기술 생성 API
@@ -36,9 +38,9 @@ public class TechController {
 	 * @return 생성된 기술 정보
 	 */
 	@PostMapping("/create")
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	public ResponseEntity<TechResponseDto> createTech(HttpServletRequest request,
-													 @Valid @RequestBody TechRequestDto dto) {
-		authService.validateAdminAuthorization();
+													  @Valid @RequestBody TechRequestDto dto) {
 		TechResponseDto response = techService.createTech(request, dto);
 
 		return ResponseEntity.ok(response);
@@ -46,7 +48,6 @@ public class TechController {
 
 	@GetMapping("/get")
 	public ResponseEntity<List<TechResponseDto>> getAllTechs() {
-		authService.validateAdminAuthorization();
 		List<TechResponseDto> techList = techService.findAllTech();
 		return ResponseEntity.ok(techList);
 	}
@@ -58,8 +59,9 @@ public class TechController {
 	 * @return 성공 메시지
 	 */
 	@DeleteMapping("/{id}")
-	public ResponseEntity<String> deleteTech(HttpServletRequest request, @PathVariable Long id) {
-		authService.validateAdminAuthorization();
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	public ResponseEntity<String> deleteTech(HttpServletRequest request,
+											 @PathVariable Long id) {
 		techService.deleteTech(request, id);
 		return ResponseEntity.ok("기술이 성공적으로 삭제되었습니다.");
 	}

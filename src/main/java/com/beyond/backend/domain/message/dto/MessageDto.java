@@ -24,8 +24,8 @@ DATE              AUTHOR             NOTE
 @NoArgsConstructor
 @AllArgsConstructor
 public class MessageDto {
-    private String receiverId;
+    private String receiverUsername;
 
-    @NotBlank(message="메시지 내용은 필수 입력 항목입니다.")
+    @NotBlank(message = "메시지 내용은 필수 입력 항목입니다.")
     private String content;
 }
