@@ -30,8 +30,8 @@ public class MessageResponseDto {
     private Long no;
     private String content;
 
-    private String senderId; //username
-    private String receiverId;
+    private String senderUsername; //username
+    private String receiverUsername;
 
     private boolean deletedBySender;
     private boolean deletedByReceiver;
@@ -44,14 +44,14 @@ public class MessageResponseDto {
     }
 
     public static MessageResponseDto returnMessageDto(Message message) {
-        String senderId = (message.getSender() != null) ? message.getSender().getUsername() : "탈퇴한 회원입니다";
-        String receiverId = (message.getReceiver() != null) ? message.getReceiver().getUsername() : "탈퇴한 회원입니다";
-        
+        String senderUsername = (message.getSender() != null) ? message.getSender().getUsername() : "탈퇴한 회원입니다";
+        String receiverUsername = (message.getReceiver() != null) ? message.getReceiver().getUsername() : "탈퇴한 회원입니다";
+
         return new MessageResponseDto(
                 message.getNo(),
                 message.getContent(),
-                senderId,
-                receiverId,
+                senderUsername,
+                receiverUsername,
                 message.isDeletedBySender(),
                 message.isDeletedByReceiver(),
                 message.isRead(),

@@ -27,7 +27,7 @@ DATE              AUTHOR             NOTE
 @AllArgsConstructor
 public class ReportDto {
 
-    private String reportedId;
+    private String reportedUsername;
 
     @NotNull(message = "신고 타입을 지정해 주십시오.")
     private ReportType reportType;

@@ -29,8 +29,9 @@ public class RedisSubscriber {
 
     /**
      * Redis Pub/Sub 메시지를 처리하는 메서드
-     * @param channel    수신된 Redis 채널 이름
-     * @param message    수신된 메시지 (Redis Key 값)
+     *
+     * @param channel 수신된 Redis 채널 이름
+     * @param message 수신된 메시지 (Redis Key 값)
      */
     public void onMessage(String channel, String message) {
         log.info("Received message from channel: [{}] with key: {}", channel, message);
@@ -39,12 +40,13 @@ public class RedisSubscriber {
 
     /**
      * Redis에서 알림을 조회하고 클라이언트에게 전달하는 메서드
+     *
      * @param key Redis에 저장된 알림 키
      */
     private void processMessage(String key) {
         executorService.submit(() -> {
             try {
-                String notificationJson = (String) redisTemplate.opsForValue().get(key);
+                String notificationJson = (String) redisTemplate.opsForValue().get(key.replace("\"", ""));
                 if (notificationJson == null) {
                     log.warn("No notification found in Redis for key: {}", key);
                     return;
@@ -66,7 +68,8 @@ public class RedisSubscriber {
 
     /**
      * SSE를 통해 알림을 클라이언트로 전송하는 메서드
-     * @param notification   전송할 알림 객체
+     *
+     * @param notification 전송할 알림 객체
      */
     private void sendNotificationToEmitters(String username, Notification notification) {
         List<SseEmitter> userEmitters = emitters.get(username);
@@ -92,6 +95,7 @@ public class RedisSubscriber {
 
     /**
      * 클라이언트가 SSE 알림을 구독할 때 Emitter 등록
+     *
      * @param emitter SSE Emitter 객체
      */
     public void addEmitter(String username, SseEmitter emitter) {
@@ -101,6 +105,7 @@ public class RedisSubscriber {
 
     /**
      * SSE 연결이 종료될 때 Emitter 제거
+     *
      * @param emitter 제거할 SSE Emitter 객체
      */
     public void removeEmitter(String username, SseEmitter emitter) {

@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,16 +38,16 @@ public class TechController {
 	 * @return 생성된 기술 정보
 	 */
 	@PostMapping("/create")
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	public ResponseEntity<TechResponseDto> createTech(HttpServletRequest request,
-													  @Valid @RequestBody TechRequestDto dto,
-													  @AuthenticationPrincipal CustomUserDetails userDetails) {
+													  @Valid @RequestBody TechRequestDto dto) {
 		TechResponseDto response = techService.createTech(request, dto);
 
 		return ResponseEntity.ok(response);
 	}
 
 	@GetMapping("/get")
-	public ResponseEntity<List<TechResponseDto>> getAllTechs(@AuthenticationPrincipal CustomUserDetails userDetails) {
+	public ResponseEntity<List<TechResponseDto>> getAllTechs() {
 		List<TechResponseDto> techList = techService.findAllTech();
 		return ResponseEntity.ok(techList);
 	}
@@ -58,9 +59,9 @@ public class TechController {
 	 * @return 성공 메시지
 	 */
 	@DeleteMapping("/{id}")
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	public ResponseEntity<String> deleteTech(HttpServletRequest request,
-											 @PathVariable Long id,
-											 @AuthenticationPrincipal CustomUserDetails userDetails) {
+											 @PathVariable Long id) {
 		techService.deleteTech(request, id);
 		return ResponseEntity.ok("기술이 성공적으로 삭제되었습니다.");
 	}
