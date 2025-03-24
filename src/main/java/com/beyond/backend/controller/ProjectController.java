@@ -75,8 +75,9 @@ public class ProjectController {
     @Operation(summary = "프로젝트 단건 조회")
     @GetMapping("/{projectNo}")
     public ResponseEntity<ProjectResponseDto> getProjectByNo(@PathVariable("projectNo") Long projectNo,
+                                                             @AuthenticationPrincipal CustomUserDetails userDetails,
                                                              HttpServletRequest request){
-        projectService.viewProject(projectNo, request);
+        projectService.viewProject(userDetails.getNo(), projectNo, request);
         ProjectResponseDto projectByProjectNo = projectService.getProjectByProjectNo(projectNo);
 
         return ResponseEntity.ok(projectByProjectNo);

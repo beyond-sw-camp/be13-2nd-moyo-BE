@@ -46,6 +46,6 @@ public interface ProjectService {
     // 유저가 참여한 프로젝트 중, 검색 조회
     Page<ProjectResponseDto> searchProject(String keyword, ProjectSearchOption searchOption, ProjectSortOption sortOption, Pageable pageable);
 
-    void viewProject(Long projectNo, HttpServletRequest request);
+    void viewProject(Long userNo, Long projectNo, HttpServletRequest request);
 
 }

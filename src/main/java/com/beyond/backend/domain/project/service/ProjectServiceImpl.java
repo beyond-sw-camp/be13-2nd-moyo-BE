@@ -28,6 +28,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -117,14 +119,6 @@ public class ProjectServiceImpl implements ProjectService {
 
 		Team team = project.getTeam();
 
-
-		// 3. user 가 team 에 속하는가
-//		boolean existsByUserNoAndTeamNo = teamUserRepository.existsByUserNoAndTeamNo(userDetails.getNo(), team.getNo());
-//
-//		if (!existsByUserNoAndTeamNo) {
-//			throw new UserException(ExceptionMessage.USER_ACCESS_DENIED);
-//			// "사용자는 해당 프로젝트를 수정할 권한이 없습니다."
-//		}
 
 		// 4. 기존 ProjectTech 리스트 삭제 (중복 데이터 방지)
 		deleteProjectTechs(project);
@@ -250,9 +244,9 @@ public class ProjectServiceImpl implements ProjectService {
 	 */
 	@Override
 	@Transactional
-	public void viewProject(Long projectNo, HttpServletRequest request) {
+	public void viewProject(Long userNo, Long projectNo, HttpServletRequest request) {
 		// Redis에 저장할 고유 키 생성 (게시글ID + 사용자ID 조합)
-		String key = "project:view:" + projectNo + ":"  + getUserId(request);
+		String key = "project:view:" + projectNo + ":" + getUserId(userNo, request);
 
 		// Redis에 키가 존재하지 않을 경우에만 값 설정 (24시간 유효)
 		Boolean isNotViewed = redisTemplate.opsForValue().setIfAbsent(key, "Viewed", Duration.ofHours(24));
@@ -269,22 +263,19 @@ public class ProjectServiceImpl implements ProjectService {
 	 * - 로그인 사용자: 회원 번호 기반 해시값 생성
 	 * - 비로그인 사용자: IP주소와 User-Agent 기반 해시값 생성
 	 */
-	private String getUserId(HttpServletRequest request) {
+	private String getUserId(Long userNo, HttpServletRequest request) {
+
 		String userIdentifier = "";
-		CustomUserDetails userDetails = authService.getCurrentUser();
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
 
 		// 로그인 된 사용자인 경우(회원)
-		if (userDetails != null) {
-			User user = userDetails.getUser();
-			if (user != null) {
-				//사용자 번호를 해시값으로 변환하여 식별자 생성
-				userIdentifier = "user:" + user.getNo().hashCode();
-				log.info("{} 님이 조회함", user.getUsername());
-			}
+		if (authentication != null) {
+			userIdentifier = "user:" + userNo.hashCode();
+			log.info("{}번 회원님이 조회함", userNo);
 		} else { //비로그인 사용자인 경우(게스트)
 			//IP 주소 가져오기
 			String ipAddress = request.getRemoteAddr();
-
 
 			if (ipAddress != null && !ipAddress.isEmpty()) {
 				// X-Forwarded-For 헤더가 있는 경우, 첫 번째 IP(클라이언트 실제 IP) 사용
@@ -307,15 +298,8 @@ public class ProjectServiceImpl implements ProjectService {
 			log.info("ip : {} User-Agent : {}인 게스트가 조회함", ipAddress, userAgent);
 
 		}
+
 		return userIdentifier;
 	}
-
-
-	/**
-	 * 프로젝트를 끝내는 로직ㅠ
-	 * 1. 프로젝트 상태 변경
-	 * 2. 유저 평가 설문 날아감
-	 * 3. 각각의 유저에게 설문 반영됨
-	 */
 }
 

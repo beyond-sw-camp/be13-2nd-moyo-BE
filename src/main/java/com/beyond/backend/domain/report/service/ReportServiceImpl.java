@@ -78,8 +78,9 @@ public class ReportServiceImpl implements ReportService {
     // 신고 작성
     @Override
     @Transactional
-    public ReportResponseDto createReport(ReportDto reportDto) {
-        User reporter = authService.getCurrentUser().getUser();
+    public ReportResponseDto createReport(Long userNo, ReportDto reportDto) {
+        User reporter = userRepository.findById(userNo).orElseThrow(() -> new IllegalArgumentException("User Not Found"));
+
         User reported = userRepository.findByUsername(reportDto.getReportedUsername())
                 .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND));
         if (reported.getNo().equals(reporter.getNo())) {

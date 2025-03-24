@@ -47,8 +47,7 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     @Transactional //안읽음때메 붙임
-    public MessageResponseDto getMessage(Long messageNo) {
-        Long userNo = authService.getCurrentUser().getNo();
+    public MessageResponseDto getMessage(Long userNo, Long messageNo) {
         Message message = messageRepository.findById(messageNo)
                 .filter(m -> m.hasPermission(userNo))
                 .orElseThrow(() -> new RuntimeException("확인할 수 없는 쪽지입니다."));
@@ -69,8 +68,10 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     @Transactional
-    public MessageResponseDto messageWrite(MessageDto messageDto) {
-        User sender = authService.getCurrentUser().getUser();
+    public MessageResponseDto messageWrite(Long userNo, MessageDto messageDto) {
+
+        User sender = userRepository.findById(userNo).orElseThrow(() -> new IllegalArgumentException("User Not Found: " + userNo));
+
         User receiver = userRepository.findByUsername(messageDto.getReceiverUsername())
                 .filter(user -> user.getUserStatus() != UserStatus.INACTIVE)
                 .orElseThrow(() -> new IllegalArgumentException("받는 회원이 존재하지 않거나 비활성화된 회원입니다."));
@@ -97,14 +98,15 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public Page<MessageResponseDto> getMessageList(String type, Pageable pageable) {
+    public Page<MessageResponseDto> getMessageList(Long userNo, String type, Pageable pageable) {
+
         Page<Message> messages;
-        CustomUserDetails userDetails = authService.getCurrentUser();
+
 
         if ("sent".equalsIgnoreCase(type)) {
-            messages = messageRepository.findAllBySender_NoAndDeletedBySenderFalse(userDetails.getNo(), pageable);
+            messages = messageRepository.findAllBySender_NoAndDeletedBySenderFalse(userNo, pageable);
         } else {
-            messages = messageRepository.findAllByReceiver_NoAndDeletedByReceiverFalse(userDetails.getNo(), pageable);
+            messages = messageRepository.findAllByReceiver_NoAndDeletedByReceiverFalse(userNo, pageable);
         }
 
         return messages.map(MessageResponseDto::returnMessageDto);
@@ -112,8 +114,8 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     @Transactional
-    public Object deleteMessage(Long messageNo) {
-        Long userNo = authService.getCurrentUser().getNo();
+    public Object deleteMessage(Long userNo, Long messageNo) {
+
         Message message = messageRepository.findById(messageNo).orElseThrow(()
                 -> new BaseException(ExceptionMessage.MESSAGE_NOT_FOUND));
 
@@ -148,8 +150,9 @@ public class MessageServiceImpl implements MessageService {
 
     }
 
-    public long getUnreadMessageCount() { // 안읽음 개수
-        return messageRepository.countByReceiverNoAndIsReadFalse(authService.getCurrentUser().getNo());
+    @Override
+    public long getUnreadMessageCount(Long userNo) { // 안읽음 개수
+        return messageRepository.countByReceiverNoAndIsReadFalse(userNo);
     }
 
 

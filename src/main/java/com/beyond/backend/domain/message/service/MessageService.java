@@ -22,15 +22,15 @@ DATE              AUTHOR             NOTE
 
 public interface MessageService {
 
-    MessageResponseDto getMessage(Long messageNo); // 단일 조회
+    MessageResponseDto getMessage(Long userNo, Long messageNo); // 단일 조회
 
-    MessageResponseDto messageWrite(MessageDto messageDto);
+    MessageResponseDto messageWrite(Long userNo, MessageDto messageDto);
 
-    Page<MessageResponseDto> getMessageList(String type, Pageable pageable);
+    Page<MessageResponseDto> getMessageList(Long userNo, String type, Pageable pageable);
 
-    Object deleteMessage(Long messageNo);
+    Object deleteMessage(Long userNo, Long messageNo);
 
-    long getUnreadMessageCount();
+    long getUnreadMessageCount(Long userNo);
 
     // 3,4,5,6 얘네 나중에 시큐리티? 되면 User 객체로..
 }
