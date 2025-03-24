@@ -17,6 +17,8 @@ public class ScheduleResponseDto {
 
     private String title;
 
+    private String createdBy;
+
     private LocalDateTime startDate;
 
     private LocalDateTime endDate;
@@ -33,5 +35,6 @@ public class ScheduleResponseDto {
         this.endDate = schedule.getEndDate();
         this.description = schedule.getDescription();
         this.status = schedule.getStatus();
+        this.createdBy = schedule.getCreatedBy();
     }
 }
