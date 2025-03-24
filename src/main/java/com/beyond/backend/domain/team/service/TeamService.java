@@ -2,6 +2,7 @@ package com.beyond.backend.domain.team.service;
 
 import com.beyond.backend.domain.team.dto.TeamDetailDto;
 import com.beyond.backend.domain.team.dto.TeamDto;
+import com.beyond.backend.domain.team.dto.TeamLeaderDto;
 import com.beyond.backend.domain.team.dto.TeamMemberListDto;
 import com.beyond.backend.domain.team.dto.TeamResponseDto;
 import com.beyond.backend.domain.project.entity.ProjectStatus;
@@ -50,7 +51,7 @@ public interface TeamService {
     // 팀 상세조회
     TeamDetailDto getTeamDetailDto(Long teamNo) throws Exception;
 
-    Boolean isTeamLeader(Long teamNo);
+    TeamLeaderDto isTeamLeader(Long teamNo, Long projectNo);
 
     // 팀원 목록 조회
     List<TeamMemberListDto> getTeamMembers(Long teamNo) throws Exception;
