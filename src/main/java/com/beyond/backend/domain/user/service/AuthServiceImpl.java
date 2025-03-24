@@ -127,42 +127,6 @@ public class AuthServiceImpl implements AuthService {
         }
         return null;
     }
-//
-//    @Override
-//    @Transactional(readOnly = true)
-//    public void validateUser(User user) {
-//
-//        CustomUserDetails currentUser = getCurrentUser();
-//
-//        //트랜잭션이 닫히거나, 프록시가 적절히 초기화되지 않으면 getUsername()을 호출해도 프록시에서 원하는 값을 가져오지 못할 수 있음
-//        User savedUser = userRepository.findById(user.getNo())
-//                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND));
-//
-//        if (!currentUser.getUser().getNo().equals(savedUser.getNo())) {
-//            throw new IllegalArgumentException(
-//                    "User is not authorized to perform this action. (username: " + currentUser.getUsername() + ")"
-//            );
-//        }
-//    }
-//
-//    @Override
-//    @Transactional(readOnly = true)
-//    public boolean isUser(User user) {
-//        CustomUserDetails currentUser = getCurrentUser();
-//
-//        // 유저가 null인 경우 false 반환
-//        if (user == null || currentUser == null) {
-//            return false;
-//        }
-//        User savedUser = userRepository.findById(user.getNo())
-//                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND));
-//
-//        if (savedUser == null) {
-//            return false;
-//        }
-//
-//        return currentUser.getUser().getNo().equals(savedUser.getNo());
-//    }
 
     // 비밀번호 검증 로직 (login 메서드 내에서 호출)
     public void validPwd(String password, User user) {

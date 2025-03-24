@@ -63,9 +63,10 @@ public class PostController {
     @PreAuthorize("hasRole('ADMIN') or hasPermission(#postNo, 'POST_ACCESS')")
     public ResponseEntity<UserPostResponseDto> getPostDetail(
             @PathVariable Long postNo,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             HttpServletRequest request) {
 
-        postService.viewPost(postNo, request);
+        postService.viewPost(userDetails.getNo(), postNo, request);
         UserPostResponseDto userPostResponseDto = postService.getPostById(postNo);
         return ResponseEntity.ok(userPostResponseDto);
     }

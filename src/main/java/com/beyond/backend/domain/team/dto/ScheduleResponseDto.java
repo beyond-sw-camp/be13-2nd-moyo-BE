@@ -17,7 +17,7 @@ public class ScheduleResponseDto {
 
     private String title;
 
-    private String createdBy;
+    private Long createdBy;
 
     private LocalDateTime startDate;
 

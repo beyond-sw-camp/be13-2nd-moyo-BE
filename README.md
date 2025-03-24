@@ -115,20 +115,73 @@
 <details>
 <summary> [REDIS + SSE] </summary>
 
-> 사용 이유
+> 단방향 통신으로 단순한 알림 기능에 최적화
+
+- 플로우(그림)
 
 - 팀 가입 신청(쪽지)
   + gif
 
 - 신고 해결
   + gif
+
+
 </details>
 
 ### 4. 조회수 및 좋아요
 <details>
 <summary> [REDIS] </summary>
 
-> 발전과정?
+````java
+    @Modifying(clearAutomatically = true)
+    @Transactional
+    @Query("UPDATE Post p SET p.viewCount = p.viewCount + 1 WHERE p.no = :postNo")
+    void increaseViewCount(@Param("postNo") Long postNo);
+````
+
+````java
+private String getUserId(HttpServletRequest request) {
+    String userIdentifier = "";
+    CustomUserDetails userDetails = authService.getCurrentUser();
+
+    // 로그인 된 사용자인 경우(회원)
+    if (userDetails != null) {
+        User user = userDetails.getUser();
+        if (user != null) {
+            //사용자 번호를 해시값으로 변환하여 식별자 생성
+            userIdentifier = "user:" + user.getNo().hashCode();
+            log.info("{} 님이 조회함", user.getUsername());
+        }
+    } else { //비로그인 사용자인 경우(게스트)
+        //IP 주소 가져오기
+        String ipAddress = request.getRemoteAddr();
+
+
+        if (ipAddress != null && !ipAddress.isEmpty()) {
+            // X-Forwarded-For 헤더가 있는 경우, 첫 번째 IP(클라이언트 실제 IP) 사용
+            ipAddress = ipAddress.split(",")[0].trim();
+        } else {
+            // 헤더가 없는 경우 직접 연결된 IP 사용
+            ipAddress = request.getRemoteAddr();
+        }
+
+        //User-Agent 정보 가져오기
+        String userAgent = request.getHeader("User-Agent");
+
+        //User-Agent 정보가 없는 경우 IP만으로 식별자 생성
+        if (userAgent == null || userAgent.isEmpty()) {
+            userIdentifier = "guest:" + ipAddress.hashCode();
+        } else {//IP와 User-Agent를 조합하여 더 고유한 식별자 생성
+            String identifier = ipAddress + userAgent;
+            userIdentifier = "guest:" + (long) identifier.hashCode();
+            }
+            log.info("ip : {} User-Agent : {}인 게스트가 조회함", ipAddress, userAgent);
+
+        }
+
+        return userIdentifier;
+    }
+````
 
 </details>
 

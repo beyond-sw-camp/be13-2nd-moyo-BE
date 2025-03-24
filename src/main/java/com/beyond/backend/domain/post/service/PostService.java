@@ -54,6 +54,6 @@ public interface PostService {
     void validatePostAuthority(BoardType boardType);
 
     // 조회수
-    void viewPost(Long postNo, HttpServletRequest request);
+    void viewPost(Long userNo, Long postNo, HttpServletRequest request);
 
 }
