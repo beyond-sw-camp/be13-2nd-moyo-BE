@@ -31,7 +31,6 @@ import org.springframework.web.bind.annotation.*;
 public class FeedbackController {
 
 	private final FeedbackService feedbackService;
-	private final AuthService authService;
 
 	@Operation(summary = "피드백 생성 메서드", description = "피드백 생성 메서드입니다.")
 	@PostMapping("/project/{projectNo}/createFeedback")
@@ -73,6 +72,7 @@ public class FeedbackController {
 	public ResponseEntity<Page<FeedbackResponseDto>> getFeedbackByUserNo(@AuthenticationPrincipal CustomUserDetails userDetails,
 																		 @PageableDefault(size = 10, page = 0) Pageable pageable){
 
+		System.out.println("userNo = " + userDetails.getUser().getNo());
 		Page<FeedbackResponseDto> feedbackByUserNo = feedbackService.getFeedbackByUserNo(userDetails.getUser().getNo(), pageable);
 		return ResponseEntity.ok(feedbackByUserNo);
 	}

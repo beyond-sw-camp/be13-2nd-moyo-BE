@@ -54,7 +54,6 @@ public class CommentServiceImpl implements CommentService {
     private final AuthService authService;
     private final UserRepository userRepository;
 
-
     // 댓글 생성
     @Override
     @Transactional

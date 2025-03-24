@@ -107,6 +107,8 @@ public class FeedbackServiceImpl implements FeedbackService {
 				() ->  new PostException(ExceptionMessage.FEEDBACK_NOT_FOUND)
 		);
 
+
+
 		// 사용자 검증
 		// authService.validateUser(feedback.getUser());
 

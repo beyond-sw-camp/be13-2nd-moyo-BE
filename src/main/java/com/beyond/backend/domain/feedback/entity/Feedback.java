@@ -14,11 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "feedbacks",
-        uniqueConstraints = {
-                @UniqueConstraint(name = "unique_retrospective",
-                                  columnNames = {"user_no", "project_no", "feedbackType"})
-        })
+@Table(name = "feedbacks")
 public class Feedback extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
