@@ -4,6 +4,7 @@ import com.beyond.backend.domain.project.dto.ProjectRequestDto;
 import com.beyond.backend.domain.project.dto.ProjectResponseDto;
 import com.beyond.backend.domain.project.dto.ProjectUpdateRequestDto;
 import com.beyond.backend.domain.project.entity.ProjectSearchOption;
+import com.beyond.backend.domain.project.entity.ProjectSortOption;
 import com.beyond.backend.domain.project.entity.ProjectStatus;
 import com.beyond.backend.domain.project.service.ProjectService;
 import com.beyond.backend.domain.teamUser.repository.TeamUserRepository;
@@ -92,10 +93,11 @@ public class ProjectController {
     @GetMapping()
     public ResponseEntity<Page<ProjectResponseDto>> searchPosts(
             @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) ProjectSearchOption option, // 검색 옵션 (선택)
+            @RequestParam(required = false) ProjectSearchOption searchOption, // 검색 옵션 (선택)
+            @RequestParam(required = false) ProjectSortOption sortOption,
             @PageableDefault(size = 10, page = 0) Pageable pageable) {
 
-        Page<ProjectResponseDto> searchResults = projectService.searchProject(keyword, option, pageable);
+        Page<ProjectResponseDto> searchResults = projectService.searchProject(keyword, searchOption, sortOption, pageable);
 
         return ResponseEntity.ok(searchResults);
     }

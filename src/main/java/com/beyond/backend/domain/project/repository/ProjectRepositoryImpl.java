@@ -103,7 +103,7 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
 
 	///  프로젝트 검색 조회
 	@Override
-	public Page<ProjectResponseDto> searchProject(String keyword, ProjectSearchOption option, Pageable pageable) {
+	public Page<ProjectResponseDto> searchProject(String keyword, ProjectSearchOption option, ProjectSortOption projectSortOption, Pageable pageable) {
 
 		List<ProjectResponseDto> searchList = queryFactory
 			.select(Projections.constructor( ProjectResponseDto.class,
@@ -117,6 +117,7 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom {
 			.from(project)
 			.leftJoin(project.team, team)
 			.where(searchOption(keyword, option))
+			.orderBy(getOrderSpecifier(projectSortOption))
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
 			.fetch();
