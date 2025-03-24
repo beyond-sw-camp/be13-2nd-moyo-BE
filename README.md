@@ -62,17 +62,22 @@
 <summary> [Spring Security + JWT] </summary>
 
 - 로그인
+  + gif
 
-- user ban
+- User ban
+  + gif
+  + 회원 신고
+  + 관리자 처리
 
-- user lock
-    + 패스워드 5회 오류시 계정 lock
-    + 스프링 트랜잭션 전파(`REQUIRES_NEW` 사용)
+- User lock
+  + gif
+  + 패스워드 5회 오류시 계정 lock
+  + 스프링 트랜잭션 전파(`REQUIRES_NEW` 사용)
 
 
 - `Security`로 애노테이션 기반 권한 관리
-    + 로그인된 회원
-    + 소유자 확인
+    + 로그인된 회원(`@AuthenticationPrincipal`)
+    + 소유자 확인 및 권한(`@PreAuthorize`)
 
 </details>
 
