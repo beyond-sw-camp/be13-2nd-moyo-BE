@@ -2,7 +2,6 @@ package com.beyond.backend.domain.team.dto;
 
 import com.beyond.backend.domain.team.entity.Schedule;
 import com.beyond.backend.domain.team.entity.ScheduleStatus;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,6 +25,16 @@ public class ScheduleResponseDto {
     private String description;
 
     private ScheduleStatus status;
+
+    public ScheduleResponseDto(Long scheduleNo, String title, LocalDateTime startDate, LocalDateTime endDate, String description, ScheduleStatus status, String createdBy) {
+        this.scheduleNo = scheduleNo;
+        this.title = title;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.description = description;
+        this.status = status;
+        this.createdBy = createdBy;
+    }
 
     @Builder
     public ScheduleResponseDto(Schedule schedule) {
