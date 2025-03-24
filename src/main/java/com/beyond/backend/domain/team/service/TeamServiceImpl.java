@@ -32,6 +32,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -76,7 +78,7 @@ public class TeamServiceImpl implements TeamService {
 
     // 자주 쓰는 유저 찾는 메소드 분리
     private User findUserByUsername() {
-        CustomUserDetails userDetails = authService.getCurrentUser();
+        CustomUserDetails userDetails  = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getDetails();
         return userRepository.findByUsername(userDetails.getUsername())
                 .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND));
     }

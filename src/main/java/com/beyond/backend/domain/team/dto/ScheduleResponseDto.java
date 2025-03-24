@@ -26,7 +26,7 @@ public class ScheduleResponseDto {
 
     private ScheduleStatus status;
 
-    public ScheduleResponseDto(Long scheduleNo, String title, LocalDateTime startDate, LocalDateTime endDate, String description, ScheduleStatus status, String createdBy) {
+    public ScheduleResponseDto(Long scheduleNo, String title, LocalDateTime startDate, LocalDateTime endDate, String description, ScheduleStatus status, Long createdBy) {
         this.scheduleNo = scheduleNo;
         this.title = title;
         this.startDate = startDate;

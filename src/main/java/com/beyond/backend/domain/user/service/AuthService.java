@@ -6,8 +6,6 @@ import com.beyond.backend.domain.user.entity.User;
 
 public interface AuthService {
 
-    CustomUserDetails getCurrentUser();
-
     void join(JoinRequestDto dto);
 
     TokenResponseDto login(LoginRequestDto dto);

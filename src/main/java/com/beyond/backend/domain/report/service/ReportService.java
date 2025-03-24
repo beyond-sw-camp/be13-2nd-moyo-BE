@@ -23,7 +23,7 @@ DATE              AUTHOR             NOTE
 
 public interface ReportService {
 
-    ReportResponseDto createReport(ReportDto reportDto);
+    ReportResponseDto createReport(Long userNo, ReportDto reportDto);
 
     ReportResponseDto processReport(Long reportNo, ReportAdminResDto reportAdminResDto);
 

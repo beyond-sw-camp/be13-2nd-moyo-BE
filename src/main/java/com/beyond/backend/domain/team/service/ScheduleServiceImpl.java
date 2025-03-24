@@ -38,7 +38,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     @Override
     @Transactional
-    public ScheduleResponseDto createSchedule(ScheduleRequestDto dto) {
+    public ScheduleResponseDto createSchedule(Long userNo, ScheduleRequestDto dto) {
 
         // 유효성 검증: 1. 유저 2. 팀 유저에 속하는지
         validateScheduleRequest(dto);
@@ -47,14 +47,14 @@ public class ScheduleServiceImpl implements ScheduleService {
                 .orElseThrow(() -> new IllegalArgumentException("해당하는 팀이 없습니다."));
 
         Schedule schedule = Schedule.builder()
-                                    .title(dto.getTitle())
-                                    .description(dto.getDescription())
-                                    .startDate(dto.getStartDate())
-                                    .endDate(dto.getEndDate())
-                                    .team(team)
-                                    .status(ScheduleStatus.PENDING)
-                                    .isAlertSent(false)
-                                    .build();
+                .title(dto.getTitle())
+                .description(dto.getDescription())
+                .startDate(dto.getStartDate())
+                .endDate(dto.getEndDate())
+                .team(team)
+                .status(ScheduleStatus.PENDING)
+                .isAlertSent(false)
+                .build();
 
         team.addSchedule(schedule);
         scheduleRepository.save(schedule);
@@ -63,9 +63,8 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     @Override
     @Transactional
-    public ScheduleResponseDto updateSchedule(Long scheduleId, ScheduleRequestDto dto) {
+    public ScheduleResponseDto updateSchedule(Long userNo, Long scheduleId, ScheduleRequestDto dto) {
 
-        Long userNo = authService.getCurrentUser().getNo();
         // 유효성 검증
         validateScheduleRequest(dto);
 
@@ -89,8 +88,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         return new ScheduleResponseDto(schedule);
     }
 
-    public ScheduleResponseDto getSchedule(Long scheduleNo){
-        Long userNo = authService.getCurrentUser().getNo();
+    public ScheduleResponseDto getSchedule(Long userNo, Long scheduleNo){
         Schedule schedule = scheduleRepository.findById(scheduleNo)
                 .orElseThrow(() -> new EntityNotFoundException("Schedule not found with id: " + scheduleNo));
         validateUserAccessToTeam(userNo, schedule.getTeam());
@@ -99,11 +97,11 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public Page<ScheduleResponseDto> getSchedulesByTeam(Long teamNo, Pageable pageable, ScheduleSortOption scheduleSortOption) {
-        Long userNo = authService.getCurrentUser().getNo();
+    public Page<ScheduleResponseDto> getSchedulesByTeam(Long userNo, Long teamNo, Pageable pageable, ScheduleSortOption scheduleSortOption) {
+
         // 팀 존재 여부
         Team team = teamRepository.findById(teamNo).orElseThrow(
-            () -> new IllegalArgumentException("해당하는 팀이 없습니다.")
+                () -> new IllegalArgumentException("해당하는 팀이 없습니다.")
         );
 
         // 회원이 팀에 속하는지
@@ -116,8 +114,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     @Override
     @Transactional
-    public void deleteSchedule(Long scheduleId) {
-        Long userNo = authService.getCurrentUser().getNo();
+    public void deleteSchedule(Long userNo, Long scheduleId) {
 
         Schedule schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new EntityNotFoundException("Schedule not found with id: " + scheduleId));
