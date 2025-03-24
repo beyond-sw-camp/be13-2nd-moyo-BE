@@ -18,4 +18,5 @@ public interface ProjectRepositoryCustom {
 
 	// user가 참여한 모든 프로젝트 조회
 	Page<ProjectResponseDto> findProjectsByUserId(Long userNo, Pageable pageable);
+
 }

@@ -31,11 +31,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Configuration
-//@EnableWebSecurity
+@EnableWebSecurity
 //@EnableMethodSecurity
 @EnableMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
+    // PreAuthorize 쓰기 위해 추가
+    private final CustomPermissionEvaluator customPermissionEvaluator;
 
     private final CustomPermissionEvaluator customPermissionEvaluator;
 
@@ -121,6 +123,7 @@ public class SecurityConfig {
 
 
         source.registerCorsConfiguration("/**", configuration);
+
         return source;
     }
 
