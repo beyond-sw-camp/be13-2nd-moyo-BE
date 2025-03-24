@@ -461,4 +461,10 @@ public class TeamServiceImpl implements TeamService {
         teamUser.setLeader(false);
         teamUserRepository.save(teamUser);
     }
+
+    @Override
+    public String findLeaderUsernameByTeamNo(Long teamNo) {
+        return teamUserRepository.findLeaderUsernameByTeamNo(teamNo)
+                .orElseThrow(() -> new TeamException(ExceptionMessage.TEAM_NOT_FOUND, "팀 리더를 찾을 수 없습니다."));
+    }
 }
