@@ -17,12 +17,15 @@ import lombok.Data;
  * DATE              AUTHOR             NOTE
  * -----------------------------------------------------------
  * 2025-03-23        hongjm           최초 생성
+ * 2025-03-24        hongjm           isMember 추가
  */
 
 @Data
 @Builder
 public class TeamLeaderDto {
-    private Boolean Leader;
+    private Boolean isLeader;
+
+    private Boolean isMember;
 
     private Long TeamNo;
 
