@@ -2,7 +2,9 @@ package com.beyond.backend.domain.common;
 
 import com.beyond.backend.domain.comment.repository.CommentRepository;
 import com.beyond.backend.domain.common.exception.PostException;
+import com.beyond.backend.domain.common.exception.ProjectException;
 import com.beyond.backend.domain.common.exception.message.ExceptionMessage;
+import com.beyond.backend.domain.feedback.entity.Feedback;
 import com.beyond.backend.domain.feedback.repository.FeedbackRepository;
 import com.beyond.backend.domain.message.repository.MessageRepository;
 import com.beyond.backend.domain.post.entity.Post;
@@ -75,6 +77,8 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
                 return isCommentOwner(resourceId, authentication);
             case "FEEDBACK":
                 return isFeedbackOwner(resourceId, authentication);
+            case "FEEDBACK_DELETE":
+                return canDeleteFeedback(resourceId, authentication);
             case "MESSAGE":
                 return isMessageOwner(resourceId, authentication);
             case "TEAM":
@@ -106,7 +110,7 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
                 .orElseThrow(() -> new PostException(ExceptionMessage.POST_NOT_FOUND, "ID: " + postNo));
     }
 
-    // 비활성화된 게시글 작성자, 관리자 접근 검증
+    // 비활성화된 게시글 작성자 접근 검증 ( 게시글 단 건 조회 시 사용 )
     private boolean canAccessPost(Long postNo, Authentication authentication) {
         Post post = postRepository.findById(postNo)
                 .orElseThrow(() -> new PostException(ExceptionMessage.POST_NOT_FOUND, "ID: " + postNo));
@@ -116,7 +120,7 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
             return true;
         }
 
-        // 비활성화된 경우 작성자 또는 관리자만 접근 허용
+        // 비활성화된 경우 작성자 접근 허용
         return isOwner(post.getUser(), authentication);
     }
 
@@ -130,10 +134,26 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
 
     // 피드백 작성자 검증
     private boolean isFeedbackOwner(Long feedbackNo, Authentication authentication) {
-        return feedbackRepository.findById(feedbackNo)
-                .map(feedback -> isOwner(feedback.getUser(), authentication))
-                .orElse(false);
+        Feedback feedback = feedbackRepository.findById(feedbackNo)
+                .orElseThrow(() -> new ProjectException(ExceptionMessage.FEEDBACK_NOT_FOUND, "ID: " + feedbackNo));
+
+        // isOwner() 메서드를 통해 작성자 검증
+        return isOwner(feedback.getUser(), authentication);
     }
+
+
+    // 피드백 삭제 권한 검증 (팀장만 가능)
+    private boolean canDeleteFeedback(Long feedbackNo, Authentication authentication) {
+        return feedbackRepository.findById(feedbackNo)
+                .map(feedback -> {
+                    Long projectNo = feedback.getProject().getNo(); // 피드백 → 프로젝트 ID 추출
+                    return isProjectTeamLeader(projectNo, authentication); // 해당 프로젝트의 팀장 검증
+                })
+                .orElse(false);  // 피드백이 존재하지 않으면 false
+    }
+
+
+
 
     // 쪽지 작성자 검증
     private boolean isMessageOwner(Long messageNo, Authentication authentication) {
@@ -210,6 +230,8 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
         // 팀 번호를 통해 해당 유저가 팀원인지 확인
         return teamUserRepository.existsByUserNoAndTeamNo(teamNo, currentUser.getUser().getNo());
     }
+
+
     //---------------------------------
 
     // **신고** 작성자 검증
@@ -219,7 +241,7 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
                 .orElse(false);
     }
 
-    // 공통 소유자 검증 로직
+    // 유저(작성자) 검증 로직
     private boolean isOwner(User user, Authentication authentication) {
         // 유저 또는 인증 객체가 비어있을 경우 false 반환
         if (ObjectUtils.isEmpty(user) || ObjectUtils.isEmpty(authentication)) {
@@ -233,13 +255,6 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
         }
 
         CustomUserDetails currentUser = (CustomUserDetails) principal;
-
-        // 관리자인 경우 항상 true 반환
-        if (authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .anyMatch(auth -> auth.equals("ROLE_ADMIN"))) {
-            return true;
-        }
 
         // 사용자 본인 여부 확인
         return user.getNo().equals(currentUser.getUser().getNo());
