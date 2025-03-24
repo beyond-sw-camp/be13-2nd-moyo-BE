@@ -251,21 +251,18 @@ public class TeamServiceImpl implements TeamService {
             teamNo = project.getTeam().getNo();
         } else {
             List<Project> project = projectRepository.getTeamByTeam_No(teamNo);
+
             System.out.println(project);
         }
-
+        // 팀장 여부 확인
         Boolean isLeader = teamUserRepository.isLeader(teamNo, user.getNo());
-
-        if (isLeader != null && isLeader) {
-
-            return TeamLeaderDto.builder()
-                    .Leader(true)
-                    .TeamNo(teamNo)
-                    .ProjectNo(projectNo)
-                    .build();
-        } else {
-            throw new UserException(ExceptionMessage.USER_ACCESS_DENIED);
-        }
+        Boolean isMember = teamUserRepository.findByUserNoEquals(teamNo, user.getNo());
+        return TeamLeaderDto.builder()
+                .isLeader(isLeader)
+                .isMember(isMember)
+                .TeamNo(teamNo)
+                .ProjectNo(projectNo)
+                .build();
     }
 
     /**

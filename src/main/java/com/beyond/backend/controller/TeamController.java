@@ -179,8 +179,6 @@ public class TeamController {
     public ResponseEntity<TeamLeaderDto> isTeamLeader(
             @RequestParam(required = false) Long teamNo,
             @RequestParam(required = false) Long projectNo) throws Exception {
-        System.out.println(teamNo);
-        System.out.println(projectNo);
         TeamLeaderDto TeamLeaderDto = teamService.isTeamLeader(teamNo,projectNo);
         return ResponseEntity.status(HttpStatus.OK).body(TeamLeaderDto);
     }
