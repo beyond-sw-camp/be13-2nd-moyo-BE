@@ -71,13 +71,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      */
     private boolean isUsableAccessToken(String token) {
         log.info("JWT Authentication Filter - isUsableAccessToken");
-        boolean isValid = jwtTokenProvider.validateToken(token)
-                && !jwtTokenProvider.isBlacklisted(token)
-                && jwtTokenProvider.hasRole(token);
-
-        if (!isValid) {
-            log.warn("⚠️ 사용 불가능한 토큰 감지: {}", token);
+        if (!jwtTokenProvider.validateToken(token)) {
+            log.warn("⚠️ 사용 불가능한 토큰 감지: {} 이유는 {}", token, "validateToken");
+            return false;
         }
-        return isValid;
+        if (jwtTokenProvider.isBlacklisted(token)) {
+            log.warn("⚠️ 사용 불가능한 토큰 감지: {} 이유는 {}", token, "isBlacklisted");
+            return false;
+        }
+        if (!jwtTokenProvider.hasRole(token)) {
+            log.warn("⚠️ 사용 불가능한 토큰 감지: {} 이유는 {}", token, "hasRole");
+            return false;
+        }
+
+        return true;
     }
 }
