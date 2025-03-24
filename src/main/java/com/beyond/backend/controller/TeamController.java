@@ -283,4 +283,19 @@ public class TeamController {
 
         return ResponseEntity.status(HttpStatus.OK).body("정상적으로 취소되었습니다.");
     }
+
+
+    /**
+     * 팀 번호로 팀 리더 username 조회
+     *
+     * @param teamNo 팀 번호
+     * @return username
+     */
+    @GetMapping("/{teamNo}/leader-username")
+    @Operation(summary = "팀 리더 username 조회", description = "팀 번호로 팀 리더의 username을 반환합니다.")
+    @Parameter(name = "teamNo", description = "팀 번호")
+    public ResponseEntity<String> getLeaderUsername(@PathVariable Long teamNo) {
+        String username = teamService.findLeaderUsernameByTeamNo(teamNo);
+        return ResponseEntity.status(HttpStatus.OK).body(username);
+    }
 }

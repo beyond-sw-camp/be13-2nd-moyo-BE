@@ -73,4 +73,7 @@ public interface TeamService {
 
     // [팀장] 리더 권한 넘겨주기
     void teamLeaderSwap(Long teamNo, Long userNo) throws Exception;
+
+    String findLeaderUsernameByTeamNo(Long teamNo);
+
 }
