@@ -62,17 +62,41 @@
 <summary> [Spring Security + JWT] </summary>
 
 - 로그인
+  + gif
 
-- user ban
+- User ban
+  + gif
+  + 회원 신고
+  + 관리자 처리
 
-- user lock
-    + 패스워드 5회 오류시 계정 lock
-    + 스프링 트랜잭션 전파(`REQUIRES_NEW` 사용)
+- User lock
+  + gif
+  + 패스워드 5회 오류시 계정 lock
+  + 스프링 트랜잭션 전파(`REQUIRES_NEW` 사용)
+  ````java
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void increasePasswordErrorCount(User user) {
+        user.updatePasswordErrorCount(user.getPasswordErrorCount() + 1);
+        userRepository.save(user);
+    }
+  ````
 
 
 - `Security`로 애노테이션 기반 권한 관리
-    + 로그인된 회원
-    + 소유자 확인
+  ````java
+    @GetMapping("/posts/{postNo}/with-comments")
+    @PreAuthorize("hasPermission(#postNo, 'POST_ACCESS')")
+    public ResponseEntity<UserPostResponseDto> getPostDetail(
+            @PathVariable Long postNo,
+            HttpServletRequest request) {
+  
+        //내용 생략
+  
+        postService.viewPost(postNo, request);
+    }
+  ````
+  + 로그인된 회원(`@AuthenticationPrincipal`)
+  + 소유자 확인 및 권한(`@PreAuthorize`)
 
 </details>
 
@@ -80,7 +104,10 @@
 <details>
 <summary> [SMTP] </summary>
 
+> Simple Mail Transfer Protocol, 이메일 전송에 사용되는 네트워크 프로토콜
+
 - 회원 가입
+  + gif
 
 </details>
 
@@ -88,16 +115,21 @@
 <details>
 <summary> [REDIS + SSE] </summary>
 
-<!-- summary 아래 한칸 공백 두어야함 -->
-내용~~~~
+> 사용 이유
+
+- 팀 가입 신청(쪽지)
+  + gif
+
+- 신고 해결
+  + gif
 </details>
 
 ### 4. 조회수 및 좋아요
 <details>
 <summary> [REDIS] </summary>
 
-<!-- summary 아래 한칸 공백 두어야함 -->
-내용~~~~
+> 발전과정?
+
 </details>
 
 ### 4. 일정관리

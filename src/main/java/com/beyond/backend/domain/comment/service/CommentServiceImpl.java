@@ -51,7 +51,6 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
-    private final AuthService authService;
 
     
     // 댓글 생성
