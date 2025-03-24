@@ -59,10 +59,11 @@ public class PostController {
 
     // 게시글 단건 조회 (활성화된 게시글만 조회 가능/ 관리자와 작성자만 보임)
     @Operation(summary = "게시글 단건 조회", description = "활성화된 게시글 상세 조회")
-
     @GetMapping("/posts/{postNo}/with-comments")
-    public ResponseEntity<UserPostResponseDto> getPostDetail(@PathVariable Long postNo,
-                                                         HttpServletRequest request) {
+    @PreAuthorize("hasRole('ADMIN') or hasPermission(#postNo, 'POST_ACCESS')")
+    public ResponseEntity<UserPostResponseDto> getPostDetail(
+            @PathVariable Long postNo,
+            HttpServletRequest request) {
 
         postService.viewPost(postNo, request);
         UserPostResponseDto userPostResponseDto = postService.getPostById(postNo);
@@ -99,21 +100,23 @@ public class PostController {
         //게시글 작성할 보드 타입을 지정해야 함
 
         // 게시글이 notice인 경우 관리자인지 검증
-        postService.validatePostAuthority(postDto.getBoardType());
-        PostResponseDto postResponseDto = postService.createPost(postDto.getBoardType(), postDto);
+        postService.validatePostAuthority(postDto.getBoardType()); // -> 이것도 @PreAuthorize로 만들지 생각해보기
+
+        PostResponseDto postResponseDto = postService.createPost(postDto.getBoardType(), postDto, userDetails.getUser().getNo());
         return ResponseEntity.ok(postResponseDto);
     }
 
     // 게시글 수정
     @Operation(summary = "게시글 수정", description = "제목, 내용, 게시글 상태 수정 가능")
     @PostMapping("/posts/{postNo}")
+    @PreAuthorize("hasPermission(#postNo, 'POST')")
     public ResponseEntity<PostResponseDto> updatePost(
             // 게시글 생성 시에는 무조건 활성 상태로 만들어지고 게시글 수정 시 활성/비활성 가능
             @PathVariable Long postNo,
-            @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody PostDto postDto){
 
-        postService.validatePostAuthority(postDto.getBoardType());
+        // 게시글이 notice인 경우 관리자인지 검증
+        postService.validatePostAuthority(postDto.getBoardType());// -> 이것도 @PreAuthorize로 만들지 생각해보기
         PostResponseDto updatePost = postService.updatePost(postNo, postDto);
         return ResponseEntity.ok(updatePost);
     }
@@ -122,16 +125,20 @@ public class PostController {
    
     // 게시글 삭제 (작성자,관리자)
 
-    @PreAuthorize("@postPermissionEvaluator.isOwner(#postNo, authentication)")
+    //@PreAuthorize("@postPermissionEvaluator.isOwner(#postNo, authentication)")
     @Operation(summary = "게시글 삭제", description = "게시글 삭제")
     @DeleteMapping( "/posts/{postNo}")
+    @PreAuthorize("hasRole('ADMIN') or hasPermission(#postNo, 'POST')")
     public ResponseEntity<String> deletePost(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long postNo) {
 
+        // 본인 게시글이 아닌 경우 추가 검증
+//        if (!postService.isPostOwner(postNo, userDetails.getUser().getNo())) {
+//            throw new AccessDeniedException("해당 게시글에 대한 권한이 없습니다.");
+//        }
 
         // 게시글 삭제 시 댓글도 자동으로 삭제됨
-        postService.deletePost(postNo, userDetails.getUser().getNo());
+        postService.deletePost(postNo);
         return ResponseEntity.status(HttpStatus.OK).body("게시물이 삭제되었습니다.");
     }
 
@@ -145,7 +152,7 @@ public class PostController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PageableDefault(size = 10, page= 0)Pageable pageable){
 
-        Page<UserPostResponseDto> userPosts = postService.getUserPosts(boardType, pageable);
+        Page<UserPostResponseDto> userPosts = postService.getUserPosts(boardType, pageable, userDetails.getUser().getNo());
 
         return ResponseEntity.ok(userPosts);
     }
@@ -158,7 +165,7 @@ public class PostController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long postNo) {
 
-        String bookMarkResult = bookMarkService.checkBookMark(postNo);
+        String bookMarkResult = bookMarkService.checkBookMark(postNo, userDetails.getUser().getNo());
         return ResponseEntity.ok(bookMarkResult);
     }
 
@@ -171,7 +178,7 @@ public class PostController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PageableDefault(size = 10, page = 0) Pageable pageable) {
 
-        Page<UserPostResponseDto> result = bookMarkService.getBookmarkedPosts(boardType, pageable);
+        Page<UserPostResponseDto> result = bookMarkService.getBookmarkedPosts(boardType, pageable, userDetails.getUser().getNo());
         return ResponseEntity.ok(result);
     }
 }

@@ -24,7 +24,7 @@ import org.springframework.data.domain.Pageable;
  */public interface CommentService {
 
      // 댓글 생성 (자유게시판에서만 )
-    CommentResponseDto createComment(CommentDto commentDto);
+    CommentResponseDto createComment(CommentDto commentDto, Long userNo);
 
     // 댓글 수정
     CommentResponseDto updateComment(Long commentNo, CommentDto commentDto);
