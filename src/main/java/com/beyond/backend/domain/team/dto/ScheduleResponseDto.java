@@ -13,6 +13,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ScheduleResponseDto {
 
+    private Long scheduleNo;
+
     private String title;
 
     private LocalDateTime startDate;
@@ -25,6 +27,7 @@ public class ScheduleResponseDto {
 
     @Builder
     public ScheduleResponseDto(Schedule schedule) {
+        this.scheduleNo = schedule.getNo();
         this.title = schedule.getTitle();
         this.startDate = schedule.getStartDate();
         this.endDate = schedule.getEndDate();

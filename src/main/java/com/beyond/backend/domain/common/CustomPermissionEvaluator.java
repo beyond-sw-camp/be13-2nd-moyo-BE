@@ -50,7 +50,6 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
     private final CommentRepository commentRepository;
     private final FeedbackRepository feedbackRepository;
     private final MessageRepository messageRepository;
-    private final TeamRepository teamRepository;
     private final TeamUserRepository teamUserRepository;
     private final ReportRepository reportRepository;
     private final UserRepository userRepository;

@@ -5,14 +5,11 @@ import com.beyond.backend.domain.common.exception.UserException;
 import com.beyond.backend.domain.common.exception.message.ExceptionMessage;
 import com.beyond.backend.domain.user.dto.*;
 import com.beyond.backend.domain.user.entity.User;
-import com.beyond.backend.domain.user.entity.UserRoleType;
 import com.beyond.backend.domain.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
