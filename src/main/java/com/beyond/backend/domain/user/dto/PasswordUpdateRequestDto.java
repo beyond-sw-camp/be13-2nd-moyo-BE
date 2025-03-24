@@ -9,10 +9,6 @@ public class PasswordUpdateRequestDto {
 
     @NotBlank
     @Size(min = 2, max = 20)
-    String currentPassword;
-
-    @NotBlank
-    @Size(min = 2, max = 20)
     String newPassword;
 
     @NotBlank

@@ -60,7 +60,7 @@ public class PostController {
     // 게시글 단건 조회 (활성화된 게시글만 조회 가능/ 관리자와 작성자만 보임)
     @Operation(summary = "게시글 단건 조회", description = "활성화된 게시글 상세 조회")
     @GetMapping("/posts/{postNo}/with-comments")
-    @PreAuthorize("hasPermission(#postNo, 'POST_ACCESS')")
+    @PreAuthorize("hasRole('ADMIN') or hasPermission(#postNo, 'POST_ACCESS')")
     public ResponseEntity<UserPostResponseDto> getPostDetail(
             @PathVariable Long postNo,
             HttpServletRequest request) {
