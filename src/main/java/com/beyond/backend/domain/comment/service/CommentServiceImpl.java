@@ -56,14 +56,16 @@ public class CommentServiceImpl implements CommentService {
     // 댓글 생성
     @Override
     @Transactional
-    public CommentResponseDto createComment(CommentDto commentDto) {
+    public CommentResponseDto createComment(CommentDto commentDto, Long userNo) {
 
-        CustomUserDetails userDetails = authService.getCurrentUser();
+        //CustomUserDetails userDetails = authService.getCurrentUser();
         // 게시글이 존재하는지 확인
         Post post = postRepository.findById(commentDto.getPostNo())
                 .orElseThrow(() -> new PostException(ExceptionMessage.POST_NOT_FOUND, "ID: " + commentDto.getPostNo())
                 );
 
+        User user = userRepository.findById(userNo)
+                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userNo));
         // 비활성화된 게시글은 애초에 상세 조회가 안됨 == 댓글도 못 씀
 
         // postNo을 넘겨받아서 게시글의 타입이 Free인지 확인
@@ -85,7 +87,7 @@ public class CommentServiceImpl implements CommentService {
 //        authService.validateUser(userDetails.getUser());
 
         // 댓글 저장
-        Comment comment = new Comment(commentDto.getContent(), post, userDetails.getUser());
+        Comment comment = new Comment(commentDto.getContent(), post, user);
         commentRepository.save(comment);
 
         // 댓글 개수 증가 (오류 처리 추가)
@@ -99,7 +101,7 @@ public class CommentServiceImpl implements CommentService {
         // 트랜잭션 종료 후가 아니라, 바로 알림 전송
         notificationService.sendNotification(
                 new RequestNotificationDto(
-                        userDetails.getUsername(),
+                        user.getUsername(),
                         receiver.getUsername(),
                         NotificationType.COMMENT,
                         "새 댓글 등록 완료")
@@ -217,10 +219,6 @@ public class CommentServiceImpl implements CommentService {
         }
         return commentPost;
     }
-
-
-
-
 
 
 

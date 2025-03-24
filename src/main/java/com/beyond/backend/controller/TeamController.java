@@ -2,6 +2,7 @@ package com.beyond.backend.controller;
 
 import com.beyond.backend.domain.team.dto.TeamDetailDto;
 import com.beyond.backend.domain.team.dto.TeamDto;
+import com.beyond.backend.domain.team.dto.TeamLeaderDto;
 import com.beyond.backend.domain.team.dto.TeamMemberListDto;
 import com.beyond.backend.domain.team.dto.TeamResponseDto;
 import com.beyond.backend.domain.project.entity.ProjectStatus;
@@ -145,6 +146,7 @@ public class TeamController {
      * @throws Exception
      */
     @GetMapping("/{teamNo}")
+    @Operation(summary = "팀 상세 정보", description = "팀 상세 메서드입니다.")
     public ResponseEntity<TeamDetailDto> getTeamDetails(
             @PathVariable Long teamNo) throws Exception {
         TeamDetailDto teamDetailDto = teamService.getTeamDetailDto(teamNo);
@@ -168,15 +170,19 @@ public class TeamController {
     }
 
     /**
-     * 팀 리더 확인
+     * 팀장 확인
      * @param teamNo 팀 번호
      * @return Boolean
      */
-    @GetMapping("/{teamNo}/leader-role")
-    public ResponseEntity<Boolean> isTeamLeader(
-            @PathVariable Long teamNo) {
-        Boolean isTeamLeader = teamService.isTeamLeader(teamNo);
-        return ResponseEntity.status(HttpStatus.OK).body(isTeamLeader);
+    @GetMapping("/leader-role")
+    @Operation(summary = "팀장 확인 메서드", description = "팀장 확인 메서드입니다.")
+    public ResponseEntity<TeamLeaderDto> isTeamLeader(
+            @RequestParam(required = false) Long teamNo,
+            @RequestParam(required = false) Long projectNo) throws Exception {
+        System.out.println(teamNo);
+        System.out.println(projectNo);
+        TeamLeaderDto TeamLeaderDto = teamService.isTeamLeader(teamNo,projectNo);
+        return ResponseEntity.status(HttpStatus.OK).body(TeamLeaderDto);
     }
 
     /**

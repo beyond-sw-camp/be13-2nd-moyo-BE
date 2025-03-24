@@ -37,29 +37,29 @@ public class LikeServiceImpl implements LikeService{
 
     @Override
     @Transactional
-    public String toggleCommentLike(Long commentNo) {
+    public String toggleCommentLike(Long commentNo , Long userNo) {
 
         Comment comment = commentRepository.findById(commentNo).orElseThrow(
                 () -> new PostException(ExceptionMessage.COMMENT_NOT_FOUND)
         );
 
-        CustomUserDetails userDetails = authService.getCurrentUser();
-        Long userId = userDetails.getNo(); // 현재 유저 아이디 가져오기
+       // CustomUserDetails userDetails = authService.getCurrentUser();
+        //Long userId = userDetails.getNo(); // 현재 유저 아이디 가져오기
         String redisKey = "likes:" + commentNo; // Redis Key 생성
-        String userKey = "user:" + userId;     // Redis User Key 생성
+        String userKey = "user:" + userNo;     // Redis User Key 생성
         String message = "";
 
         if (Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(redisKey, userKey))) {
             // 이미 좋아요 한 상태인 경우 -> 좋아요 취소
             commentRepository.decreaseLikeCount(commentNo); // 좋아요 수 감소
             redisTemplate.opsForSet().remove(redisKey, userKey); // Redis에서 유저 정보 제거
-            log.info("User {} unliked comment {}", userId, commentNo);
+            log.info("User {} unliked comment {}", userNo, commentNo);
             message = "좋아요 취소 성공적";
         } else {
             // 좋아요하지 않은 상태인 경우 -> 좋아요 추가
             commentRepository.increaseLikeCount(commentNo); // 좋아요 수 증가
             redisTemplate.opsForSet().add(redisKey, userKey); // Redis에 유저 정보 추가
-            log.info("User {} liked comment {}", userId, commentNo);
+            log.info("User {} liked comment {}", userNo, commentNo);
             message = "좋아요 성공적";
         }
         return message;

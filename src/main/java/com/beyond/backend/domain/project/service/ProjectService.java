@@ -24,7 +24,7 @@ import com.beyond.backend.domain.project.entity.ProjectStatus;
 public interface ProjectService {
 
     // 프로젝트 생성
-    ProjectResponseDto createProject(ProjectRequestDto projectRequestDto);
+    ProjectResponseDto createProject(ProjectRequestDto projectRequestDto, Long userNo);
 
     // 프로젝트 수정
     ProjectResponseDto updateProject(Long projectNo, ProjectStatus projectStatus, ProjectUpdateRequestDto projectRequestDto);
@@ -44,7 +44,7 @@ public interface ProjectService {
     Page<ProjectResponseDto> getProjectsByUserNo(Long userNo, Pageable pageable);
 
     // 유저가 참여한 프로젝트 중, 검색 조회
-    Page<ProjectResponseDto> searchProject(String keyword, ProjectSearchOption searchOption, Pageable pageable);
+    Page<ProjectResponseDto> searchProject(String keyword, ProjectSearchOption searchOption, ProjectSortOption sortOption, Pageable pageable);
 
     void viewProject(Long projectNo, HttpServletRequest request);
 

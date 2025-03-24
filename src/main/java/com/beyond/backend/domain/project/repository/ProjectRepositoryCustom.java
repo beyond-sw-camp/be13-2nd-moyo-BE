@@ -1,5 +1,6 @@
 package com.beyond.backend.domain.project.repository;
 
+import com.beyond.backend.domain.team.entity.TeamJoinStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -13,9 +14,8 @@ public interface ProjectRepositoryCustom {
 	Page<ProjectResponseDto> getProjects(Pageable pageable, ProjectSortOption projectSortOption );
 
 	// 프로젝트 검색 조회
-	Page<ProjectResponseDto> searchProject(String keyword, ProjectSearchOption projectSearchOption, Pageable pageable);
+	Page<ProjectResponseDto> searchProject(String keyword, ProjectSearchOption projectSearchOption, ProjectSortOption projectSortOption, Pageable pageable);
 
 	// user가 참여한 모든 프로젝트 조회
 	Page<ProjectResponseDto> findProjectsByUserId(Long userNo, Pageable pageable);
-
 }

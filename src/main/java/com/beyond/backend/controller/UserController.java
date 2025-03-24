@@ -10,9 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "02 유저 API", description = "유저 API")
 @Slf4j
@@ -50,5 +48,12 @@ public class UserController {
     public ResponseEntity<Void> delete(String username) {
         userService.deleteUser(username);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/user/{username}")
+    public ResponseEntity<OneUserResponseDto> getUserNo(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        OneUserResponseDto allUserResponseDto =  userService.getUserByUsername(userDetails);
+
+        return ResponseEntity.ok(allUserResponseDto);
     }
 }

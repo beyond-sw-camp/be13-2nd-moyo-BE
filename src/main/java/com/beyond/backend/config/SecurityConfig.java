@@ -1,5 +1,6 @@
 package com.beyond.backend.config;
 
+import com.beyond.backend.domain.common.CustomPermissionEvaluator;
 import com.beyond.backend.domain.user.entity.UserRoleType;
 import com.beyond.backend.domain.user.handler.AuthenticationEntryPointImpl;
 import com.beyond.backend.domain.user.jwt.JwtAuthenticationFilter;
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -29,10 +31,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Configuration
-@EnableWebSecurity
-@EnableMethodSecurity
+//@EnableWebSecurity
+//@EnableMethodSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final CustomPermissionEvaluator customPermissionEvaluator;
 
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -114,8 +119,16 @@ public class SecurityConfig {
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
-        // 누락된 부분 ❗
+
         source.registerCorsConfiguration("/**", configuration);
         return source;
+    }
+
+    // CustomPermissionEvaluator 관련 설정
+    @Bean
+    public DefaultMethodSecurityExpressionHandler methodSecurityExpressionHandler() {
+        DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
+        expressionHandler.setPermissionEvaluator(customPermissionEvaluator);
+        return expressionHandler;
     }
 }

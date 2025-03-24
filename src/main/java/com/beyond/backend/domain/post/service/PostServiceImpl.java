@@ -1,6 +1,5 @@
 package com.beyond.backend.domain.post.service;
 
-import com.beyond.backend.domain.comment.repository.CommentRepository;
 import com.beyond.backend.domain.common.exception.PostException;
 import com.beyond.backend.domain.common.exception.UserException;
 import com.beyond.backend.domain.common.exception.message.ExceptionMessage;
@@ -19,6 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -73,49 +74,61 @@ public class PostServiceImpl implements PostService {
         return searchResults;
     }
 
+//    @Override
+//    public UserPostResponseDto getPostById(Long postNo) {
+//
+//
+//        // 이런경우는 ? 비뢀성화인 상태면 권한 설정
+//    // 게시글 단 건 조회(게시글 비활성화해도 관리자와 작성자는 조회 가능
+//
+//        // 로그인한 유저 정보 가져오기
+//        //CustomUserDetails userDetails = authService.getCurrentUser();
+//
+//        // 게시글이 존재하는지 확인
+//        Post prePost = postRepository.findByIdWithUser(postNo) //
+//                .orElseThrow(() -> new PostException(ExceptionMessage.POST_NOT_FOUND, "ID: " + postNo));
+//
+//        // 비활성화된 게시글 처리
+//       // if (prePost.getPostStatus() == PostStatus.INACTIVE) {
+//
+//            //authService.isUser(post.getUser())
+//            // 관리자나 작성자가 아닌 경우 예외 처리
+////            if (!prePost.getUser().equals(userDetails.getUser())) {
+////                throw new PostException(ExceptionMessage.POST_ACCESS_DENIED);
+////            }
+//
+//            // 비활성 게시글은 조회수 증가 제외( 최신 댓글 수만 조회하고 바로 돌려줌 )
+//            int latestCommentCount = postRepository.getLatestCommentCount(postNo);
+//
+//            return new UserPostResponseDto(prePost, latestCommentCount);
+//       // }
+//        // 활성화된 게시글인 경우
+//
+//        // 최신 댓글 개수 조회 (정합성 보장)
+//       // int latestCommentCount = postRepository.getLatestCommentCount(postNo);
+//
+//        //Post post= postRepository.findById(postNo)
+//        //        .orElseThrow(() -> new PostException(ExceptionMessage.POST_NOT_FOUND, "ID: " + postNo));
+//
+//        //return new UserPostResponseDto(prePost, latestCommentCount);
+//    }
 
-
-    // 게시글 단 건 조회(게시글 비활성화해도 관리자와 작성자는 조회 가능
+    // 게시글 단건 조회
     @Override
     public UserPostResponseDto getPostById(Long postNo) {
 
-        // 로그인한 유저 정보 가져오기
-        CustomUserDetails userDetails = authService.getCurrentUser();
-
-        // 게시글이 존재하는지 확인
         Post prePost = postRepository.findByIdWithUser(postNo) //
                 .orElseThrow(() -> new PostException(ExceptionMessage.POST_NOT_FOUND, "ID: " + postNo));
 
-        // 비활성화된 게시글 처리
-        if (prePost.getPostStatus() == PostStatus.INACTIVE) {
-            //authService.isUser(post.getUser())
-            // 관리자나 작성자가 아닌 경우 예외 처리
-            if (!prePost.getUser().equals(userDetails.getUser())) {
-                throw new PostException(ExceptionMessage.POST_ACCESS_DENIED);
-            }
-
-            // 비활성 게시글은 조회수 증가 제외( 최신 댓글 수만 조회하고 바로 돌려줌 )
-            int latestCommentCount = postRepository.getLatestCommentCount(postNo);
-
-            return new UserPostResponseDto(prePost, latestCommentCount);
-        }
-        // 활성화된 게시글인 경우
-
-        // 최신 댓글 개수 조회 (정합성 보장)
         int latestCommentCount = postRepository.getLatestCommentCount(postNo);
 
-        Post post= postRepository.findById(postNo)
-                .orElseThrow(() -> new PostException(ExceptionMessage.POST_NOT_FOUND, "ID: " + postNo));
+        return new UserPostResponseDto(prePost, latestCommentCount);
 
-        return new UserPostResponseDto(post, latestCommentCount);
     }
-
-
-
-    // 게시글 생성
+        // 게시글 생성
     @Override
     @Transactional
-    public PostResponseDto createPost(BoardType boardType, PostDto postDto) {
+    public PostResponseDto createPost(BoardType boardType, PostDto postDto, Long userNo) {
 
         if (boardType == null) {
             throw new IllegalArgumentException("게시판 타입을 지정해 주십시오.");
@@ -125,7 +138,11 @@ public class PostServiceImpl implements PostService {
 
 
         // 로그인한 유저 정보 가져옴
-        CustomUserDetails userDetails = authService.getCurrentUser();
+        //CustomUserDetails userDetails = authService.getCurrentUser();
+
+        User user = userRepository.findById(userNo)
+                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userNo));
+
 
 
         // DTO -> entity 로 변환
@@ -133,7 +150,7 @@ public class PostServiceImpl implements PostService {
                 .postTitle(postDto.getTitle())
                 .postContent(postDto.getContent())
                 .boardType(boardType)
-                .user(userDetails.getUser())
+                .user(user)
                 .postStatus(PostStatus.ACTIVE)
                 .build();
 
@@ -166,7 +183,7 @@ public class PostServiceImpl implements PostService {
     // 게시글 삭제
     @Override
     @Transactional
-    public void deletePost(Long postNo, Long userNo){
+    public void deletePost(Long postNo){
 
         Post post = postRepository.findById(postNo)
                 .orElseThrow(() -> new PostException(ExceptionMessage.POST_NOT_FOUND, "ID: " + postNo));
@@ -185,17 +202,17 @@ public class PostServiceImpl implements PostService {
     
     // 유저가 작성한 게시글 전체 조회 가능 (게시글 상태 알려줌)
     @Override
-    public Page<UserPostResponseDto> getUserPosts(BoardType boardType, Pageable pageable) {
+    public Page<UserPostResponseDto> getUserPosts(BoardType boardType, Pageable pageable, Long userNo) {
 
         //로그인한 유저 정보 가져옴
-        CustomUserDetails userDetails = authService.getCurrentUser();
+        //CustomUserDetails userDetails = authService.getCurrentUser();
 
         // 유저가 존재하는지 확인
-        userRepository.findById(userDetails.getUser().getNo())
-                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userDetails.getUser().getNo()));
+        userRepository.findById(userNo)
+                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userNo));
 
         // 유저가 작성한 게시글 조회
-        Page<UserPostResponseDto> userPosts = postRepository.getUserPosts(userDetails.getUser().getNo(), boardType, pageable);
+        Page<UserPostResponseDto> userPosts = postRepository.getUserPosts(userNo, boardType, pageable);
 
         // 유저가 작성한 게시글이 없는 경우 예외 처리
         if (userPosts.isEmpty()) {
@@ -225,6 +242,16 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional
     public void viewPost(Long postNo, HttpServletRequest request) {
+
+        // 게시글 조회
+        Post post = postRepository.findById(postNo)
+                .orElseThrow(() -> new PostException(ExceptionMessage.POST_NOT_FOUND, "ID: " + postNo));
+
+        // 비활성화된 게시글은 조회수 증가 제외
+        if (post.getPostStatus() == PostStatus.INACTIVE) {
+            return; // 비활성화된 경우 return (조회수 증가 방지)
+        }
+
         // Redis에 저장할 고유 키 생성 (게시글ID + 사용자ID 조합)
         String key = "post:view:" + postNo + ":"  + getUserId(request);
 
@@ -232,8 +259,6 @@ public class PostServiceImpl implements PostService {
         Boolean isNotViewed = redisTemplate.opsForValue().setIfAbsent(key, "Viewed", Duration.ofHours(24));
         // 첫 조회인 경우에만 조회수 증가 처리
         if (Boolean.TRUE.equals(isNotViewed)) {
-            Post post = postRepository.findById(postNo)
-                    .orElseThrow(() -> new PostException(ExceptionMessage.POST_NOT_FOUND, "ID: " + postNo));
             postRepository.increaseViewCount(postNo);
         }
     }
