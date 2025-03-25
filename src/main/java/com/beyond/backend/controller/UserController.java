@@ -36,13 +36,24 @@ public class UserController {
     }
 
     @PostMapping("/updatePassword")
-    public ResponseEntity<PasswordUpdateResponseDto> updatePassword(@Valid @RequestBody PasswordUpdateRequestDto dto,
+    public ResponseEntity<PasswordUpdateResponseDto> updatePassword(
+            @Valid @RequestBody PasswordUpdateRequestDto dto,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         String username = userDetails.getUsername();
         PasswordUpdateResponseDto response = userService.updatePassword(username, dto);
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/updatePasswordForUnlock/{username}")
+    public ResponseEntity<PasswordUpdateResponseDto> updatePassword
+        (@Valid @RequestBody PasswordUpdateRequestDto dto,
+        @PathVariable String username) {
+        PasswordUpdateResponseDto response = userService.updatePassword(username, dto);
+        return ResponseEntity.ok(response);
+    }
+
+
 
     @PostMapping("/delete")
     public ResponseEntity<Void> delete(String username) {
