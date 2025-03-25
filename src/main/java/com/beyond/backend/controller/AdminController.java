@@ -51,7 +51,7 @@ public class AdminController {
     }
 
     @PostMapping("/delete/{userNo}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DeleteUserByAdminResponseDto> delete(@PathVariable Long userNo,
                                                                @AuthenticationPrincipal CustomUserDetails userDetails) {
         adminService.delete(userNo);
@@ -60,7 +60,7 @@ public class AdminController {
     }
 
     @GetMapping("/users")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<AllUserResponseDto>> getUsersByAdmin(
             @RequestParam(required = false) UserSortOption sortOption,
             @PageableDefault(size = 10, page = 0) Pageable pageable,
@@ -73,7 +73,7 @@ public class AdminController {
     }
 
     @GetMapping("/user/{userNo}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<OneUserResponseDto> getOneUserByAdmin(
             @PathVariable Long userNo,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -84,7 +84,7 @@ public class AdminController {
 
     // 유저의 게시글 가져오기
     @GetMapping("/user/{userNo}/posts")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<UserPostResponseDto>> getUserPosts(
             @RequestParam BoardType boardType,
             @PageableDefault(size = 10, page = 0) Pageable pageable,
@@ -98,7 +98,7 @@ public class AdminController {
 
     // 유저의 댓글 가져오기
     @GetMapping("/user/{userNo}/comments")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<CommentResponseDto>> getUserComments(@PageableDefault(size = 10, page = 0) Pageable pageable,
                                                                     @PathVariable Long userNo,
                                                                     @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -110,7 +110,7 @@ public class AdminController {
 
     // 유저의 프로젝트 가져오기
     @GetMapping("/user/{userNo}/projects")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<ProjectResponseDto>> getProject(@PageableDefault(size = 10, page = 0) Pageable pageable,
                                                                @PathVariable Long userNo,
                                                                @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -120,7 +120,7 @@ public class AdminController {
 
 
     @GetMapping("/feedbacks")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<FeedbackResponseDto>> getFeedback(@PageableDefault(size = 10, page = 0) Pageable pageable,
                                                                  @AuthenticationPrincipal CustomUserDetails userDetails) {
         Page<FeedbackResponseDto> feedbackList = feedbackService.getAllFeedback(pageable);
@@ -128,7 +128,7 @@ public class AdminController {
     }
 
     @GetMapping("/projects")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<ProjectResponseDto>> getProject(
                                                                 @RequestParam ProjectSortOption projectSortOption,
                                                                 @PageableDefault(size = 10, page = 0) Pageable pageable,
