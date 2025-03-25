@@ -63,8 +63,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UnlockResponseDto unlockUser(UnlockRequestDto dto) {
-        User user = userRepository.findByUsername(dto.getUsername())
+    public UnlockResponseDto unlockUser(String username) {
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND));
         user.updatePasswordErrorCount(0);
         userRepository.save(user);

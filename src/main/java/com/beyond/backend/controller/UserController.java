@@ -28,10 +28,10 @@ public class UserController {
         return ResponseEntity.ok(banResponseDto);
     }
 
-    @PostMapping("/unlock")
-    public ResponseEntity<UnlockResponseDto> unlock(@Valid @RequestBody UnlockRequestDto dto) {
-        UnlockResponseDto unlockResponseDto = userService.unlockUser(dto);
-        log.info("{}을 unlock!", dto.getUsername());
+    @PostMapping("/unlock/{username}")
+    public ResponseEntity<UnlockResponseDto> unlock(@PathVariable String username) {
+        UnlockResponseDto unlockResponseDto = userService.unlockUser(username);
+        log.info("{}을 unlock!", username);
         return ResponseEntity.ok(unlockResponseDto);
     }
 
@@ -50,6 +50,7 @@ public class UserController {
         (@Valid @RequestBody PasswordUpdateRequestDto dto,
         @PathVariable String username) {
         PasswordUpdateResponseDto response = userService.updatePassword(username, dto);
+        userService.unlockUser(username);
         return ResponseEntity.ok(response);
     }
 
