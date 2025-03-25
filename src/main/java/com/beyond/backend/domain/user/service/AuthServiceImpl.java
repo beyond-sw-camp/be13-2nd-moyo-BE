@@ -119,7 +119,7 @@ public class AuthServiceImpl implements AuthService {
         if (!passwordEncoder.matches(password, user.getPassword())) {
             authTransactionService.increasePasswordErrorCount(user);
             log.info("Username : {}, PasswordErrorCount :0 {}", user.getUsername(), user.getPasswordErrorCount());
-            throw new IllegalArgumentException("패스워드가 일치하지 않습니다");
+            throw new UserException(ExceptionMessage.USER_PASSWORD_MISMATCH);
         }
     }
 }
