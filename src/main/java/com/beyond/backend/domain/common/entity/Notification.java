@@ -23,8 +23,7 @@ public class Notification {
     private String message;     // 알림 메시지
 
     @Builder
-    public Notification(String id, String senderId, String receiverId, NotificationType type, String message) {
-        this.id = id;
+    public Notification(String senderId, String receiverId, NotificationType type, String message) {
         this.senderId = senderId;
         this.receiverId = receiverId;
         this.type = type;
