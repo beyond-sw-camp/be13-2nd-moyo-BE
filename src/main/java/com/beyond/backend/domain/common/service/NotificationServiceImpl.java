@@ -31,9 +31,10 @@ public class NotificationServiceImpl implements NotificationService {
      * 댓글이 저장될 때, 게시글 작성자 혹은 그룹 관리자에게 알림을 발송하는 메서드
      */
     public void sendNotification(RequestNotificationDto dto) {
-        String notificationId = UUID.randomUUID().toString();
+
 
         Notification notification = Notification.builder()
+                .id(dto.getId())
                 .receiverId(dto.getReceiverId())
                 .senderId(dto.getSenderId())
                 .message(dto.getMessage())
