@@ -1,9 +1,15 @@
 package com.beyond.backend.domain.message.dto;
 
 import com.beyond.backend.domain.message.entity.Message;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.time.LocalDateTime;
 
@@ -30,6 +36,7 @@ public class MessageResponseDto {
     private Long no;
     private String content;
 
+    private Long senderNo;
     private String senderUsername; //username
     private String receiverUsername;
 
@@ -46,10 +53,12 @@ public class MessageResponseDto {
     public static MessageResponseDto returnMessageDto(Message message) {
         String senderUsername = (message.getSender() != null) ? message.getSender().getUsername() : "탈퇴한 회원입니다";
         String receiverUsername = (message.getReceiver() != null) ? message.getReceiver().getUsername() : "탈퇴한 회원입니다";
+        Long senderNo = (message.getSender() != null) ? message.getSender().getNo() : -1L; // 👈 여기
 
         return new MessageResponseDto(
                 message.getNo(),
                 message.getContent(),
+                senderNo,
                 senderUsername,
                 receiverUsername,
                 message.isDeletedBySender(),
@@ -60,8 +69,3 @@ public class MessageResponseDto {
     }
 
 }
-
-
-
-
-

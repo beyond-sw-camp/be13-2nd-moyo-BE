@@ -5,6 +5,7 @@ import com.beyond.backend.domain.team.dto.TeamMemberListDto;
 import com.beyond.backend.domain.team.dto.TeamResponseDto;
 import com.beyond.backend.domain.team.entity.TeamJoinStatus;
 import java.util.List;
+import java.util.Optional;
 
 import com.beyond.backend.domain.team.dto.TeamSearchDto;
 import com.beyond.backend.domain.teamUser.entity.TeamUser;
@@ -121,4 +122,13 @@ public interface TeamUserRepository extends JpaRepository<TeamUser, Long> {
     boolean existsByUserNoAndTeamNo(Long userNo, Long teamNo);
 
     List<TeamUser> getTeamUserByUser(User user);
+
+
+    @Query("SELECT u.username " +
+            "FROM TeamUser tu " +
+            "JOIN tu.user u " +
+            "WHERE tu.team.no = :teamNo AND tu.isLeader = true")
+    Optional<String> findLeaderUsernameByTeamNo(@Param("teamNo") Long teamNo);
+
+
 }

@@ -72,5 +72,8 @@ public interface TeamService {
     void teamJoinRequestCancel(Long userNo, Long teamNo) throws Exception;
 
     // [팀장] 리더 권한 넘겨주기
+
     void teamLeaderSwap(Long currentUserNo, Long teamNo, Long nextUserNo) throws Exception;
+
+    String findLeaderUsernameByTeamNo(Long teamNo);
 }
