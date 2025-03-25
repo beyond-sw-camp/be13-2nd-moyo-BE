@@ -19,4 +19,6 @@ public interface AdminService {
 
     Page<UserPostResponseDto> getUserAllPost(BoardType boardType, Long userNo,  Pageable pageable);
 
+    void validateAdmin(String username);
+
 }

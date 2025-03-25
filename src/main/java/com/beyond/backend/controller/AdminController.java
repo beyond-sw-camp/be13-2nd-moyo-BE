@@ -39,14 +39,13 @@ public class AdminController {
 
     private final AuthService authService;
     private final AdminService adminService;
-    private final PostService postService;
     private final CommentService commentService;
     private final ProjectService projectService;
     private final FeedbackService feedbackService;
 
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/login")
     public ResponseEntity<TokenResponseDto> login(@Valid @RequestBody LoginRequestDto dto) {
+        adminService.validateAdmin(dto.getUsername());
         TokenResponseDto login = authService.login(dto);
         return ResponseEntity.ok(login);
     }
