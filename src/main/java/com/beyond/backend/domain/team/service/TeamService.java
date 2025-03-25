@@ -36,28 +36,28 @@ import java.util.List;
 
 public interface TeamService {
     // 팀 생성
-    TeamResponseDto createTeam(TeamDto teamDto);
+    TeamResponseDto createTeam(Long userNo, TeamDto teamDto);
     
     // 팀 정보 업데이트
-    void updateTeam(TeamResponseDto team) throws Exception;
+    void updateTeam(Long userNo, TeamResponseDto team) throws Exception;
 
     // 모든 팀 정보 조회
     PageImpl<TeamResponseDto> filterUserTeams(
             Long userNo, String teamName, String teamIntroduce, ProjectStatus projectStatus, int page, int size);
 
     // 팀 삭제
-    void deleteTeam(Long no) throws Exception;
+    void deleteTeam(Long userNo, Long teamNo) throws Exception;
     
     // 팀 상세조회
     TeamDetailDto getTeamDetailDto(Long teamNo) throws Exception;
 
-    TeamLeaderDto isTeamLeader(Long teamNo, Long projectNo);
+    TeamLeaderDto isTeamLeader(Long userNo, Long teamNo, Long projectNo);
 
     // 팀원 목록 조회
     List<TeamMemberListDto> getTeamMembers(Long teamNo) throws Exception;
 
     // [팀장] 팀원 신청 목록 조회
-    List<TeamMemberListDto> getTeamMemberRequest(Long teamNo, TeamJoinStatus status) throws Exception;
+    List<TeamMemberListDto> getTeamMemberRequest(Long userNo, Long teamNo, TeamJoinStatus status) throws Exception;
 
     // [팀장] 팀원 신청 수락
     void teamAccept(Long teamNo, Long userNo) throws Exception;
@@ -66,14 +66,14 @@ public interface TeamService {
     void teamDelete(Long teamNo, Long userNo) throws Exception;
 
     // 팀원 신청
-    void teamJoinRequest(Long teamNo) throws Exception;
+    void teamJoinRequest(Long userNo, Long teamNo) throws Exception;
 
     // 팀원 신청 취소 / 탈퇴
-    void teamJoinRequestCancel(Long teamNo) throws Exception;
+    void teamJoinRequestCancel(Long userNo, Long teamNo) throws Exception;
 
     // [팀장] 리더 권한 넘겨주기
-    void teamLeaderSwap(Long teamNo, Long userNo) throws Exception;
+
+    void teamLeaderSwap(Long currentUserNo, Long teamNo, Long nextUserNo) throws Exception;
 
     String findLeaderUsernameByTeamNo(Long teamNo);
-
 }
