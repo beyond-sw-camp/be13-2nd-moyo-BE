@@ -35,11 +35,11 @@ public class AuthServiceImpl implements AuthService {
         String confirmPassword = dto.getConfirmPassword();
 
         if (userRepository.existsByUsername(username)) {
-            throw new IllegalArgumentException("Username is already taken");
+            throw new UserException(ExceptionMessage.USER_DUPLICATE);
         }
 
         if (!password.equals(confirmPassword)) {
-            throw new IllegalArgumentException("New passwords don't match");
+            throw new UserException(ExceptionMessage.USER_PASSWORD_MISMATCH);
         }
 
         String encodedPassword = passwordEncoder.encode(password);
@@ -75,10 +75,11 @@ public class AuthServiceImpl implements AuthService {
                 .getAuthentication(tokenResponseDto.getAccessToken()).getPrincipal();
 
         if (!customUserDetails.isEnabled()) {
-            throw new RuntimeException("밴 사용자");
+            throw new UserException(ExceptionMessage.USER_BANED);
         }
         if (!customUserDetails.isAccountNonLocked()) {
-            throw new RuntimeException("임시 정지 사용자");
+            throw new UserException(ExceptionMessage.USER_LOCKED);
+
         }
 
         return tokenResponseDto;
