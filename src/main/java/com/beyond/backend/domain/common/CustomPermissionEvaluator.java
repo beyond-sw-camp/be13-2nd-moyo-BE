@@ -112,6 +112,7 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
     // 비활성화된 게시글 작성자 접근 검증 ( 게시글 단 건 조회 시 사용 )
 
     private boolean canAccessPost(Long postNo, Authentication authentication) {
+
         Post post = postRepository.findById(postNo)
                 .orElseThrow(() -> new PostException(ExceptionMessage.POST_NOT_FOUND, "ID: " + postNo));
 
@@ -119,11 +120,10 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
         if (post.getPostStatus() == PostStatus.ACTIVE) {
             return true;
         }
-
-
-        // 비활성화된 경우 작성자 접근 허용
-
-        return isOwner(post.getUser(), authentication);
+        
+        // 비활성화된 경우 작성자만 접근 허용
+            return authentication != null && isOwner(post.getUser(), authentication);
+      
     }
 
     // 댓글 작성자 검증
