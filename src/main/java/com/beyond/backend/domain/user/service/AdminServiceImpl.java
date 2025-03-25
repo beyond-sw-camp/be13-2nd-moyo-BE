@@ -5,6 +5,7 @@ import com.beyond.backend.domain.common.exception.UserException;
 import com.beyond.backend.domain.common.exception.message.ExceptionMessage;
 import com.beyond.backend.domain.team.entity.Team;
 import com.beyond.backend.domain.team.repository.TeamRepository;
+import com.beyond.backend.domain.user.entity.UserRoleType;
 import com.beyond.backend.domain.user.entity.UserSortOption;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -74,7 +75,14 @@ public class AdminServiceImpl implements AdminService {
         return userPosts;
     }
 
+    @Override
+    public void validateAdmin(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND));
 
-
+        if (!user.getRole().equals(UserRoleType.ADMIN)) {
+            throw new UserException(ExceptionMessage.USER_ACCESS_DENIED);
+        }
+    }
 }
 
