@@ -8,6 +8,7 @@ import com.beyond.backend.domain.team.dto.TeamResponseDto;
 import com.beyond.backend.domain.project.entity.ProjectStatus;
 import com.beyond.backend.domain.team.entity.TeamJoinStatus;
 import com.beyond.backend.domain.team.service.TeamService;
+import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -68,8 +70,9 @@ public class TeamController {
     @PostMapping
     @Operation(summary = "팀 생성 메서드", description = "팀 생성 메서드입니다.")
     public ResponseEntity<TeamResponseDto> createTeam(
-            @Valid @RequestBody TeamDto teamDto) {
-        TeamResponseDto teamResponseDto = teamService.createTeam(teamDto);
+            @Valid @RequestBody TeamDto teamDto,
+            @AuthenticationPrincipal CustomUserDetails userDetails) throws Exception {
+        TeamResponseDto teamResponseDto = teamService.createTeam(userDetails.getNo(), teamDto);
         return ResponseEntity.status(HttpStatus.OK).body(teamResponseDto);
     }
 
@@ -83,11 +86,12 @@ public class TeamController {
     @Operation(summary = "팀 수정 메서드", description = "팀 수정 메서드 입니다.")
     public ResponseEntity<TeamResponseDto> updateTeam(
             @PathVariable Long teamNo,
-            @Valid @RequestBody TeamDto teamDto) throws Exception {
+            @Valid @RequestBody TeamDto teamDto,
+            @AuthenticationPrincipal CustomUserDetails userDetails) throws Exception {
 
         TeamResponseDto teamResponseDto = new TeamResponseDto(teamNo, teamDto);
 
-        teamService.updateTeam(teamResponseDto);
+        teamService.updateTeam(userDetails.getNo(), teamResponseDto);
 
         return ResponseEntity.status(HttpStatus.OK).body(teamResponseDto);
     }
@@ -133,9 +137,10 @@ public class TeamController {
     @DeleteMapping("/{teamNo}")
     @Operation(summary = "팀 삭제 메서드", description = "팀 삭제 메서드입니다.")
     @Parameters({ @Parameter(name = "teamNo" , description = "삭제할 팀 번호") })
-    public ResponseEntity<String> deleteTeam(@PathVariable Long teamNo) throws Exception {
+    public ResponseEntity<String> deleteTeam(@PathVariable Long teamNo,
+                                             @AuthenticationPrincipal CustomUserDetails userDetails) throws Exception {
 
-        teamService.deleteTeam(teamNo);
+        teamService.deleteTeam(userDetails.getNo(), teamNo);
         return ResponseEntity.status(HttpStatus.OK).body("정상적으로 삭제되었습니다.");
     }
 
@@ -164,8 +169,9 @@ public class TeamController {
     @Parameters({@Parameter(name = "teamNo" , description = "팀 번호", example = "1"),})
     public ResponseEntity<List<TeamMemberListDto>> getMemberRequest(
             @PathVariable Long teamNo,
-            @RequestParam TeamJoinStatus status) throws Exception {
-        List<TeamMemberListDto> teamMemberRequest = teamService.getTeamMemberRequest(teamNo, status);
+            @RequestParam TeamJoinStatus status,
+            @AuthenticationPrincipal CustomUserDetails userDetails) throws Exception {
+        List<TeamMemberListDto> teamMemberRequest = teamService.getTeamMemberRequest(userDetails.getNo(), teamNo, status);
         return ResponseEntity.status(HttpStatus.OK).body(teamMemberRequest);
     }
 
@@ -178,8 +184,9 @@ public class TeamController {
     @Operation(summary = "팀장 확인 메서드", description = "팀장 확인 메서드입니다.")
     public ResponseEntity<TeamLeaderDto> isTeamLeader(
             @RequestParam(required = false) Long teamNo,
-            @RequestParam(required = false) Long projectNo) throws Exception {
-        TeamLeaderDto TeamLeaderDto = teamService.isTeamLeader(teamNo,projectNo);
+            @RequestParam(required = false) Long projectNo,
+            @AuthenticationPrincipal CustomUserDetails userDetails) throws Exception {
+        TeamLeaderDto TeamLeaderDto = teamService.isTeamLeader(userDetails.getNo(), teamNo,projectNo);
         return ResponseEntity.status(HttpStatus.OK).body(TeamLeaderDto);
     }
 
@@ -225,15 +232,16 @@ public class TeamController {
     /**
      * 팀장 권한 양도
      * @param teamNo 팀 번호
-     * @param userNo 양도받을 유저 번호
+     * @param nextUserNo 양도받을 유저 번호
      * @return 정상적으로 처리되었습니다.
      * @throws Exception
      */
     @PutMapping("/{teamNo}/setting/members")
     @Operation(summary = "[팀장] 팀장 권한 양도", description = "팀장 권한을 양도하는 메서드입니다.")
     public ResponseEntity<String> teamLeaderSwap(@PathVariable Long teamNo,
-                                                 @RequestParam Long userNo) throws Exception {
-        teamService.teamLeaderSwap(teamNo,userNo);
+                                                 @RequestParam Long nextUserNo,
+                                                 @AuthenticationPrincipal CustomUserDetails userDetails) throws Exception {
+        teamService.teamLeaderSwap(userDetails.getNo(), teamNo, nextUserNo);
         return ResponseEntity.status(HttpStatus.OK).body("정상적으로 처리 되었습니다.");
     }
 
@@ -263,8 +271,9 @@ public class TeamController {
     @PostMapping("/{teamNo}/join-request")
     @Operation(summary = "팀원 가입 신청 메서드", description = "팀원 가입 신청 메서드입니다.")
     @Parameters({@Parameter(name = "teamNo" , description = "팀 번호", example = "1"),})
-    public ResponseEntity<String> teamJoinRequest(@PathVariable Long teamNo) throws Exception {
-        teamService.teamJoinRequest(teamNo);
+    public ResponseEntity<String> teamJoinRequest(@PathVariable Long teamNo,
+                                                  @AuthenticationPrincipal CustomUserDetails userDetails) throws Exception {
+        teamService.teamJoinRequest(userDetails.getNo(), teamNo);
         return ResponseEntity.status(HttpStatus.OK).body("정상적으로 신청되었습니다.");
     }
 
@@ -278,8 +287,9 @@ public class TeamController {
     @DeleteMapping("/{teamNo}/join-cancel")
     @Operation(summary = "팀원 가입 취소 메서드", description = "팀원 가입 취소  메서드입니다.")
     @Parameters({@Parameter(name = "teamNo", description = "팀 번호", example = "1"),})
-    public ResponseEntity<String> teamJoinRequestCancel(@PathVariable Long teamNo) throws Exception {
-        teamService.teamJoinRequestCancel(teamNo);
+    public ResponseEntity<String> teamJoinRequestCancel(@PathVariable Long teamNo,
+                                                        @AuthenticationPrincipal CustomUserDetails userDetails) throws Exception {
+        teamService.teamJoinRequestCancel(userDetails.getNo(), teamNo);
 
         return ResponseEntity.status(HttpStatus.OK).body("정상적으로 취소되었습니다.");
     }
