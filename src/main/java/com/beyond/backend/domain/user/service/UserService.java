@@ -12,7 +12,7 @@ public interface UserService {
 
     BanResponseDto banUser(BanRequestDto dto);
 
-    UnlockResponseDto unlockUser(UnlockRequestDto dto);
+    UnlockResponseDto unlockUser(String username);
 
     OneUserResponseDto getUserByUsername(CustomUserDetails userDetails);
 }
