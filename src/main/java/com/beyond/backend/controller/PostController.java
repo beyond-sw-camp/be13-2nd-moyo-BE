@@ -66,7 +66,7 @@ public class PostController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             HttpServletRequest request) {
 
-        postService.viewPost(userDetails.getNo(), postNo, request);
+        postService.viewPost(userDetails, postNo, request);
         UserPostResponseDto userPostResponseDto = postService.getPostById(postNo);
         return ResponseEntity.ok(userPostResponseDto);
     }
@@ -132,11 +132,6 @@ public class PostController {
     @PreAuthorize("hasRole('ADMIN') or hasPermission(#postNo, 'POST')")
     public ResponseEntity<String> deletePost(
             @PathVariable Long postNo) {
-
-        // 본인 게시글이 아닌 경우 추가 검증
-//        if (!postService.isPostOwner(postNo, userDetails.getUser().getNo())) {
-//            throw new AccessDeniedException("해당 게시글에 대한 권한이 없습니다.");
-//        }
 
         // 게시글 삭제 시 댓글도 자동으로 삭제됨
         postService.deletePost(postNo);
