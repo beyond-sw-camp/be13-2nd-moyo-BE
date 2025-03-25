@@ -32,9 +32,7 @@ public class NotificationServiceImpl implements NotificationService {
      */
     public void sendNotification(RequestNotificationDto dto) {
 
-
         Notification notification = Notification.builder()
-                .id(dto.getId())
                 .receiverId(dto.getReceiverId())
                 .senderId(dto.getSenderId())
                 .message(dto.getMessage())

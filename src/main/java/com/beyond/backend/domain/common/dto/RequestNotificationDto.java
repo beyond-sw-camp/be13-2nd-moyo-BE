@@ -22,4 +22,11 @@ public class RequestNotificationDto {
         this.notificationType = notification.getType();
         this.message = notification.getMessage();
     }
+
+    public RequestNotificationDto(String senderId, String receiverId, NotificationType notificationType, String message) {
+        this.senderId = senderId;
+        this.receiverId = receiverId;
+        this.notificationType = notificationType;
+        this.message = message;
+    }
 }
