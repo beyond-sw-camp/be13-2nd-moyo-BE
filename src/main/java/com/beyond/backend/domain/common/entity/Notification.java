@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Getter
 @NoArgsConstructor
 @Entity
@@ -24,6 +26,7 @@ public class Notification {
 
     @Builder
     public Notification(String senderId, String receiverId, NotificationType type, String message) {
+        this.id= UUID.randomUUID().toString();
         this.senderId = senderId;
         this.receiverId = receiverId;
         this.type = type;

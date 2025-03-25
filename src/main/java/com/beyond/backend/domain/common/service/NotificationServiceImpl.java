@@ -25,7 +25,6 @@ public class NotificationServiceImpl implements NotificationService {
     private final RedisPublisher redisPublisher;
     private final RedisSubscriber redisSubscriber;
     private final RedisTemplate<String, Object> redisTemplate;
-    private final UserRepository userRepository;
 
     /**
      * 댓글이 저장될 때, 게시글 작성자 혹은 그룹 관리자에게 알림을 발송하는 메서드
@@ -39,7 +38,8 @@ public class NotificationServiceImpl implements NotificationService {
                 .type(dto.getNotificationType())
                 .build();
 
-        String notificationKey = dto.getReceiverId() + ":" + dto.getSenderId();
+        String notificationKey = dto.getReceiverId() + ":" + notification.getId();
+        log.info("Notification Key: {}가 저장됨", notificationKey);
 
         log.info("[SEND NOTIFICATION] {} → {} | Type: {} | Message: {}",
                 dto.getSenderId(), dto.getReceiverId(), dto.getNotificationType(), dto.getMessage());
@@ -122,6 +122,7 @@ public class NotificationServiceImpl implements NotificationService {
      */
     public void markNotificationAsRead(String userId, String notificationId) {
         String key = userId + ":" + notificationId;
+        log.info("key: {}가 삭제됨", key);
         redisTemplate.delete(key);
     }
 }
