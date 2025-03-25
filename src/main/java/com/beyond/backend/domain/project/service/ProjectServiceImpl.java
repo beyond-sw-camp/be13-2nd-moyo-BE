@@ -244,9 +244,9 @@ public class ProjectServiceImpl implements ProjectService {
 	 */
 	@Override
 	@Transactional
-	public void viewProject(Long userNo, Long projectNo, HttpServletRequest request) {
+	public void viewProject(CustomUserDetails details, Long projectNo, HttpServletRequest request) {
 		// Redis에 저장할 고유 키 생성 (게시글ID + 사용자ID 조합)
-		String key = "project:view:" + projectNo + ":" + getUserId(userNo, request);
+		String key = "project:view:" + projectNo + ":" + getUserId(details, request);
 
 		// Redis에 키가 존재하지 않을 경우에만 값 설정 (24시간 유효)
 		Boolean isNotViewed = redisTemplate.opsForValue().setIfAbsent(key, "Viewed", Duration.ofHours(24));
@@ -263,16 +263,14 @@ public class ProjectServiceImpl implements ProjectService {
 	 * - 로그인 사용자: 회원 번호 기반 해시값 생성
 	 * - 비로그인 사용자: IP주소와 User-Agent 기반 해시값 생성
 	 */
-	private String getUserId(Long userNo, HttpServletRequest request) {
+	private String getUserId(CustomUserDetails details, HttpServletRequest request) {
 
 		String userIdentifier = "";
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
 
 		// 로그인 된 사용자인 경우(회원)
-		if (authentication != null) {
-			userIdentifier = "user:" + userNo.hashCode();
-			log.info("{}번 회원님이 조회함", userNo);
+		if (details != null) {
+			userIdentifier = "user:" + details.getNo().hashCode();
+			log.info("{}번 회원님이 조회함", details.getNo());
 		} else { //비로그인 사용자인 경우(게스트)
 			//IP 주소 가져오기
 			String ipAddress = request.getRemoteAddr();

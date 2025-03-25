@@ -6,6 +6,7 @@ import com.beyond.backend.domain.post.dto.UserPostResponseDto;
 import com.beyond.backend.domain.post.entity.BoardType;
 import com.beyond.backend.domain.post.entity.PostSearchOption;
 import com.beyond.backend.domain.post.entity.PostSortOption;
+import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -54,6 +55,6 @@ public interface PostService {
     void validatePostAuthority(BoardType boardType);
 
     // 조회수
-    void viewPost(Long userNo, Long postNo, HttpServletRequest request);
+    void viewPost(CustomUserDetails details, Long postNo, HttpServletRequest request);
 
 }
