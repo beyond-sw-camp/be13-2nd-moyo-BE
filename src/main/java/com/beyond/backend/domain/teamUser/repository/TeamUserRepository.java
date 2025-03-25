@@ -48,7 +48,8 @@ public interface TeamUserRepository extends JpaRepository<TeamUser, Long> {
             "(t.no, t.teamName, t.teamIntroduce, t.projectStatus) " +
             "FROM Team t " +
             "JOIN TeamUser tu ON t.no = tu.team.no " +
-            "WHERE (:userNo IS NULL OR tu.user.no = :userNo)")
+            "WHERE (:userNo IS NULL OR tu.user.no = :userNo) " +
+            "GROUP BY t.no")
     Page<TeamResponseDto> findByUserNoForUserTeams(@Param("userNo") Long userNo, Pageable pageable);
 
     /**
@@ -85,7 +86,7 @@ public interface TeamUserRepository extends JpaRepository<TeamUser, Long> {
             "FROM Team t " +
             "JOIN TeamUser tu ON t.no = tu.team.no " +
             "JOIN User u ON u.no = tu.user.no " +
-            "WHERE t.no = :teamNo AND tu.status = :status ")
+            "WHERE t.no = :teamNo AND tu.status = :status")
     List<TeamMemberListDto> findByTeamNoForMember(@Param("teamNo") Long teamNo, @Param("status") TeamJoinStatus status);
 
     /**
@@ -96,7 +97,7 @@ public interface TeamUserRepository extends JpaRepository<TeamUser, Long> {
      */
     @Query("SELECT COUNT(tu) > 0 " +
             "FROM TeamUser tu " +
-            "WHERE tu.team.no = :teamNo AND tu.user.no = :userNo ")
+            "WHERE tu.team.no = :teamNo AND tu.user.no = :userNo  AND tu.status = 0")
     Boolean findByUserNoEquals (@Param("teamNo") Long teamNo, @Param("userNo") Long userNo);
 
     /**
