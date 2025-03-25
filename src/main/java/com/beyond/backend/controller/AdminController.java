@@ -44,6 +44,7 @@ public class AdminController {
     private final ProjectService projectService;
     private final FeedbackService feedbackService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/login")
     public ResponseEntity<TokenResponseDto> login(@Valid @RequestBody LoginRequestDto dto) {
         TokenResponseDto login = authService.login(dto);
