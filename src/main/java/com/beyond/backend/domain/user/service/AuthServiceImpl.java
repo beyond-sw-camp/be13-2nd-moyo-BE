@@ -39,7 +39,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         if (!password.equals(confirmPassword)) {
-            throw new UserException(ExceptionMessage.USER_PASSWORD_MISMATCH);
+            throw new UserException(ExceptionMessage.USER_INPUT_MISMATCH);
         }
 
         String encodedPassword = passwordEncoder.encode(password);
@@ -61,7 +61,7 @@ public class AuthServiceImpl implements AuthService {
         String password = dto.getPassword();
 
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND));
+                .orElseThrow(() -> new UserException(ExceptionMessage.USER_INPUT_MISMATCH));
 
         validPwd(password, user);
 
@@ -119,7 +119,7 @@ public class AuthServiceImpl implements AuthService {
         if (!passwordEncoder.matches(password, user.getPassword())) {
             authTransactionService.increasePasswordErrorCount(user);
             log.info("Username : {}, PasswordErrorCount :0 {}", user.getUsername(), user.getPasswordErrorCount());
-            throw new UserException(ExceptionMessage.USER_PASSWORD_MISMATCH);
+            throw new UserException(ExceptionMessage.USER_INPUT_MISMATCH);
         }
     }
 }
