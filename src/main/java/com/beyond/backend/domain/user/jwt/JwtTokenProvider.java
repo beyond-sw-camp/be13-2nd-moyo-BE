@@ -38,7 +38,7 @@ public class JwtTokenProvider {
     private final RedisTemplate<String, String> redisTemplate;
 
     // 액세스 토큰 유효기간 (15분)
-    private static final long ACCESS_TOKEN_EXP = 1000L * 60L * 15L;
+    private static final long ACCESS_TOKEN_EXP = 1000L * 60L * 60L * 24;
 
     // 리프레시 토큰 유효기간 (1일)
     private static final long REFRESH_TOKEN_EXP = 1000L * 60L * 60L * 24;
