@@ -28,4 +28,5 @@ public class EmailController {
                                               @RequestParam String authCode) {
         return emailService.validateAuthCode(dto, authCode);
     }
+
 }

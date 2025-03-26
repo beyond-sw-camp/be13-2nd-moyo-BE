@@ -13,4 +13,6 @@ public interface AuthService {
     void logout(String bearerToken);
 
     TokenResponseDto refresh(String bearerToken);
+
+    void validateEmail(String username, String email);
 }
