@@ -1,6 +1,6 @@
 # be13-2nd-4team
 
-# 팀원 소개
+# 1. 팀원 소개
 - 최건
 - 임현조
 - 홍도현
@@ -9,7 +9,7 @@
 - 홍재민
 
 ---
-# 기술 스택
+# 2. 기술 스택
 ### backend
 - spring boot
 - spring security
@@ -26,13 +26,27 @@
 - jenkins
 - docker
 ---
-# 서비스 소개
-## 배경
+# 3. 서비스 소개
+## 3-1. 배경
+현대 소프트웨어 개발 환경에서는 협업의 중요성이 날로 커지고 있습니다. 
+특히 팀 프로젝트에서는 개개인의 기술적 역량만큼이나 팀원 간의 호흡과 시너지가 프로젝트의 
+성공을 좌우합니다. 그러나 기존의 개발자 커뮤니티와 구인 플랫폼들은 주로 기술적 스펙과 
+경력에만 초점을 맞추고 있어, 실제 함께 일할 사람들 간의 성향, 작업 방식, 커뮤니케이션 
+스타일 등을 고려한 매칭이 어려웠습니다.
+<br>
+많은 개발자들이 "기술적으로는 우수하지만 협업이 힘들었던 경험" 또는 "기술 스택은 맞았지만 
+프로젝트 진행 방식이 달라 어려움을 겪었던 경험"을 토로합니다. 이러한 문제를 해결하기 위해
+, 단순한 기술 매칭을 넘어 실제로 '함께 일하기 좋은' 팀원을 찾을 수 있는 플랫폼의 필요성이
+대두되었습니다.
 
-## 목표
+## 3-2. 소개
+Moyobom 프로젝트는 개발자들이 자신과 잘 맞는 팀원을 찾고, 함께 프로젝트를 진행할 수 
+있도록 도와주는 개발자 매칭 서비스입니다. 본 서비스는 단순한 구인구직 플랫폼을 넘어, 
+개발자들의 기술적 역량뿐만 아니라 작업 스타일, 커뮤니케이션 방식, 프로젝트 관리 성향 
+등을 종합적으로 고려한 매칭 시스템을 제공합니다.
 
 ---
-# 기획
+# 4. 기획
 <details>
 <summary> 요구사항 명세서 </summary>
 
@@ -53,153 +67,273 @@
 </details>
 
 ---
-# 시스템 아키텍처
 
----
-# 주요기술
-### 1. 로그인 및 어드민
+# 5. 시스템 아키텍처 및 기술적 특징
+
 <details>
-<summary> [Spring Security + JWT] </summary>
+<summary>1. 인증 및 권한 관리</summary>
 
-- 로그인
-  + gif
+### JWT 기반 인증
+* 액세스 토큰(15분) 및 리프레시 토큰(24시간) 사용
+* Redis에 리프레시 토큰 저장 및 블랙리스트 관리
+* 토큰에 사용자 식별자 및 역할 정보 포함
 
-- User ban
-  + gif
-  + 회원 신고
-  + 관리자 처리
+<details>
+<summary>코드 예시</summary>
 
-- User lock
-  + gif
-  + 패스워드 5회 오류시 계정 lock
-  + 스프링 트랜잭션 전파(`REQUIRES_NEW` 사용)
-  ````java
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void increasePasswordErrorCount(User user) {
-        user.updatePasswordErrorCount(user.getPasswordErrorCount() + 1);
-        userRepository.save(user);
+```java
+// JWT 토큰 생성
+public String createAccessToken(String username, String role) {
+    Map<String, String> claims = new HashMap<>();
+    claims.put("username", username);
+    claims.put("role", role);
+    return createToken(claims, ACCESS_TOKEN_EXP);
+}
+
+// 리프레시 토큰 생성 및 Redis 저장
+public String createRefreshToken(String username) {
+    Map<String, String> claims = Map.of("username", username);
+    String refreshToken = createToken(claims, REFRESH_TOKEN_EXP);
+    redisTemplate.opsForValue().set("refresh:" + username, refreshToken, REFRESH_TOKEN_EXP, TimeUnit.MILLISECONDS);
+    return refreshToken;
+}
+```
+</details>
+
+### 권한 관리
+* CustomPermissionEvaluator 구현으로 세밀한 권한 제어
+* 리소스 소유자 검증(게시글, 댓글, 팀 등)
+* @PreAuthorize 어노테이션으로 메서드 레벨 접근 제어
+
+<details>
+<summary>코드 예시</summary>
+
+```java
+// 권한 검증 어노테이션 사용 예시
+@PostMapping("/{postNo}")
+@PreAuthorize("hasPermission(#postNo, 'POST')")
+public ResponseEntity<PostResponseDto> updatePost(@PathVariable Long postNo, @Valid @RequestBody PostDto postDto) {
+    // 메서드 내용
+}
+
+// CustomPermissionEvaluator 구현 일부
+@Override
+public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission) {
+    Long resourceId = (Long) targetDomainObject;
+    switch (permission.toString().toUpperCase()) {
+        case "POST": return isPostOwner(resourceId, authentication);
+        case "COMMENT": return isCommentOwner(resourceId, authentication);
+        case "TEAM": return isTeamOwner(resourceId, authentication);
+        // 기타 케이스
     }
-  ````
+    return false;
+}
+```
+</details>
+</details>
 
+<details>
+<summary>2. 데이터 처리 및 성능 최적화</summary>
 
-- `Security`로 애노테이션 기반 권한 관리
-  ````java
-    @GetMapping("/posts/{postNo}/with-comments")
-    @PreAuthorize("hasPermission(#postNo, 'POST_ACCESS')")
-    public ResponseEntity<UserPostResponseDto> getPostDetail(
-            @PathVariable Long postNo,
-            HttpServletRequest request) {
-  
-        //내용 생략
-  
-        postService.viewPost(postNo, request);
+### 조회수 처리
+* Redis를 활용한 중복 조회 방지(24시간)
+* 사용자 식별을 위해 로그인 사용자는 ID 해시, 비로그인 사용자는 IP+User-Agent 조합 사용
+
+<details>
+<summary>코드 예시</summary>
+
+```java
+@Transactional
+public void viewPost(CustomUserDetails userDetails, Long postNo, HttpServletRequest request) {
+    // 비활성화된 게시글은 조회수 증가 제외
+    if (post.getPostStatus() == PostStatus.INACTIVE) {
+        return;
     }
-  ````
-  + 로그인된 회원(`@AuthenticationPrincipal`)
-  + 소유자 확인 및 권한(`@PreAuthorize`)
-
-</details>
-
-### 2. 이메일 인증
-<details>
-<summary> [SMTP] </summary>
-
-> Simple Mail Transfer Protocol, 이메일 전송에 사용되는 네트워크 프로토콜
-
-- 회원 가입
-  + gif
-
-</details>
-
-### 3. 알림
-<details>
-<summary> [REDIS + SSE] </summary>
-
-> 단방향 통신으로 단순한 알림 기능에 최적화
-
-- 플로우(그림)
-
-- 팀 가입 신청(쪽지)
-  + gif
-
-- 신고 해결
-  + gif
-
-
-</details>
-
-### 4. 조회수 및 좋아요
-<details>
-<summary> [REDIS] </summary>
-
-````java
-    @Modifying(clearAutomatically = true)
-    @Transactional
-    @Query("UPDATE Post p SET p.viewCount = p.viewCount + 1 WHERE p.no = :postNo")
-    void increaseViewCount(@Param("postNo") Long postNo);
-````
-
-````java
-private String getUserId(HttpServletRequest request) {
-    String userIdentifier = "";
-    CustomUserDetails userDetails = authService.getCurrentUser();
-
-    // 로그인 된 사용자인 경우(회원)
-    if (userDetails != null) {
-        User user = userDetails.getUser();
-        if (user != null) {
-            //사용자 번호를 해시값으로 변환하여 식별자 생성
-            userIdentifier = "user:" + user.getNo().hashCode();
-            log.info("{} 님이 조회함", user.getUsername());
-        }
-    } else { //비로그인 사용자인 경우(게스트)
-        //IP 주소 가져오기
-        String ipAddress = request.getRemoteAddr();
-
-
-        if (ipAddress != null && !ipAddress.isEmpty()) {
-            // X-Forwarded-For 헤더가 있는 경우, 첫 번째 IP(클라이언트 실제 IP) 사용
-            ipAddress = ipAddress.split(",")[0].trim();
-        } else {
-            // 헤더가 없는 경우 직접 연결된 IP 사용
-            ipAddress = request.getRemoteAddr();
-        }
-
-        //User-Agent 정보 가져오기
-        String userAgent = request.getHeader("User-Agent");
-
-        //User-Agent 정보가 없는 경우 IP만으로 식별자 생성
-        if (userAgent == null || userAgent.isEmpty()) {
-            userIdentifier = "guest:" + ipAddress.hashCode();
-        } else {//IP와 User-Agent를 조합하여 더 고유한 식별자 생성
-            String identifier = ipAddress + userAgent;
-            userIdentifier = "guest:" + (long) identifier.hashCode();
-            }
-            log.info("ip : {} User-Agent : {}인 게스트가 조회함", ipAddress, userAgent);
-
-        }
-
-        return userIdentifier;
+    
+    // Redis에 저장할 고유 키 생성
+    String key = "post:view:" + postNo + ":" + getUserId(userDetails, request);
+    Boolean isNotViewed = redisTemplate.opsForValue().setIfAbsent(key, "Viewed", Duration.ofHours(24));
+    
+    // 첫 조회인 경우에만 조회수 증가
+    if (Boolean.TRUE.equals(isNotViewed)) {
+        postRepository.increaseViewCount(postNo);
     }
-````
-
+}
+```
 </details>
 
-### 4. 일정관리
+### 알림 시스템
+* Redis Pub/Sub 기반 실시간 알림
+* SSE(Server-Sent Events)를 통한 클라이언트 푸시
+* 15초 간격의 하트비트로 연결 유지
+
 <details>
-<summary> [Scheduler] </summary>
+<summary>코드 예시</summary>
 
-<!-- summary 아래 한칸 공백 두어야함 -->
-내용~~~~
+```java
+// SSE 구독 설정
+@GetMapping("/subscribe")
+public SseEmitter subscribe(String username) {
+    return notificationService.createEmitter(username);
+}
+
+// 하트비트 전송 로직
+public void sendHeartbeat(String username, SseEmitter emitter, ScheduledExecutorService executor) {
+    try {
+        emitter.send(SseEmitter.event().name("heartbeat").data("heartbeat"));
+    } catch (IOException e) {
+        redisSubscriber.removeEmitter(username, emitter);
+        executor.shutdown();
+    }
+}
+```
 </details>
 
-### 5. 배포
+### 데이터 접근
+* Spring Data JPA 및 QueryDSL 사용
+* N+1 문제 해결을 위한 최적화(fetch join 등)
+* 페이징 처리로 대량 데이터 효율적 조회
+
 <details>
-<summary> [DOCKER + JENKINS] </summary>
+<summary>코드 예시</summary>
 
-<!-- summary 아래 한칸 공백 두어야함 -->
-내용~~~~
+```java
+// QueryDSL을 활용한 검색 쿼리 예시
+public Page<PostResponseDto> searchPosts(BoardType boardType, PostSearchOption option, 
+                                       String keyword, Pageable pageable, PostSortOption sortOption) {
+    // QueryDSL 구현
+    JPAQuery<Post> query = queryFactory.selectFrom(post)
+            .where(post.boardType.eq(boardType), post.postStatus.eq(PostStatus.ACTIVE))
+            .leftJoin(post.user).fetchJoin(); // N+1 문제 해결
+    
+    // 검색 조건 추가
+    if (option != null && keyword != null) {
+        switch (option) {
+            case TITLE: query.where(post.postTitle.containsIgnoreCase(keyword)); break;
+            case CONTENT: query.where(post.postContent.containsIgnoreCase(keyword)); break;
+            case WRITER: query.where(post.user.username.containsIgnoreCase(keyword)); break;
+        }
+    }
+    
+    // 정렬 및 페이징 처리
+    // ...
+}
+```
 </details>
+</details>
+
+<details>
+<summary>3. 보안 및 검증</summary>
+
+### 비밀번호 보안
+* BCrypt 암호화
+* 5회 오류 시 계정 잠금(REQUIRES_NEW 트랜잭션 전파 사용)
+
+<details>
+<summary>코드 예시</summary>
+
+```java
+// 비밀번호 검증 및 오류 카운트 증가
+public void validPwd(String password, User user) {
+    if (!passwordEncoder.matches(password, user.getPassword())) {
+        authTransactionService.increasePasswordErrorCount(user);
+        log.info("Password error count: {}", user.getPasswordErrorCount());
+        throw new UserException(ExceptionMessage.USER_INPUT_MISMATCH);
+    }
+}
+
+@Transactional(propagation = Propagation.REQUIRES_NEW)
+public void increasePasswordErrorCount(User user) {
+    user.updatePasswordErrorCount(user.getPasswordErrorCount() + 1);
+    userRepository.save(user);
+}
+```
+</details>
+
+### 입력 데이터 검증
+* Bean Validation을 통한 DTO 검증
+* 커스텀 예외 처리로 일관된 오류 응답
+
+<details>
+<summary>코드 예시</summary>
+
+```java
+// DTO 검증 예시
+public class PostDto {
+    @NotBlank(message = "제목은 필수 입력 값입니다.")
+    @Size(min = 2, max = 100, message = "제목은 2자 이상 100자 이하여야 합니다.")
+    private String title;
+    
+    @NotBlank(message = "내용은 필수 입력 값입니다.")
+    private String content;
+    
+    // 기타 필드 및 메서드
+}
+
+// 글로벌 예외 핸들러 (일부)
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+    @ExceptionHandler(UserException.class)
+    public ResponseEntity<ApiErrorResponseDto> handleUserException(UserException e) {
+        ApiErrorResponseDto response = new ApiErrorResponseDto(
+            e.getExceptionMessage().getStatus(),
+            e.getExceptionMessage().getMessage(),
+            e.getDetail()
+        );
+        return new ResponseEntity<>(response, HttpStatus.valueOf(e.getExceptionMessage().getStatus()));
+    }
+}
+```
+</details>
+</details>
+
+<details>
+<summary>4. 기타 주요 기능</summary>
+
+### 팀 및 프로젝트 관리
+* 팀 생성, 가입 신청, 승인 프로세스 구현
+* 프로젝트-팀 연결 구조로 협업 환경 제공
+* 팀장 권한 관리 및 양도 기능
+
+<details>
+<summary>코드 예시</summary>
+
+```java
+// 팀원 가입 신청/수락 처리
+public void teamAccept(Long teamNo, Long userNo) throws Exception {
+    Long teamUserNo = teamUserRepository.findByUserNoForTeamUserNo(teamNo, userNo);
+    
+    TeamUser teamUser = teamUserRepository.findById(teamUserNo)
+            .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND));
+    
+    if (teamUser.getStatus() == TeamJoinStatus.Approved) {
+        throw new IllegalArgumentException("이미 가입된 유저입니다!");
+    }
+    
+    // 알림 전송 로직...
+    teamUser.setStatus(TeamJoinStatus.Approved);
+    teamUserRepository.save(teamUser);
+}
+```
+</details>
+
+### 스케줄링 및 배치 처리
+* @EnableScheduling을 활용한 주기적 작업 수행
+* 시스템 자원 최적화를 위한 배치 처리
+
+<details>
+<summary>코드 예시</summary>
+
+```java
+@Scheduled(cron = "0 0 0 * * *") // 매일 자정에 실행
+public void cleanupExpiredData() {
+    log.info("Starting daily cleanup job");
+    // 만료된 데이터 정리 로직
+}
+```
+</details>
+</details>
+
 
 <br><br><br><br><br><br>
 <br><br><br><br><br><br>
