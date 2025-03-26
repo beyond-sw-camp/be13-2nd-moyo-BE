@@ -21,7 +21,6 @@ import com.beyond.backend.domain.team.entity.TeamJoinStatus;
 import com.beyond.backend.domain.team.repository.TeamRepository;
 import com.beyond.backend.domain.teamUser.entity.TeamUser;
 import com.beyond.backend.domain.teamUser.repository.TeamUserRepository;
-import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import com.beyond.backend.domain.user.entity.User;
 import com.beyond.backend.domain.user.repository.UserRepository;
 import com.beyond.backend.domain.user.service.AuthService;
@@ -32,8 +31,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -153,15 +150,12 @@ public class TeamServiceImpl implements TeamService {
      */
     @Override
     public PageImpl<TeamResponseDto> filterUserTeams(
-            Long userNo, Boolean user, String teamName, String teamIntroduce, ProjectStatus projectStatus, int page, int size) {
+            Long userNo, String teamName, String teamIntroduce, ProjectStatus projectStatus, int page, int size) {
+
         Pageable pageable = PageRequest.of(page, size, Sort.by("no").descending());
 
-        if(!user){
-            userNo = null;
-        }
         Page<TeamResponseDto> teams = teamUserRepository.findByUserNoForUserTeams(userNo, pageable);
-        System.out.println(user);
-        System.out.println(teams);
+
         List<TeamResponseDto> filteredTeams = teams.stream()
                 .filter(team -> teamName == null || team.getTeam().getTeamName().contains(teamName))
                 .filter(team -> teamIntroduce == null || team.getTeam().getTeamIntroduce().contains(teamIntroduce))
