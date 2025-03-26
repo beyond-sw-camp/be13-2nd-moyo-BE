@@ -153,10 +153,15 @@ public class TeamServiceImpl implements TeamService {
      */
     @Override
     public PageImpl<TeamResponseDto> filterUserTeams(
-            Long userNo, String teamName, String teamIntroduce, ProjectStatus projectStatus, int page, int size) {
+            Long userNo, Boolean user, String teamName, String teamIntroduce, ProjectStatus projectStatus, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("no").descending());
-        Page<TeamResponseDto> teams = teamUserRepository.findByUserNoForUserTeams(userNo, pageable);
 
+        if(!user){
+            userNo = null;
+        }
+        Page<TeamResponseDto> teams = teamUserRepository.findByUserNoForUserTeams(userNo, pageable);
+        System.out.println(user);
+        System.out.println(teams);
         List<TeamResponseDto> filteredTeams = teams.stream()
                 .filter(team -> teamName == null || team.getTeam().getTeamName().contains(teamName))
                 .filter(team -> teamIntroduce == null || team.getTeam().getTeamIntroduce().contains(teamIntroduce))
@@ -283,12 +288,17 @@ public class TeamServiceImpl implements TeamService {
         Team team = teamRepository.findById(teamNo)
                 .orElseThrow(() -> new BaseException(ExceptionMessage.TEAM_NOT_FOUND));
 
-        if (teamUserRepository.findByUserNoEquals(teamNo, userNo)) {
-            throw new IllegalArgumentException("이미 등록되어 있거나 요청한 팀 입니다!!");
-        }
-
         if (team.getProjectStatus() != ProjectStatus.OPEN) {
             throw new IllegalArgumentException("모집중이 아닙니다!");
+        }
+
+        TeamJoinStatus status = teamUserRepository.findByTeamStatus(teamNo, userNo);
+        if(status == TeamJoinStatus.Approved) {
+            throw new IllegalArgumentException("이미 가입된 팀입니다!!");
+        } else if (status == TeamJoinStatus.Rejected) {
+            throw new IllegalArgumentException("가입 거부당한 팀입니다!!");
+        } else if (status == TeamJoinStatus.Pending) {
+            throw new IllegalArgumentException("이미 가입 신청한 팀입니다!!");
         }
 
         User receiver = new User();

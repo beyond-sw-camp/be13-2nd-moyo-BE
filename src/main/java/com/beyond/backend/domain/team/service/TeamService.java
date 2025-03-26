@@ -43,7 +43,7 @@ public interface TeamService {
 
     // 모든 팀 정보 조회
     PageImpl<TeamResponseDto> filterUserTeams(
-            Long userNo, String teamName, String teamIntroduce, ProjectStatus projectStatus, int page, int size);
+            Long userNo, Boolean user, String teamName, String teamIntroduce, ProjectStatus projectStatus, int page, int size);
 
     // 팀 삭제
     void deleteTeam(Long userNo, Long teamNo) throws Exception;
