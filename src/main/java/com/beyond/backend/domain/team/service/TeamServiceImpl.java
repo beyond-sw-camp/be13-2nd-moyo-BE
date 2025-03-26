@@ -21,7 +21,6 @@ import com.beyond.backend.domain.team.entity.TeamJoinStatus;
 import com.beyond.backend.domain.team.repository.TeamRepository;
 import com.beyond.backend.domain.teamUser.entity.TeamUser;
 import com.beyond.backend.domain.teamUser.repository.TeamUserRepository;
-import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import com.beyond.backend.domain.user.entity.User;
 import com.beyond.backend.domain.user.repository.UserRepository;
 import com.beyond.backend.domain.user.service.AuthService;
@@ -32,8 +31,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -154,15 +151,13 @@ public class TeamServiceImpl implements TeamService {
     @Override
     public PageImpl<TeamResponseDto> filterUserTeams(
             Long userNo, String teamName, String teamIntroduce, ProjectStatus projectStatus, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("no").descending());
-        Page<TeamResponseDto> teams = teamUserRepository.findByUserNoForUserTeams(userNo, pageable);
 
-        List<TeamResponseDto> filteredTeams = teams.stream()
-                .filter(team -> teamName == null || team.getTeam().getTeamName().contains(teamName))
-                .filter(team -> teamIntroduce == null || team.getTeam().getTeamIntroduce().contains(teamIntroduce))
-                .filter(team -> projectStatus == null || team.getTeam().getProjectStatus().equals(projectStatus))
-                .toList();
-        return new PageImpl<>(filteredTeams, pageable, teams.getTotalElements());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("no").descending());
+
+        Page<TeamResponseDto> teams = teamUserRepository.findByUserNoForUserTeams(
+                userNo, teamName, teamIntroduce, projectStatus, pageable);
+
+        return new PageImpl<>(teams.getContent(), pageable, teams.getTotalElements());
     }
 
     /**
@@ -283,12 +278,17 @@ public class TeamServiceImpl implements TeamService {
         Team team = teamRepository.findById(teamNo)
                 .orElseThrow(() -> new BaseException(ExceptionMessage.TEAM_NOT_FOUND));
 
-        if (teamUserRepository.findByUserNoEquals(teamNo, userNo)) {
-            throw new IllegalArgumentException("이미 등록되어 있거나 요청한 팀 입니다!!");
-        }
-
         if (team.getProjectStatus() != ProjectStatus.OPEN) {
             throw new IllegalArgumentException("모집중이 아닙니다!");
+        }
+
+        TeamJoinStatus status = teamUserRepository.findByTeamStatus(teamNo, userNo);
+        if(status == TeamJoinStatus.Approved) {
+            throw new IllegalArgumentException("이미 가입된 팀입니다!!");
+        } else if (status == TeamJoinStatus.Rejected) {
+            throw new IllegalArgumentException("가입 거부당한 팀입니다!!");
+        } else if (status == TeamJoinStatus.Pending) {
+            throw new IllegalArgumentException("이미 가입 신청한 팀입니다!!");
         }
 
         User receiver = new User();

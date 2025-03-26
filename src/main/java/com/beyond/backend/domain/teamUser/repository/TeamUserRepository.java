@@ -1,5 +1,6 @@
 package com.beyond.backend.domain.teamUser.repository;
 
+import com.beyond.backend.domain.project.entity.ProjectStatus;
 import com.beyond.backend.domain.team.dto.TeamDetailDto;
 import com.beyond.backend.domain.team.dto.TeamMemberListDto;
 import com.beyond.backend.domain.team.dto.TeamResponseDto;
@@ -49,8 +50,16 @@ public interface TeamUserRepository extends JpaRepository<TeamUser, Long> {
             "FROM Team t " +
             "JOIN TeamUser tu ON t.no = tu.team.no " +
             "WHERE (:userNo IS NULL OR tu.user.no = :userNo) " +
+            "AND (:teamName IS NULL OR t.teamName LIKE %:teamName%) " +
+            "AND (:teamIntroduce IS NULL OR t.teamIntroduce LIKE %:teamIntroduce%) " +
+            "AND (:projectStatus IS NULL OR t.projectStatus = :projectStatus) " +
             "GROUP BY t.no")
-    Page<TeamResponseDto> findByUserNoForUserTeams(@Param("userNo") Long userNo, Pageable pageable);
+    Page<TeamResponseDto> findByUserNoForUserTeams(
+            @Param("userNo") Long userNo,
+            @Param("teamName") String teamName,
+            @Param("teamIntroduce") String teamIntroduce,
+            @Param("projectStatus") ProjectStatus projectStatus,
+            Pageable pageable);
 
     /**
      * 해당 팀의 리더 여부 확인
