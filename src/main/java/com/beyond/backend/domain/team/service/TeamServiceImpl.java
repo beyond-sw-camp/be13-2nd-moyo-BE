@@ -154,14 +154,10 @@ public class TeamServiceImpl implements TeamService {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("no").descending());
 
-        Page<TeamResponseDto> teams = teamUserRepository.findByUserNoForUserTeams(userNo, pageable);
+        Page<TeamResponseDto> teams = teamUserRepository.findByUserNoForUserTeams(
+                userNo, teamName, teamIntroduce, projectStatus, pageable);
 
-        List<TeamResponseDto> filteredTeams = teams.stream()
-                .filter(team -> teamName == null || team.getTeam().getTeamName().contains(teamName))
-                .filter(team -> teamIntroduce == null || team.getTeam().getTeamIntroduce().contains(teamIntroduce))
-                .filter(team -> projectStatus == null || team.getTeam().getProjectStatus().equals(projectStatus))
-                .toList();
-        return new PageImpl<>(filteredTeams, pageable, teams.getTotalElements());
+        return new PageImpl<>(teams.getContent(), pageable, teams.getTotalElements());
     }
 
     /**
