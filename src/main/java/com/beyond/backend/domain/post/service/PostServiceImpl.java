@@ -174,7 +174,7 @@ public class PostServiceImpl implements PostService {
                 .orElseThrow(() -> new PostException(ExceptionMessage.POST_NOT_FOUND, "ID: " + postNo));
 
         // 게시글 수정
-        post.update(postDto.getTitle(), postDto.getContent(), postDto.getPostStatus());
+        post.update(postDto.getTitle(), postDto.getContent(), postDto.getPostStatus(), postDto.getBoardType());
         
         return new PostResponseDto(post);
     }
