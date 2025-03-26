@@ -38,7 +38,7 @@ public class Post extends BaseEntity {
     @Column(nullable = false)
     private String postTitle;
 
-    @Column(nullable = false)
+    @Column(columnDefinition = "TEXT", nullable = false, length = 10000)
     private String postContent;
 
     @Enumerated(EnumType.STRING)
