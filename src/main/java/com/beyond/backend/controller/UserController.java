@@ -1,8 +1,7 @@
 package com.beyond.backend.controller;
 
 import com.beyond.backend.domain.user.dto.*;
-import com.beyond.backend.domain.user.entity.User;
-import com.beyond.backend.domain.user.repository.UserRepository;
+import com.beyond.backend.domain.user.service.AuthService;
 import com.beyond.backend.domain.user.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -19,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+    private final AuthService authService;
 
     @PostMapping("/{username}/ban")
     public ResponseEntity<BanResponseDto> ban(@Valid @RequestBody BanRequestDto dto) {
@@ -45,15 +45,14 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/updatePasswordForUnlock/{username}")
+    @PostMapping("/updatePasswordForUnlock/{username}/}")
     public ResponseEntity<PasswordUpdateResponseDto> updatePassword
-        (@Valid @RequestBody PasswordUpdateRequestDto dto,
-        @PathVariable String username) {
+            (@Valid @RequestBody PasswordUpdateRequestDto dto,
+             @PathVariable String username) {
         PasswordUpdateResponseDto response = userService.updatePassword(username, dto);
         userService.unlockUser(username);
         return ResponseEntity.ok(response);
     }
-
 
 
     @PostMapping("/delete")
@@ -64,8 +63,14 @@ public class UserController {
 
     @GetMapping("/user/{username}")
     public ResponseEntity<OneUserResponseDto> getUserNo(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        OneUserResponseDto allUserResponseDto =  userService.getUserByUsername(userDetails);
+        OneUserResponseDto allUserResponseDto = userService.getUserByUsername(userDetails);
 
         return ResponseEntity.ok(allUserResponseDto);
+    }
+
+    @GetMapping("/matchEmail")
+    public ResponseEntity<Void> matchEmail(@RequestBody MatchEmailRequestDto dto) {
+        authService.validateEmail(dto.getUsername(), dto.getEmail());
+        return ResponseEntity.ok().build();
     }
 }
