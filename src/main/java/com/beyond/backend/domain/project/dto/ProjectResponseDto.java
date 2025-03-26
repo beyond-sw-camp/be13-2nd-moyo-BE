@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
+//@AllArgsConstructor
 public class ProjectResponseDto {
 
     private Long no;
@@ -19,6 +19,8 @@ public class ProjectResponseDto {
     private String name;
 
     private String teamName;
+
+    private Long teamNo;
 
     private String content;
 
@@ -41,6 +43,7 @@ public class ProjectResponseDto {
         this.no = project.getNo();
         this.name = project.getName();
         this.teamName = project.getTeam().getTeamName();
+        this.teamNo = project.getTeam().getNo();
         this.content = project.getContent();
         this.view = project.getViewCnt();
         this.projectStatus = project.getProjectStatus();
