@@ -32,4 +32,6 @@ public class TeamMemberListDto {
     private Boolean isLeader;
 
     private TeamJoinStatus status;
+
+    private String role;
 }
