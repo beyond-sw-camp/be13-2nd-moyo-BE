@@ -1,30 +1,46 @@
 # be13-2nd-4team
 
 # 1. 팀원 소개
-- 최건
-- 임현조
-- 홍도현
-- 송현준
-- 김민석
-- 홍재민
+
+# 2. Team Members (팀원 및 팀 소개)
+| 최건 | 임현조 | 홍도현 | 송현준 | 김민석 | 홍재민 |
+|:------:|:------:|:------:|:------:|:------:|:------:|
+| <img src="https://github.com/user-attachments/assets/c1c2b1e3-656d-4712-98ab-a15e91efa2da" alt="이동규" width="150"> | <img src="https://github.com/user-attachments/assets/78ec4937-81bb-4637-975d-631eb3c4601e" alt="신유승" width="150"> | <img src="https://github.com/user-attachments/assets/78ce1062-80a0-4edb-bf6b-5efac9dd992e" alt="김나연" width="150"> | <img src="https://github.com/user-attachments/assets/beea8c64-19de-4d91-955f-ed24b813a638" alt="이승준" width="150"> | <img src="https://github.com/user-attachments/assets/78ce1062-80a0-4edb-bf6b-5efac9dd992e" alt="김나연" width="150"> | <img src="https://github.com/user-attachments/assets/beea8c64-19de-4d91-955f-ed24b813a638" alt="이승준" width="150"> |
+| [GitHub](https://github.com/gjaku1031) | [GitHub](https://github.com/limhyunjo) | [GitHub](https://github.com/dh0522) | [GitHub](https://github.com/Hyeonjunnn) | [GitHub](https://github.com/mlnstone) | [GitHub](https://github.com/MSP-31) |
+
+<br/>
+<br/>
+
 
 ---
 # 2. 기술 스택
-### backend
-- spring boot
-- spring security
-- jwt
-- spring data jpa
-- mariaDB
-- redis
 
----
+### BackEnd
+<div>
+  <img src="https://img.shields.io/badge/Java-%23ED8B00?style=for-the-badge&logo=openjdk&logoColor=white">
+  <img src="https://img.shields.io/badge/JWT-black?style=for-the-badge&logo=jsonwebtokens&logoColor=white" alt="JWT">
+  <img src="https://img.shields.io/badge/Spring%20Boot-%236DB33F?style=for-the-badge&logo=springboot&logoColor=white">
+  <img src="https://img.shields.io/badge/Spring%20Security-%236DB33F?style=for-the-badge&logo=springsecurity&logoColor=white">
+  <img src="https://img.shields.io/badge/Spring%20Data%20JPA-%236DB33F?style=for-the-badge&logo=spring&logoColor=white">
+</div>
+
+### DataBase
+<div>
+  <img src="https://img.shields.io/badge/MariaDB-%23003545?style=for-the-badge&logo=mariadb&logoColor=white">
+  <img src="https://img.shields.io/badge/Redis-%23DC382D?style=for-the-badge&logo=redis&logoColor=white">
+</div>
+
+
 ### frontend
-- vue.js
+
+![Vue.js](https://img.shields.io/badge/vue.js-%2335495e.svg?style=for-the-badge&logo=vuedotjs&logoColor=%234FC08D)
+
 
 ### devops
-- jenkins
-- docker
+
+![Jenkins](https://img.shields.io/badge/jenkins-%23d24939.svg?style=for-the-badge&logo=jenkins&logoColor=white)
+![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
+
 ---
 # 3. 서비스 소개
 ## 3-1. 배경
