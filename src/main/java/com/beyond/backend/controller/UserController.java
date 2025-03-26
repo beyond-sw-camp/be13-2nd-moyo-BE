@@ -45,7 +45,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/updatePasswordForUnlock/{username}/}")
+    @PostMapping("/updatePasswordForUnlock/{username}")
     public ResponseEntity<PasswordUpdateResponseDto> updatePassword
             (@Valid @RequestBody PasswordUpdateRequestDto dto,
              @PathVariable String username) {

@@ -91,7 +91,7 @@ public interface TeamUserRepository extends JpaRepository<TeamUser, Long> {
      * @return TeamMemberListDto
      */
     @Query("SELECT new com.beyond.backend.domain.team.dto.TeamMemberListDto" +
-            "(u.no, u.username, tu.isLeader, tu.status) " +
+            "(u.no, u.username, tu.isLeader, tu.status, tu.role) " +
             "FROM Team t " +
             "JOIN TeamUser tu ON t.no = tu.team.no " +
             "JOIN User u ON u.no = tu.user.no " +
