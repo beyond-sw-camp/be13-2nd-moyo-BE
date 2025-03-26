@@ -3,6 +3,7 @@ package com.beyond.backend.domain.common;
 import com.beyond.backend.domain.comment.repository.CommentRepository;
 import com.beyond.backend.domain.common.exception.PostException;
 import com.beyond.backend.domain.common.exception.ProjectException;
+import com.beyond.backend.domain.common.exception.UserException;
 import com.beyond.backend.domain.common.exception.message.ExceptionMessage;
 import com.beyond.backend.domain.feedback.entity.Feedback;
 import com.beyond.backend.domain.feedback.repository.FeedbackRepository;
@@ -13,6 +14,7 @@ import com.beyond.backend.domain.post.repository.PostRepository;
 import com.beyond.backend.domain.project.entity.Project;
 import com.beyond.backend.domain.project.repository.ProjectRepository;
 import com.beyond.backend.domain.report.repository.ReportRepository;
+import com.beyond.backend.domain.team.entity.Team;
 import com.beyond.backend.domain.team.entity.TeamJoinStatus;
 import com.beyond.backend.domain.team.repository.TeamRepository;
 import com.beyond.backend.domain.teamUser.repository.TeamUserRepository;
@@ -209,17 +211,11 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
 
     // **프로젝트 팀원 검증 로직 추가**
     private boolean isProjectTeamMember(Long projectNo, Authentication authentication) {
-        if (authentication == null || authentication.getPrincipal() == null) {
-            return false;
-        }
-
-        Object principal = authentication.getPrincipal();
-        if (!(principal instanceof CustomUserDetails)) {
-            return false;
-        }
-
-        CustomUserDetails currentUser = (CustomUserDetails) principal;
-
+        // 유저 찾기
+        String userName = authentication.getName();
+        User user = userRepository.findByUsername(userName).orElseThrow(() ->
+            new UserException(ExceptionMessage.USER_NOT_FOUND)
+        );
         //  projectNo로 해당 프로젝트의 팀 번호 조회
         Project project = projectRepository.findById(projectNo)
                 .orElseThrow(() -> new IllegalArgumentException("해당 프로젝트를 찾을 수 없습니다."));
@@ -227,7 +223,7 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
         Long teamNo = project.getTeam().getNo();  // 프로젝트의 팀 번호 가져오기
 
         // 팀 번호를 통해 해당 유저가 팀원인지 확인
-        return teamUserRepository.existsByUserNoAndTeamNo(teamNo, currentUser.getUser().getNo());
+        return teamUserRepository.existsByUserNoAndTeamNo(user.getNo(), teamNo);
     }
 
     //---------------------------------
