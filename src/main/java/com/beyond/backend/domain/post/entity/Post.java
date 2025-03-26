@@ -88,10 +88,11 @@ public class Post extends BaseEntity {
         comment.setPost(this);
     }
 
-    public void update(String postTitle, String postContent, PostStatus postStatus){
+    public void update(String postTitle, String postContent, PostStatus postStatus, BoardType boardType){
         this.postTitle = postTitle;
         this.postContent = postContent;
         this.postStatus = postStatus;
+        this.boardType = boardType;
 
     }
 }
