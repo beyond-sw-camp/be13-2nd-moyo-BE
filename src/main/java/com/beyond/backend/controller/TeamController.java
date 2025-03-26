@@ -117,15 +117,14 @@ public class TeamController {
             @Parameter(name = "size" , description = "한 페이지 결과 수", example = "10")
     })
     public ResponseEntity<PageImpl<TeamResponseDto>> getUserTeams(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestParam(required = false, defaultValue = "false") Boolean user,
+            @RequestParam(required = false) Long userNo,
             @RequestParam(required = false) String teamName,
             @RequestParam(required = false) String teamIntroduce,
             @RequestParam(required = false) ProjectStatus projectStatus,
             @RequestParam int page,
             @RequestParam int size){
 
-        PageImpl<TeamResponseDto> teamSearch = teamService.filterUserTeams(userDetails.getNo(), user, teamName, teamIntroduce, projectStatus, page, size);
+        PageImpl<TeamResponseDto> teamSearch = teamService.filterUserTeams(userNo, teamName, teamIntroduce, projectStatus, page, size);
         return ResponseEntity.status(HttpStatus.OK). body(teamSearch);
     }
 
