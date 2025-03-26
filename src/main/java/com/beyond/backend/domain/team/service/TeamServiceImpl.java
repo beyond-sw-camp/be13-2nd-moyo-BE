@@ -36,17 +36,16 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 
-
 /**
  * <p> 팀 서비스 상세
- * 
+ *
  * <p>packageName    : com.beyond.backend.service.impl
  * <p>fileName       : TeamServiceImpl
  * <p>author         : hongjm
  * <p>date           : 2025-02-03
  * <p>description    : Team 관련 ServiceImpl
  */
- /*
+/*
  * ===========================================================
  * DATE              AUTHOR             NOTE
  * -----------------------------------------------------------
@@ -103,7 +102,7 @@ public class TeamServiceImpl implements TeamService {
                 .build();
         teamUserRepository.save(teamUser);
 
-        return new TeamResponseDto(team.getNo(),teamDto);
+        return new TeamResponseDto(team.getNo(), teamDto);
     }
 
     /**
@@ -116,7 +115,7 @@ public class TeamServiceImpl implements TeamService {
     public void updateTeam(Long userNo, TeamResponseDto teamDto) throws Exception {
 
         Boolean isLeader = teamUserRepository.isLeader(teamDto.getNo(), userNo);
-        
+
         // 권한 확인
         if (isLeader != null && isLeader) {
             Team searchTeam = teamRepository.findById(teamDto.getNo())
@@ -162,6 +161,7 @@ public class TeamServiceImpl implements TeamService {
 
     /**
      * 팀 삭제
+     *
      * @param teamNo 팀 ID
      * @throws Exception 팀이 존재하지 않습니다.
      * @throws Exception 권한이 없습니다!
@@ -185,7 +185,7 @@ public class TeamServiceImpl implements TeamService {
     public TeamDetailDto getTeamDetailDto(Long teamNo) throws Exception {
 
         Team team = teamRepository.findById(teamNo).orElseThrow(() -> new TeamException(ExceptionMessage.TEAM_NOT_FOUND));
-        
+
         // 팀에 할당된 프로젝트가 없을 수도 있기에 일단 초기화
         Long projectNo = null;
         String projectName = null;
@@ -214,21 +214,22 @@ public class TeamServiceImpl implements TeamService {
 
     /**
      * 팀장 여부 확인
+     *
      * @return TeamLeaderDto
      */
     @Override
-    public TeamLeaderDto isTeamLeader(Long userNo, Long teamNo, Long projectNo){
+    public TeamLeaderDto isTeamLeader(Long userNo, Long teamNo, Long projectNo) {
 
-        System.out.println("팀번호"+teamNo);
-        System.out.println("플젝번호"+projectNo);
+        System.out.println("팀번호" + teamNo);
+        System.out.println("플젝번호" + projectNo);
         // 둘다 빈값이면 오류
-        if (teamNo == null && projectNo == null ){
+        if (teamNo == null && projectNo == null) {
             throw new BaseException(ExceptionMessage.INVALID_REQUEST);
         }
 
         // 먼저 팀장인지 확인
         // 팀번호가 없으면 플젝에서 추출
-        if (teamNo == null ) {
+        if (teamNo == null) {
             Project project = projectRepository.findById(projectNo).orElseThrow(() -> new ProjectException(ExceptionMessage.PROJECT_NOT_FOUND));
             teamNo = project.getTeam().getNo();
         } else {
@@ -249,6 +250,7 @@ public class TeamServiceImpl implements TeamService {
 
     /**
      * 팀원 목록 조회 서비스
+     *
      * @param teamNo 팀번호
      * @return TeamMemberListDto
      * @throws Exception 팀이 존재하지 않습니다.
@@ -258,11 +260,12 @@ public class TeamServiceImpl implements TeamService {
         teamRepository.findById(teamNo)
                 .orElseThrow(() -> new BaseException(ExceptionMessage.TEAM_NOT_FOUND));
 
-        return teamUserRepository.findByTeamNoForMember(teamNo,TeamJoinStatus.Approved);
+        return teamUserRepository.findByTeamNoForMember(teamNo, TeamJoinStatus.Approved);
     }
 
     /**
      * 팀원 신청
+     *
      * @param teamNo 팀번호
      * @throws Exception 팀이 존재하지 않습니다.
      * @throws Exception 유저가 존재하지 않습니다.
@@ -283,7 +286,7 @@ public class TeamServiceImpl implements TeamService {
         }
 
         TeamJoinStatus status = teamUserRepository.findByTeamStatus(teamNo, userNo);
-        if(status == TeamJoinStatus.Approved) {
+        if (status == TeamJoinStatus.Approved) {
             throw new IllegalArgumentException("이미 가입된 팀입니다!!");
         } else if (status == TeamJoinStatus.Rejected) {
             throw new IllegalArgumentException("가입 거부당한 팀입니다!!");
@@ -307,7 +310,7 @@ public class TeamServiceImpl implements TeamService {
                         user.getUsername(),
                         receiver.getUsername(),
                         NotificationType.TEAM,
-                        user.getUsername() + "님의 팀 가입 신청도착")
+                        user.getUsername() + "님이 팀 가입을 신청했습니다.")
         );
 
         TeamUser teamUser = TeamUser.builder()
@@ -321,6 +324,7 @@ public class TeamServiceImpl implements TeamService {
 
     /**
      * 팀원 신청 취소
+     *
      * @param teamNo 팀번호
      * @throws Exception 신청하지 않았거나 존재하지 않는 팀입니다.
      * @throws Exception 이미 처리된 요청입니다.
@@ -333,15 +337,15 @@ public class TeamServiceImpl implements TeamService {
         TeamJoinStatus status = teamUserRepository.findByTeamStatus(teamNo, userNo);
         Boolean isLeader = teamUserRepository.isLeader(teamNo, userNo);
 
-        if(isLeader) {
+        if (isLeader) {
             throw new IllegalArgumentException("팀장 입니다!");
         }
 
         if (teamUserNo == null) {
-            throw new BaseException(ExceptionMessage.TEAM_NOT_FOUND,"신청하지 않았거나 존재하지 않는 팀입니다.");
+            throw new BaseException(ExceptionMessage.TEAM_NOT_FOUND, "신청하지 않았거나 존재하지 않는 팀입니다.");
         } else if (status.equals(TeamJoinStatus.Pending)) {
             teamUserRepository.deleteById(teamUserNo);
-        } else{
+        } else {
             throw new BaseException(ExceptionMessage.INVALID_REQUEST);
             // "이미 처리된 요청입니다."
         }
@@ -349,6 +353,7 @@ public class TeamServiceImpl implements TeamService {
 
     /**
      * [팀장] 팀원 목록 조회
+     *
      * @param teamNo 팀번호
      * @return TeamMemberListDto
      * @throws Exception 권한이 없습니다!
@@ -366,6 +371,7 @@ public class TeamServiceImpl implements TeamService {
 
     /**
      * [팀장] 팀원 가입 수락
+     *
      * @param teamNo 팀번호
      * @param userNo 신청한 유저의 유저번호
      * @throws Exception 신청한 유저가 없습니다!
@@ -384,7 +390,7 @@ public class TeamServiceImpl implements TeamService {
         TeamJoinStatus status = teamUser.getStatus();
         if (status == TeamJoinStatus.Approved) {
             throw new IllegalArgumentException("이미 가입된 유저입니다!");
-        }else {
+        } else {
 
             User sender = userRepository.findById(userNo)
                     .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID : " + userNo));
@@ -397,7 +403,7 @@ public class TeamServiceImpl implements TeamService {
                             sender.getUsername(),
                             receiver.getUsername(),
                             NotificationType.TEAM,
-                            team.getTeamName() + "팀 가입됨")
+                            "'" + team.getTeamName() + "'" + "팀에 가입되셨습니다.")
             );
             teamUser.setStatus(TeamJoinStatus.Approved);
 
@@ -407,6 +413,7 @@ public class TeamServiceImpl implements TeamService {
 
     /**
      * [팀장] 팀원 신청 거부
+     *
      * @param teamNo 팀번호
      * @param userNo 신청한 유저의 유저번호
      * @throws Exception 신청한 유저가 없습니다!
@@ -416,7 +423,7 @@ public class TeamServiceImpl implements TeamService {
     public void teamDelete(Long teamNo, Long userNo) throws Exception {
         Long teamUserNo = teamUserRepository.findByUserNoForTeamUserNo(teamNo, userNo);
         Boolean isLeader = teamUserRepository.isLeader(teamNo, userNo);
-        if(isLeader) {
+        if (isLeader) {
             throw new IllegalArgumentException("팀장 입니다!");
         }
 
@@ -429,7 +436,7 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public void teamLeaderSwap(Long currentUserNo, Long teamNo, Long nextUserNo) throws Exception {
-        
+
         // 팀장 권한 부여
         Long teamUserNo = teamUserRepository.findByUserNoForTeamUserNo(teamNo, nextUserNo);
 
