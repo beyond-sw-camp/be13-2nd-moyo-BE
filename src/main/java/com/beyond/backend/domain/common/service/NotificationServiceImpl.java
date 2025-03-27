@@ -38,10 +38,6 @@ public class NotificationServiceImpl implements NotificationService {
                 .type(dto.getNotificationType())
                 .build();
 
-        if (notification.getReceiverId().equals(notification.getSenderId())) {
-            throw new IllegalArgumentException("Notification receiver and sender cannot be same");
-        }
-
         String notificationKey = dto.getReceiverId() + ":" + notification.getId();
         log.info("Notification Key: {}가 저장됨", notificationKey);
 
