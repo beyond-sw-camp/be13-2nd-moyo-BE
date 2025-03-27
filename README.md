@@ -6,9 +6,8 @@
 # 1. 팀원 소개
 | 최건 | 임현조 | 홍도현 | 송현준 | 김민석 | 홍재민 |
 |:------:|:------:|:------:|:------:|:------:|:------:|
-| <img src="https://github.com/user-attachments/assets/c1c2b1e3-656d-4712-98ab-a15e91efa2da" alt="이동규" width="150"> | <img src="https://github.com/user-attachments/assets/78ec4937-81bb-4637-975d-631eb3c4601e" alt="신유승" width="150"> | <img src="https://github.com/user-attachments/assets/78ce1062-80a0-4edb-bf6b-5efac9dd992e" alt="김나연" width="150"> | <img src="https://github.com/user-attachments/assets/beea8c64-19de-4d91-955f-ed24b813a638" alt="이승준" width="150"> | <img src="https://github.com/user-attachments/assets/78ce1062-80a0-4edb-bf6b-5efac9dd992e" alt="김나연" width="150"> | <img src="https://github.com/user-attachments/assets/beea8c64-19de-4d91-955f-ed24b813a638" alt="이승준" width="150"> |
+| <img src="https://github.com/user-attachments/assets/c1c2b1e3-656d-4712-98ab-a15e91efa2da" alt="최건" width="150"> | <img src="https://github.com/user-attachments/assets/78ec4937-81bb-4637-975d-631eb3c4601e" alt="임현조" width="150"> | <img src="https://github.com/user-attachments/assets/78ce1062-80a0-4edb-bf6b-5efac9dd992e" alt="홍도현" width="150"> | <img src="https://github.com/user-attachments/assets/beea8c64-19de-4d91-955f-ed24b813a638" alt="송현준" width="150"> | <img src="https://github.com/user-attachments/assets/78ce1062-80a0-4edb-bf6b-5efac9dd992e" alt="김민석" width="150"> | <img src="https://github.com/user-attachments/assets/bc320b6e-4293-4456-bc7c-f3f008e21926" alt="홍재민" width="150"> |
 | [GitHub](https://github.com/gjaku1031) | [GitHub](https://github.com/limhyunjo) | [GitHub](https://github.com/dh0522) | [GitHub](https://github.com/Hyeonjunnn) | [GitHub](https://github.com/mlnstone) | [GitHub](https://github.com/MSP-31) |
-
 
 ---
 # 2. 기술 스택
