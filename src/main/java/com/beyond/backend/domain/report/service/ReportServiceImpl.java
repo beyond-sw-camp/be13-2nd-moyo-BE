@@ -114,14 +114,14 @@ public class ReportServiceImpl implements ReportService {
 
         reportRepository.save(report);
 
-        User receiver = report.getReported();
+        User receiver = report.getReporter();
 
         notificationService.sendNotification(
                 new RequestNotificationDto(
                         "SYSTEM",
                         receiver.getUsername(),
                         NotificationType.REPORT,
-                        receiver.getUsername() + "님의 신고가 처리되었습니다")
+                        "[SYSTEM] 신고가 처리되었습니다")
         );
         return reportFrom(report);
     }

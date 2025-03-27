@@ -68,7 +68,7 @@ public class UserController {
         return ResponseEntity.ok(allUserResponseDto);
     }
 
-    @GetMapping("/matchEmail")
+    @PostMapping("/matchEmail")
     public ResponseEntity<Void> matchEmail(@RequestBody MatchEmailRequestDto dto) {
         authService.validateEmail(dto.getUsername(), dto.getEmail());
         return ResponseEntity.ok().build();
