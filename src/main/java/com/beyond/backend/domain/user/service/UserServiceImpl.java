@@ -23,7 +23,7 @@ public class UserServiceImpl implements UserService {
     public UserUpdateResponseDto updateUser(Long userNo, UserUpdateRequestDto dto) {
         User user = userRepository.findById(userNo).orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userNo));
 
-        user.updateUser(dto.getUsername(), dto.getEmail());
+        user.updateUser(dto.getEmail(), dto.getPhoneNum());
 
         userRepository.save(user);
         return new UserUpdateResponseDto(user);

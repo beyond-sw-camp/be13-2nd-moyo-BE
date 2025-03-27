@@ -61,9 +61,9 @@ public class User extends BaseEntity {
         this.userStatus = UserStatus.ACTIVE;
     }
 
-    public void updateUser(String username, String email) {
-        this.username = username;
+    public void updateUser(String email, String phoneNum) {
         this.email = email;
+        this.phoneNum = phoneNum;
     }
 
     public void updatePassword(String password) {
