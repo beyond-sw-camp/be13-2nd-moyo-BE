@@ -75,4 +75,6 @@ public interface TeamService {
     void teamLeaderSwap(Long currentUserNo, Long teamNo, Long nextUserNo) throws Exception;
 
     String findLeaderUsernameByTeamNo(Long teamNo);
+
+    TeamMemberListDto changeTeamRole(Long teamNo, Long userNo, Long no, String newRole);
 }

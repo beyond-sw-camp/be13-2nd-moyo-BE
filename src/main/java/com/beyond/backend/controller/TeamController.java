@@ -8,6 +8,7 @@ import com.beyond.backend.domain.team.dto.TeamResponseDto;
 import com.beyond.backend.domain.project.entity.ProjectStatus;
 import com.beyond.backend.domain.team.entity.TeamJoinStatus;
 import com.beyond.backend.domain.team.service.TeamService;
+import com.beyond.backend.domain.teamUser.entity.TeamUser;
 import com.beyond.backend.domain.user.dto.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -21,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.Mapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -307,5 +309,21 @@ public class TeamController {
     public ResponseEntity<String> getLeaderUsername(@PathVariable Long teamNo) {
         String username = teamService.findLeaderUsernameByTeamNo(teamNo);
         return ResponseEntity.status(HttpStatus.OK).body(username);
+    }
+
+    /**
+     * 팀원 역할 변경
+     * @param teamNo 팀번호
+     * @return TeamMemberListDto
+     * @throws Exception 팀이 존재하지 않습니다.
+     */
+    @PutMapping("/{teamNo}/setting/members/role")
+    public ResponseEntity<TeamMemberListDto> changeTeamRole(
+            @PathVariable Long teamNo,
+            @RequestParam(required = false) Long userNo,
+            @RequestParam String newRole,
+            @AuthenticationPrincipal CustomUserDetails userDetails) throws Exception {
+        TeamMemberListDto teamMembers = teamService.changeTeamRole(teamNo, userNo, userDetails.getNo(),newRole);
+        return ResponseEntity.status(HttpStatus.OK).body(teamMembers);
     }
 }
