@@ -53,7 +53,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/updatePasswordForUnlock/{username}/}")
+    @PostMapping("/updatePasswordForUnlock/{username}")
     public ResponseEntity<PasswordUpdateResponseDto> updatePassword
             (@Valid @RequestBody PasswordUpdateRequestDto dto,
              @PathVariable String username) {
@@ -76,7 +76,7 @@ public class UserController {
         return ResponseEntity.ok(allUserResponseDto);
     }
 
-    @GetMapping("/matchEmail")
+    @PostMapping("/matchEmail")
     public ResponseEntity<Void> matchEmail(@RequestBody MatchEmailRequestDto dto) {
         authService.validateEmail(dto.getUsername(), dto.getEmail());
         return ResponseEntity.ok().build();

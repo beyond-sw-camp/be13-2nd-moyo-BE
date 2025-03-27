@@ -143,7 +143,7 @@ public class ScheduleServiceImpl implements ScheduleService {
                             "System Alert",
                             receiver.getUsername(),
                             NotificationType.SYSTEM,
-                            schedule.getTitle() + "일정 D-1"));
+                            schedule.getTitle() + " 일정 D-1"));
             schedule.updateAlertSent(true);
         }
     }
