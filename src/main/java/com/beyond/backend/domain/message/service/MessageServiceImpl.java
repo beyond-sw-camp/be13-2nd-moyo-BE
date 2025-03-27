@@ -89,7 +89,7 @@ public class MessageServiceImpl implements MessageService {
                         sender.getUsername(),
                         receiver.getUsername(),
                         NotificationType.MESSAGE,
-                        sender.getUsername() + "님의 쪽지가 도착됨" + message.getContent())
+                        sender.getUsername() + "님의 쪽지가 도착했습니다.")
         );
 
         messageRepository.save(message);

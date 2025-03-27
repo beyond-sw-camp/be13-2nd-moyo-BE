@@ -122,4 +122,13 @@ public class AuthServiceImpl implements AuthService {
             throw new UserException(ExceptionMessage.USER_INPUT_MISMATCH);
         }
     }
+
+    @Override
+    public void validateEmail(String username, String email) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND));
+        if (!user.getEmail().equals(email)) {
+            throw new UserException(ExceptionMessage.USER_INPUT_MISMATCH);
+        }
+    }
 }

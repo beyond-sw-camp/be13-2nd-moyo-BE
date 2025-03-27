@@ -15,7 +15,7 @@ public class SchedulerConfiguration {
 
     private final ScheduleService scheduleService;
 
-    @Scheduled(fixedRate = 3600000)
+    @Scheduled(fixedRate = 10000)
     public void notifyOneDayBeforeSchedule() {
         LocalDateTime currentTime = LocalDateTime.now(); //로그찍기용
         scheduleService.sendAlert();
