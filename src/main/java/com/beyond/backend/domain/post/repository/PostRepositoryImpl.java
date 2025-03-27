@@ -50,17 +50,21 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 
 
 	// 게시글 정렬 조건
-	private OrderSpecifier<?> getOrderSpecifier(PostSortOption postSortOption) {
+	private OrderSpecifier<?>[] getOrderSpecifier(PostSortOption postSortOption) {
 		if (postSortOption == null || postSortOption == PostSortOption.LATEST) {
-			return post.createdAt.desc(); // 기본 최신순
+			return new OrderSpecifier[]{
+					post.createdAt.desc(),
+					post.no.desc()
+					// 최신순으로 정렬 시 시간이 같을 경우 인덱스 정렬 조건도 보조로 추가
+			};
 		}
-        return switch (postSortOption) {
-            case BOOKMARK -> post.bookmarkCount.desc();
-            case VIEW -> post.viewCount.desc();
-            case COMMENT -> post.commentCount.desc();
-            default -> post.createdAt.desc(); // 기본값
-        };
 
+		return switch (postSortOption) {
+			case BOOKMARK -> new OrderSpecifier[]{ post.bookmarkCount.desc(), post.no.desc() };
+			case VIEW     -> new OrderSpecifier[]{ post.viewCount.desc(), post.no.desc() };
+			case COMMENT  -> new OrderSpecifier[]{ post.commentCount.desc(), post.no.desc() };
+			default       -> new OrderSpecifier[]{ post.createdAt.desc(), post.no.desc() };
+		};
 	}
 
 	// 검색 조건
