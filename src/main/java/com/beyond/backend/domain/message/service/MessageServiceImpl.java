@@ -76,21 +76,24 @@ public class MessageServiceImpl implements MessageService {
                 .filter(user -> user.getUserStatus() != UserStatus.INACTIVE)
                 .orElseThrow(() -> new IllegalArgumentException("받는 회원이 존재하지 않거나 비활성화된 회원입니다."));
 
-
         Message message = Message.builder()
                 .sender(sender)
                 .receiver(receiver)
                 .content(messageDto.getContent())
                 .build();
 
-        // 트랜잭션 종료 후가 아니라, 바로 알림 전송
-        notificationService.sendNotification(
-                new RequestNotificationDto(
-                        sender.getUsername(),
-                        receiver.getUsername(),
-                        NotificationType.MESSAGE,
-                        sender.getUsername() + "님의 쪽지가 도착했습니다.")
-        );
+        if (!sender.equals(receiver)) {
+
+
+            // 트랜잭션 종료 후가 아니라, 바로 알림 전송
+            notificationService.sendNotification(
+                    new RequestNotificationDto(
+                            sender.getUsername(),
+                            receiver.getUsername(),
+                            NotificationType.MESSAGE,
+                            sender.getUsername() + "님의 쪽지가 도착했습니다.")
+            );
+        }
 
         messageRepository.save(message);
         return returnMessageDto(message);
