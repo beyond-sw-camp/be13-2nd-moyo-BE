@@ -51,9 +51,6 @@ public interface PostService {
     // 내가 쓴 게시글 전체 조회
     Page<UserPostResponseDto> getUserPosts(BoardType boardType, Pageable pageable, Long userNo);
 
-    // 공지 게시판인 경우 관리자인지 검증
-    void validatePostAuthority(BoardType boardType);
-
     // 조회수
     void viewPost(CustomUserDetails details, Long postNo, HttpServletRequest request);
 

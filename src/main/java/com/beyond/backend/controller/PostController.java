@@ -10,6 +10,7 @@ import com.beyond.backend.domain.post.entity.PostStatus;
 import com.beyond.backend.domain.post.service.BookMarkService;
 import com.beyond.backend.domain.post.service.PostService;
 import com.beyond.backend.domain.user.dto.CustomUserDetails;
+import com.beyond.backend.domain.user.service.AdminService;
 import com.beyond.backend.domain.user.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -55,6 +56,7 @@ public class PostController {
 
     private final PostService postService;
     private final BookMarkService bookMarkService;
+    private final AdminService adminService;
     
 
     // 게시글 단건 조회 (활성화된 게시글만 조회 가능/ 관리자와 작성자만 보임)
@@ -101,7 +103,7 @@ public class PostController {
         //게시글 작성할 보드 타입을 지정해야 함
 
         // 게시글이 notice인 경우 관리자인지 검증
-        postService.validatePostAuthority(postDto.getBoardType()); // -> 이것도 @PreAuthorize로 만들지 생각해보기
+        adminService.validateAdmin( userDetails.getUser().getUsername());
 
         PostResponseDto postResponseDto = postService.createPost(postDto.getBoardType(), postDto, userDetails.getUser().getNo());
         return ResponseEntity.ok(postResponseDto);
@@ -113,11 +115,12 @@ public class PostController {
     @PreAuthorize("hasPermission(#postNo, 'POST')")
     public ResponseEntity<PostResponseDto> updatePost(
             // 게시글 생성 시에는 무조건 활성 상태로 만들어지고 게시글 수정 시 활성/비활성 가능
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long postNo,
             @Valid @RequestBody PostDto postDto){
 
         // 게시글이 notice인 경우 관리자인지 검증
-        postService.validatePostAuthority(postDto.getBoardType());// -> 이것도 @PreAuthorize로 만들지 생각해보기
+        adminService.validateAdmin( userDetails.getUser().getUsername());
         PostResponseDto updatePost = postService.updatePost(postNo, postDto);
         return ResponseEntity.ok(updatePost);
     }
