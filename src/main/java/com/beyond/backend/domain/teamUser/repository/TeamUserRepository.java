@@ -141,4 +141,6 @@ public interface TeamUserRepository extends JpaRepository<TeamUser, Long> {
     Optional<String> findLeaderUsernameByTeamNo(@Param("teamNo") Long teamNo);
 
 
+    @Query("SELECT tu FROM TeamUser tu WHERE tu.user.no = :userNo AND tu.team.no = :teamNo")
+    Optional<TeamUser> findByUserNoAndTeamNo(@Param("userNo") Long userNo, @Param("teamNo") Long teamNo);
 }

@@ -34,7 +34,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-
+import java.util.Objects;
 
 
 /**
@@ -452,5 +452,27 @@ public class TeamServiceImpl implements TeamService {
     public String findLeaderUsernameByTeamNo(Long teamNo) {
         return teamUserRepository.findLeaderUsernameByTeamNo(teamNo)
                 .orElseThrow(() -> new TeamException(ExceptionMessage.TEAM_NOT_FOUND, "팀 리더를 찾을 수 없습니다."));
+    }
+    
+    // 역할명 변경
+    @Override
+    public TeamMemberListDto changeTeamRole(Long teamNo, Long userNo, Long currentUserNo, String newRole) {
+
+        TeamUser teamUser = teamUserRepository.findByUserNoAndTeamNo(userNo, teamNo)
+                .orElseThrow(() -> new BaseException(ExceptionMessage.TEAM_NOT_FOUND));
+
+        // 현재 사용자가 팀장인지 확인 (null 안전 처리)
+        Boolean isLeader = teamUserRepository.isLeader(teamNo, currentUserNo);
+
+        // 사용자가 리더가 아니고, 현재 사용자와 대상 사용자가 다른 경우 접근 거부
+        if (Boolean.FALSE.equals(isLeader) && !Objects.equals(currentUserNo, userNo)) {
+            throw new UserException(ExceptionMessage.USER_ACCESS_DENIED);
+        }
+
+        teamUser.setRole(newRole);
+
+        teamUserRepository.save(teamUser);
+
+        return null;
     }
 }

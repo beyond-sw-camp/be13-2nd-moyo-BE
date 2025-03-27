@@ -51,4 +51,6 @@ public class TeamUser {
     public void setLeader(boolean isLeader) {
         this.isLeader = isLeader;
     }
+
+    public void setRole(String role) {this.role = role;}
 }
