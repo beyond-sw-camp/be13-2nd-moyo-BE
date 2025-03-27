@@ -204,9 +204,6 @@ public class PostServiceImpl implements PostService {
     @Override
     public Page<UserPostResponseDto> getUserPosts(BoardType boardType, Pageable pageable, Long userNo) {
 
-        //로그인한 유저 정보 가져옴
-        //CustomUserDetails userDetails = authService.getCurrentUser();
-
         // 유저가 존재하는지 확인
         userRepository.findById(userNo)
                 .orElseThrow(() -> new UserException(ExceptionMessage.USER_NOT_FOUND, "ID: " + userNo));
@@ -223,13 +220,6 @@ public class PostServiceImpl implements PostService {
     }
 
 
-    @Override
-    @Transactional(readOnly = true)
-    public void validatePostAuthority(BoardType boardType) {
-        if (boardType == BoardType.NOTICE) {
-            throw new PostException(ExceptionMessage.POST_ACCESS_DENIED);
-        }
-    }
 
 
     /**
