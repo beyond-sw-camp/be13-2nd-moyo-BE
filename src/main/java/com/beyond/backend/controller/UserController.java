@@ -35,6 +35,14 @@ public class UserController {
         return ResponseEntity.ok(unlockResponseDto);
     }
 
+    @PostMapping("/update")
+    public ResponseEntity<UserUpdateResponseDto> update(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody UserUpdateRequestDto dto){
+        UserUpdateResponseDto userUpdateResponseDto = userService.updateUser(userDetails.getNo(), dto);
+        return ResponseEntity.ok(userUpdateResponseDto);
+    }
+
     @PostMapping("/updatePassword")
     public ResponseEntity<PasswordUpdateResponseDto> updatePassword(
             @Valid @RequestBody PasswordUpdateRequestDto dto,
