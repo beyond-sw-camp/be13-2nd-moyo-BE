@@ -2,8 +2,6 @@
 ![moyobom - 복사본](https://github.com/user-attachments/assets/acca31f3-3328-4ec4-bcb6-2818fdb3c31f)
 
 # 모여봄
-
-##배포 주소
 https://project1.netforum.co.kr
 
 # 1. 팀원 소개
